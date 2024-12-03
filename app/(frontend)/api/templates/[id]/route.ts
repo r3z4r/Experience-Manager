@@ -1,21 +1,21 @@
 import { NextResponse } from "next/server";
 import {
-  fetchPageById,
-  updatePage,
-  deletePage,
-} from "@/app/(frontend)/_lib/api";
+  fetchTemplateById,
+  updateTemplate,
+  deleteTemplate,
+} from "@/app/(frontend)/_actions/templates";
 
 export async function GET(
   request: Request,
   { params }: { params: { id: string } }
 ) {
   try {
-    const page = await fetchPageById(params.id);
-    return NextResponse.json(page);
+    const template = await fetchTemplateById(params.id);
+    return NextResponse.json(template);
   } catch (error) {
     console.error(error);
     return NextResponse.json(
-      { error: "Failed to fetch page" },
+      { error: "Failed to fetch template" },
       { status: 500 }
     );
   }
@@ -27,14 +27,14 @@ export async function PUT(
 ) {
   try {
     const body = await request.json();
-    const page = await updatePage(params.id, {
+    const template = await updateTemplate(params.id, {
       title: body.name,
       description: body.description,
       htmlContent: body.html,
       cssContent: body.css,
       gjsData: body.gjsData,
     });
-    return NextResponse.json(page);
+    return NextResponse.json(template);
   } catch (error) {
     console.error(error);
     return NextResponse.json(
@@ -49,7 +49,7 @@ export async function DELETE(
   { params }: { params: { id: string } }
 ) {
   try {
-    await deletePage(params.id);
+    await deleteTemplate(params.id);
     return NextResponse.json({ success: true });
   } catch (error) {
     console.error(error);

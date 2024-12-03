@@ -5,9 +5,15 @@ import grapesjs, { Editor as GrapesEditor } from "grapesjs";
 import "grapesjs/dist/css/grapes.min.css";
 import webpage from "grapesjs-preset-webpage";
 import plugin from "grapesjs-blocks-basic";
-import { defaultTemplate } from "@/app/(frontend)/api/templates/default/route";
+import { defaultTemplate } from "@/app/(frontend)/_components/Xmanager/default-template";
 import { SaveIcon } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { 
+  fetchTemplateById, 
+  updateTemplate, 
+  createTemplate 
+} from '@/app/(frontend)/_actions/templates'
+import { toast } from "sonner";
 
 interface EditorProps {
   templateId?: string;
@@ -36,34 +42,82 @@ const Editor = ({ templateId, mode = "edit", onSave }: EditorProps) => {
       height: "93vh",
       width: "100%",
       storageManager: {
-        type: "remote",
+        type: 'remote',
         autosave: true,
         autoload: true,
         stepsBeforeSave: 1,
         options: {
           remote: {
+            onLoad: async () => {
+              if (!templateId) {
+                return {
+                  components: defaultTemplate.html,
+                  style: defaultTemplate.css,
+                };
+              }
+
+              try {
+                const template = await fetchTemplateById(templateId);
+                if (!template) {
+                  toast.error('Template not found');
+                  return {
+                    components: defaultTemplate.html,
+                    style: defaultTemplate.css,
+                  };
+                }
+
+                setTemplateName(template.title || '');
+                setTemplateDescription(template.description || '');
+
+                // If template exists, use its data or fall back to defaults
+                return template.gjsData || {
+                  components: template.htmlContent || defaultTemplate.html,
+                  style: template.cssContent || defaultTemplate.css,
+                };
+              } catch (error) {
+                console.error('Error loading template:', error);
+                toast.error('Failed to load template');
+                return {
+                  components: defaultTemplate.html,
+                  style: defaultTemplate.css,
+                };
+              }
+            },
+            onStore: async (data: unknown) => {
+              try {
+                const templateData = {
+                  title: templateName,
+                  description: templateDescription,
+                  htmlContent: editor.getHtml(),
+                  cssContent: editor.getCss(),
+                  gjsData: editor.getProjectData(),
+                };
+
+                if (templateId) {
+                  await updateTemplate(templateId, templateData);
+                } else {
+                  const newTemplate = await createTemplate({
+                    ...templateData,
+                    htmlContent: defaultTemplate.html,
+                    cssContent: defaultTemplate.css,
+                  });
+                  if (newTemplate?.id) {
+                    router.replace(`/editor/${newTemplate.id}`);
+                  }
+                }
+
+                setHasUnsavedChanges(false);
+                toast.success(templateId ? 'Template updated' : 'Template created');
+                return true;
+              } catch (error) {
+                console.error('Error saving template:', error);
+                toast.error('Failed to save template');
+                return false;
+              }
+            },
             contentTypeJson: true,
             headers: {
-              "Content-Type": "application/json",
-            },
-            urlStore: templateId
-              ? `/api/templates/${templateId}`
-              : "/api/templates",
-            urlLoad: templateId ? `/api/templates/${templateId}` : undefined,
-            onStore: (data, editor) => {
-              return {
-                name: templateName,
-                description: templateDescription,
-                html: editor.getHtml(),
-                css: editor.getCss(),
-                gjsData: editor.getProjectData(),
-              };
-            },
-            onLoad: (result) => {
-              if (!result) {
-                return defaultTemplate;
-              }
-              return result.gjsData;
+              'Content-Type': 'application/json',
             },
           },
         },
@@ -114,31 +168,8 @@ const Editor = ({ templateId, mode = "edit", onSave }: EditorProps) => {
 
     setEditor(editor);
 
-    // Modified template loading logic
-    if (templateId) {
-      fetch(`/api/templates/${templateId}`)
-        .then((res) => res.json())
-        .then((template) => {
-          if (template) {
-            editor.loadProjectData(template.gjsData);
-            // Set the name and description for existing templates
-            setTemplateName(template.name || "");
-            setTemplateDescription(template.description || "");
-          }
-        })
-        .catch((error) => {
-          console.error("Error loading template:", error);
-          editor.setComponents(defaultTemplate.html);
-          editor.setStyle(defaultTemplate.css);
-        });
-    } else {
-      // For new templates, load default template
-      editor.setComponents(defaultTemplate.html);
-      editor.setStyle(defaultTemplate.css);
-    }
-
     return () => editor.destroy();
-  }, [templateId]);
+  }, [templateId, templateName, templateDescription, router]);
 
   // Add logic to handle view mode
   useEffect(() => {
@@ -184,58 +215,47 @@ const Editor = ({ templateId, mode = "edit", onSave }: EditorProps) => {
   const handleSaveTemplate = async () => {
     if (!editor) return;
     if (!templateName.trim()) {
-      alert("Please enter a template name");
+      toast.error("Please enter a template name");
       return;
     }
 
     setSaveStatus("saving");
 
     try {
-      const html = editor.getHtml();
-      const css = editor.getCss();
-      const gjsData = editor.getProjectData();
+      const pageData = {
+        title: templateName,
+        description: templateDescription,
+        htmlContent: editor.getHtml(),
+        cssContent: editor.getCss(),
+        gjsData: editor.getProjectData(),
+      };
 
-      const response = await fetch("/api/templates", {
-        method: templateId ? "PUT" : "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          ...(templateId && { id: templateId }), // Only include id if it exists
-          name: templateName,
-          description: templateDescription,
-          html,
-          css,
-          gjsData,
-        }),
-      });
+      const savedTemplate = templateId 
+        ? await updateTemplate(templateId, pageData)
+        : await createTemplate(pageData);
 
-      if (!response.ok) throw new Error("Failed to save template");
+      if (savedTemplate?.id) {
+        setHasUnsavedChanges(false);
+        setSaveStatus("saved");
+        setShowSaveDialog(false);
+        onSave?.();
 
-      const savedTemplate = await response.json();
+        if (!templateId) {
+          router.push(`/editor/${savedTemplate.id}`);
+        }
 
-      // Update URL with new template ID for new templates
-      if (!templateId) {
-        router.push(`/editor/${savedTemplate.id}`);
+        toast.success(
+          templateId
+            ? "Template updated successfully"
+            : "New template created successfully"
+        );
+
+        setTimeout(() => setSaveStatus("idle"), 2000);
       }
-
-      setHasUnsavedChanges(false); // Reset after successful save
-      setSaveStatus("saved");
-      setShowSaveDialog(false);
-      onSave?.(); // Refresh template list
-
-      // Show success message
-      alert(
-        templateId
-          ? "Template updated successfully"
-          : "New template created successfully"
-      );
-
-      setTimeout(() => setSaveStatus("idle"), 2000);
     } catch (error) {
       console.error("Error saving template:", error);
       setSaveStatus("error");
-      alert("Failed to save template. Please try again.");
+      toast.error("Failed to save template");
     }
   };
 

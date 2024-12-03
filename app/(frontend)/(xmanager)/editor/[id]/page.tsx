@@ -1,16 +1,19 @@
-import Editor from "@/app/(frontend)/Xmanager/Editor";
+import Editor from '@/app/(frontend)/_components/Xmanager/Editor'
 
-interface LandingEditorProps {
+interface EditorPageProps {
   params: {
-    id?: string;
-  };
+    id: string
+  }
   searchParams: {
-    mode?: "edit" | "view";
-  };
+    mode?: 'edit' | 'view'
+  }
 }
 
-const LandingEditor = ({ params, searchParams }: LandingEditorProps) => {
-  return <Editor templateId={params.id} mode={searchParams.mode || "edit"} />;
-};
+const EditorPage = async ({ params, searchParams }: EditorPageProps) => {
+  const templateId = params.id || 'defaultId';
+  const mode = searchParams?.mode || 'edit';
 
-export default LandingEditor;
+  return <Editor templateId={templateId} mode={mode} />
+}
+
+export default EditorPage
