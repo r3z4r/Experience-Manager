@@ -12,7 +12,7 @@ export const Pages: CollectionConfig = {
     {
       name: 'title',
       type: 'text',
-      required: true,
+      // required: true,
     },
     {
       name: 'description',

@@ -1,19 +1,13 @@
 import Editor from '@/app/(frontend)/_components/Xmanager/Editor'
 
-interface EditorPageProps {
-  params: {
-    id: string
-  }
-  searchParams: {
-    mode?: 'edit' | 'view'
-  }
-}
-
-const EditorPage = async ({ params, searchParams }: EditorPageProps) => {
-  const templateId = params.id || 'defaultId';
-  const mode = searchParams?.mode || 'edit';
-
-  return <Editor templateId={templateId} mode={mode} />
+const EditorPage = async ({
+  params,
+  searchParams,
+}: {
+  params: { id: string }
+  searchParams: { [key: string]: string | string[] | undefined }
+}) => {
+  return <Editor templateId={params.id} mode={(searchParams.mode as 'edit' | 'view') ?? 'edit'} />
 }
 
 export default EditorPage

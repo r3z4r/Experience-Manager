@@ -101,7 +101,7 @@ export interface Media {
  */
 export interface Page {
   id: string;
-  title: string;
+  title?: string | null;
   description?: string | null;
   htmlContent?: string | null;
   cssContent?: string | null;

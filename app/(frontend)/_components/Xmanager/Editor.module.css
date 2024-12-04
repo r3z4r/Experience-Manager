@@ -1,0 +1,119 @@
+.editorWrapper {
+  height: 100vh;
+  background: white;
+  position: relative;
+}
+
+.panelTop {
+  background: white;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #e5e7eb;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.panelBasicActions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.customSaveButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: white;
+  background-color: #3b82f6;
+  border-radius: 0.375rem;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.customSaveButton:hover {
+  background-color: #2563eb;
+}
+
+.customGjsEditor {
+  height: calc(100vh - 50px);
+}
+
+/* Modal Styles */
+.modalContent {
+  background: white;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.modalHeader {
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.modalClose {
+  padding: 0.5rem;
+  border-radius: 0.375rem;
+}
+
+.modalClose:hover {
+  background-color: #f3f4f6;
+}
+
+/* Input Styles */
+.inputLabel {
+  color: #374151;
+}
+
+.input {
+  width: 100%;
+  transition: border-color 0.2s;
+}
+
+.input:focus {
+  border-color: #3b82f6;
+}
+
+/* Status Styles */
+.statusError {
+  color: #ef4444;
+}
+
+.statusSuccess {
+  color: #10b981;
+}
+
+.statusSaving {
+  color: #3b82f6;
+}
+
+.statusIdle {
+  color: #6b7280;
+}
+
+/* Save Button */
+.saveButton {
+  width: 100%;
+  background-color: #3b82f6;
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  font-weight: 500;
+  transition: background-color 0.2s;
+}
+
+.saveButton:hover:not(:disabled) {
+  background-color: #2563eb;
+}
+
+.saveButtonDisabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.backButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
