@@ -3,6 +3,7 @@
 import { getPayload } from 'payload'
 import configPromise from '@payload-config'
 import type { Where } from 'payload'
+import { ProjectData } from 'grapesjs'
 
 export interface TemplateData {
   id?: string
@@ -10,7 +11,7 @@ export interface TemplateData {
   description?: string | null
   htmlContent?: string | null
   cssContent?: string
-  gjsData?: Record<string, unknown>
+  gjsData?: ProjectData
 }
 
 export interface PaginatedTemplatesResponse {
@@ -32,7 +33,9 @@ export interface FetchTemplatesOptions {
   filter?: Where
 }
 
-export async function fetchTemplates(options: FetchTemplatesOptions = {}): Promise<PaginatedTemplatesResponse> {
+export async function fetchTemplates(
+  options: FetchTemplatesOptions = {},
+): Promise<PaginatedTemplatesResponse> {
   const payload = await getPayload({
     config: configPromise,
   })
@@ -92,4 +95,4 @@ export async function deleteTemplate(id: string) {
     collection: 'pages',
     id,
   })
-} 
+}

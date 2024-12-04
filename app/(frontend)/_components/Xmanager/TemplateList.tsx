@@ -2,18 +2,26 @@
 
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { PlusIcon, ChevronLeftIcon, ChevronRightIcon } from 'lucide-react'
+import {
+  PlusIcon,
+  ChevronLeftIcon,
+  ChevronRightIcon,
+  EditIcon,
+  EyeIcon,
+  TrashIcon,
+} from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import {
   TemplateData,
   createTemplate,
   fetchTemplates,
+  deleteTemplate,
   PaginatedTemplatesResponse,
 } from '@/app/(frontend)/_actions/templates'
 import Image from 'next/image'
 
-const ITEMS_PER_PAGE = 6
+const ITEMS_PER_PAGE = 7
 
 export function TemplateList() {
   const router = useRouter()
@@ -56,13 +64,7 @@ export function TemplateList() {
         description: 'Start with a blank template',
         htmlContent: '',
         cssContent: '',
-        gjsData: {
-          'gjs-html': '',
-          'gjs-css': '',
-          'gjs-components': [],
-          'gjs-styles': [],
-          'gjs-assets': [],
-        },
+        gjsData: {},
       })
 
       if (response?.id) {
@@ -75,6 +77,18 @@ export function TemplateList() {
     }
   }
 
+  const handleDeleteTemplate = async (templateId: string | undefined) => {
+    if (!templateId) return
+    try {
+      await deleteTemplate(templateId)
+      toast.success('Template deleted successfully')
+      await fetchTemplatesData(pagination.page)
+    } catch (error) {
+      console.error('Error deleting template:', error)
+      toast.error('Failed to delete template')
+    }
+  }
+
   useEffect(() => {
     fetchTemplatesData(1)
   }, [])
@@ -83,8 +97,8 @@ export function TemplateList() {
     <div>
       <header className="flex justify-between items-center px-6 py-4 bg-white border-b">
         <div className="flex items-center">
-          <Image src="/logo.webp" alt="Logo" width={80} height={100} className="object-contain" />
-          <span className="ml-3 text-2xl font-bold text-gray-800 font-helvetica tracking-tight">
+          <Image src="/logo.webp" alt="Logo" width={100} height={100} className="object-contain" />
+          <span className="ml-3 font-bold text-2xl bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent drop-shadow-sm hover:from-blue-500 hover:to-purple-500 transition-all duration-300 font-sans">
             Template List
           </span>
         </div>
@@ -105,24 +119,37 @@ export function TemplateList() {
               {templates.map((template) => (
                 <div
                   key={template.id}
-                  className="border rounded-lg p-4 shadow hover:shadow-md transition-shadow"
+                  className="border rounded-lg p-4 shadow hover:shadow-md transition-shadow relative"
                 >
+                  <button
+                    onClick={() => {
+                      if (window.confirm('Are you sure you want to delete this template?')) {
+                        handleDeleteTemplate(template.id)
+                      }
+                    }}
+                    className="absolute top-2 right-2 p-2 text-gray-400 hover:text-red-500 transition-colors rounded-full hover:bg-gray-100"
+                    aria-label="Delete template"
+                  >
+                    <TrashIcon className="w-4 h-4" />
+                  </button>
                   <div className="flex flex-col gap-4">
                     <div>
-                      <h3 className="text-lg font-semibold">{template.title}</h3>
+                      <h3 className="text-lg font-semibold pr-8">{template.title}</h3>
                       <p className="text-gray-600 text-sm">{template.description}</p>
                     </div>
                     <div className="flex justify-end gap-2 mt-4">
                       <Link
                         href={`/editor/${template.id}`}
-                        className="px-4 py-2 text-sm bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+                        className="px-4 py-2 text-sm bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors flex items-center"
                       >
+                        <EditIcon className="w-4 h-4 mr-1" />
                         Edit
                       </Link>
                       <Link
                         href={`/preview/${template.id}`}
-                        className="px-4 py-2 text-sm bg-gray-500 text-white rounded hover:bg-gray-600 transition-colors"
+                        className="px-4 py-2 text-sm bg-gray-500 text-white rounded hover:bg-gray-600 transition-colors flex items-center"
                       >
+                        <EyeIcon className="w-4 h-4 mr-1" />
                         Preview
                       </Link>
                     </div>

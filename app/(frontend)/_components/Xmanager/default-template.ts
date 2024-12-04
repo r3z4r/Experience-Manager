@@ -1,9 +1,10 @@
 type BlockTemplate = {
   label: string
-  content: string
   category: string
+  content: string
   css?: string
   attributes?: Record<string, string>
+  media?: string
 }
 
 export const templateBlocks: BlockTemplate[] = [
@@ -11,295 +12,344 @@ export const templateBlocks: BlockTemplate[] = [
     label: 'Header',
     category: 'Layout',
     content: `
-      <div data-gjs-type="flex-container" class="medical-header">
-        <div data-gjs-type="flex-container" class="container">
-          <div class="logo-area">
-            <img src="/logo.webp" alt="Star Medica Logo" class="logo"/>
+      <header class="moments-header">
+        <div class="header-container">
+          <div class="logo-wrapper">
+            <img src="/logo.webp" alt="Moments Healthcare" class="logo"/>
           </div>
-          <nav data-gjs-type="flex-container" class="main-nav">
-            <a href="#" class="nav-link">Home</a>
-            <a href="#" class="nav-link">FAQ</a>
-            <a href="#" class="nav-link">Contact</a>
+          <nav class="nav-menu">
+            <a href="/" class="nav-link">Home</a>
+            <a href="/faq" class="nav-link">FAQ</a>
+            <a href="/contact" class="nav-link">Contact</a>
           </nav>
-          <div data-gjs-type="flex-container" class="auth-area">
-            <a href="#" class="login-btn">Login/Register</a>
+          <div class="header-actions">
+            <button class="login-button">Login/Register</button>
             <div class="language-selector">
-              <span class="flag">🇺🇸</span>
-              <span>English (US)</span>
+              <span>🇬🇧</span>
+              <span>English (UK)</span>
             </div>
           </div>
         </div>
-      </div>
+      </header>
     `,
     css: `
-      .medical-header {
-        background: white;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      .moments-header {
         position: fixed;
-        width: 100%;
         top: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         z-index: 1000;
       }
-      .medical-header .container {
-        justify-content: space-between;
-        align-items: center;
-        padding: 1rem 2rem;
+
+      .header-container {
         max-width: 1200px;
         margin: 0 auto;
+        padding: 1rem 2rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
       }
-      .logo { height: 40px; }
-      .main-nav {
+
+      .logo-wrapper {
+        flex: 0 0 auto;
+      }
+
+      .logo {
+        height: 40px;
+        width: auto;
+      }
+
+      .nav-menu {
+        display: flex;
         gap: 2rem;
+        margin: 0 2rem;
       }
+
       .nav-link {
-        color: #2c3e50;
+        color: #333;
         text-decoration: none;
         font-weight: 500;
+        font-size: 1rem;
+        transition: color 0.2s;
       }
-      .auth-area {
+
+      .nav-link:hover {
+        color: #0066cc;
+      }
+
+      .header-actions {
+        display: flex;
         align-items: center;
-        gap: 1rem;
+        gap: 1.5rem;
       }
-      .login-btn {
-        padding: 0.5rem 1rem;
-        border-radius: 4px;
-        background: #00bcd4;
+
+      .login-button {
+        background: #0066cc;
         color: white;
-        text-decoration: none;
+        border: none;
+        padding: 0.5rem 1.5rem;
+        border-radius: 4px;
+        font-weight: 500;
+        cursor: pointer;
       }
     `,
   },
   {
-    label: 'Hero Carousel',
+    label: 'Hero Banner',
     category: 'Sections',
     content: `
-      <section class="hero-carousel">
-        <div class="carousel-container">
-          <div class="carousel-slide active">
-            <div class="slide-content">
-              <div class="text-content">
-                <h1>Star Medica</h1>
-                <h2>The Digital Transformation</h2>
-                <p>Leading the way in modern healthcare solutions</p>
-              </div>
-              <div class="image-content">
-                <img src="/doctor-patient.jpg" alt="Doctor with patient"/>
-              </div>
+      <section class="hero-section">
+        <div class="hero-container">
+          <div class="hero-content">
+            <h1>Healthcare Made Simple</h1>
+            <p class="hero-subtitle">Access quality healthcare services anytime, anywhere</p>
+            <div class="hero-cta">
+              <button class="primary-button">Book Appointment</button>
+              <button class="secondary-button">Learn More</button>
             </div>
           </div>
-          <button class="carousel-btn prev">❮</button>
-          <button class="carousel-btn next">❯</button>
+          <div class="hero-image">
+            <img src="https://moments-healthcare.tecnotree.com/assets/images/banner/banner1.jpg" alt="Healthcare Services"/>
+          </div>
         </div>
       </section>
     `,
     css: `
-      .hero-carousel {
-        margin-top: 80px;
+      .hero-section {
+        padding: 8rem 0 4rem;
         background: linear-gradient(135deg, #f8fbff 0%, #f0f4f8 100%);
       }
-      .carousel-container {
-        position: relative;
+
+      .hero-container {
         max-width: 1200px;
         margin: 0 auto;
-        height: 500px;
-      }
-      .carousel-slide {
-        height: 100%;
-        display: none;
-      }
-      .carousel-slide.active {
-        display: block;
-      }
-      .slide-content {
+        padding: 0 2rem;
         display: flex;
         align-items: center;
-        height: 100%;
-        padding: 2rem;
+        gap: 4rem;
       }
-      .text-content {
-        flex: 1;
-        padding-right: 2rem;
-      }
-      .text-content h1 {
-        font-size: 3rem;
-        color: #2c3e50;
-        margin-bottom: 1rem;
-      }
-      .text-content h2 {
-        font-size: 2rem;
-        color: #00bcd4;
-        margin-bottom: 1rem;
-      }
-      .image-content {
+
+      .hero-content {
         flex: 1;
       }
-      .image-content img {
+
+      .hero-content h1 {
+        font-size: 3.5rem;
+        color: #1a1a1a;
+        margin-bottom: 1.5rem;
+        line-height: 1.2;
+      }
+
+      .hero-subtitle {
+        font-size: 1.25rem;
+        color: #666;
+        margin-bottom: 2rem;
+      }
+
+      .hero-cta {
+        display: flex;
+        gap: 1rem;
+      }
+
+      .hero-image {
+        flex: 1;
+      }
+
+      .hero-image img {
         width: 100%;
         height: auto;
         border-radius: 8px;
       }
-      .carousel-btn {
-        position: absolute;
-        top: 50%;
-        transform: translateY(-50%);
-        background: rgba(255,255,255,0.8);
-        border: none;
-        border-radius: 50%;
-        width: 40px;
-        height: 40px;
-        cursor: pointer;
-      }
-      .carousel-btn.prev { left: 10px; }
-      .carousel-btn.next { right: 10px; }
     `,
   },
   {
-    label: 'Appointment Section',
-    category: 'Sections',
+    label: 'Service Card',
+    category: 'Components',
     content: `
-      <section class="appointment-section">
-        <div class="container">
-          <div class="appointment-content">
-            <div class="text-area">
-              <h2>Book Appointment</h2>
-              <p>Make an appointment with your preferred doctor or specialist at a time that suits you.</p>
-              <button class="book-btn">Book Now</button>
-            </div>
-            <div class="image-area">
-              <img src="/doctor-consultation.jpg" alt="Doctor consultation"/>
-            </div>
-          </div>
+      <div class="service-card">
+        <div class="service-image">
+          <img src="https://moments-healthcare.tecnotree.com/assets/images/services/consultation.jpg" alt="Service"/>
         </div>
-      </section>
+        <h3>Online Consultation</h3>
+        <p>Connect with healthcare professionals from the comfort of your home</p>
+        <button class="service-btn">Book Now</button>
+      </div>
     `,
     css: `
-      .appointment-section {
-        padding: 4rem 0;
-        background: #f8fbff;
+      .service-card {
+        background: #ffffff;
+        border-radius: 8px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        text-align: center;
+        transition: transform 0.3s ease;
       }
-      .appointment-content {
-        display: flex;
-        align-items: center;
-        gap: 4rem;
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 0 2rem;
+
+      .service-card:hover {
+        transform: translateY(-5px);
       }
-      .text-area {
-        flex: 1;
-      }
-      .text-area h2 {
-        font-size: 2rem;
-        color: #2c3e50;
+
+      .service-image {
         margin-bottom: 1rem;
       }
-      .text-area p {
-        color: #666;
-        margin-bottom: 2rem;
-      }
-      .book-btn {
-        background: #00bcd4;
-        color: white;
-        padding: 0.75rem 2rem;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-        font-size: 1rem;
-      }
-      .image-area {
-        flex: 1;
-      }
-      .image-area img {
+
+      .service-image img {
         width: 100%;
-        border-radius: 8px;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        height: auto;
+        border-radius: 4px;
+      }
+
+      .service-card h3 {
+        font-size: 1.5rem;
+        color: #1a1a1a;
+        margin-bottom: 0.5rem;
+      }
+
+      .service-card p {
+        color: #666;
+        margin-bottom: 1.5rem;
+      }
+
+      .service-btn {
+        background: #0066cc;
+        color: white;
+        border: none;
+        padding: 0.75rem 1.5rem;
+        border-radius: 4px;
+        font-weight: 500;
+        cursor: pointer;
       }
     `,
   },
   {
-    label: 'Subscription Section',
-    category: 'Sections',
+    label: 'Modern Header',
+    category: 'Layout',
     content: `
-      <section class="subscription-section">
-        <div class="container">
-          <div class="subscription-content">
-            <div class="subscription-info">
-              <h2>Therapy Session</h2>
-              <p>Make an appointment with your preferred therapist</p>
-              <div class="price">
-                <span class="currency">₹</span>
-                <span class="amount">300.00</span>
-                <span class="period">/Weekly</span>
-              </div>
-              <ul class="features">
-                <li>Package Type: Therapy Session</li>
-                <li>Number of sessions: 3</li>
-              </ul>
-              <p class="note">This plan renews automatically unless cancelled by the user.</p>
-              <button class="subscribe-btn">Buy Subscription</button>
+      <header class="modern-header">
+        <div class="header-container">
+          <div class="header-left">
+            <div class="logo-wrapper">
+              <img src="/logo.webp" alt="Moments Healthcare" class="logo"/>
             </div>
-            <div class="team-image">
-              <img src="/medical-team.jpg" alt="Medical Team"/>
+            <nav class="nav-menu">
+              <a href="/" class="nav-link">Home</a>
+              <a href="/services" class="nav-link">Services</a>
+              <a href="/about" class="nav-link">About</a>
+              <a href="/contact" class="nav-link">Contact</a>
+            </nav>
+          </div>
+          <div class="header-right">
+            <button class="login-button">Login/Register</button>
+            <div class="language-selector">
+              <span>🇺🇸</span>
+              <select class="lang-select">
+                <option value="en">English (US)</option>
+              </select>
             </div>
           </div>
         </div>
-      </section>
+      </header>
     `,
     css: `
-      .subscription-section {
-        padding: 4rem 0;
-        background: white;
+      .modern-header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        background: #ffffff;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        z-index: 1000;
+        padding: 0.75rem 0;
       }
-      .subscription-content {
-        display: flex;
-        align-items: center;
-        gap: 4rem;
+
+      .header-container {
         max-width: 1200px;
         margin: 0 auto;
         padding: 0 2rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 2rem;
       }
-      .subscription-info {
+
+      .header-left {
+        display: flex;
+        align-items: center;
+        gap: 3rem;
         flex: 1;
       }
-      .price {
-        font-size: 2rem;
-        color: #2c3e50;
-        margin: 1rem 0;
+
+      .logo-wrapper {
+        flex-shrink: 0;
       }
-      .features {
-        list-style: none;
-        padding: 0;
-        margin: 1rem 0;
+
+      .logo {
+        height: 40px;
+        width: auto;
       }
-      .features li {
-        padding: 0.5rem 0;
-        color: #666;
+
+      .nav-menu {
+        display: flex;
+        align-items: center;
+        gap: 2rem;
+        flex-wrap: nowrap;
       }
-      .features li:before {
-        content: "✓";
-        color: #00bcd4;
-        margin-right: 0.5rem;
-      }
-      .subscribe-btn {
-        background: #00bcd4;
-        color: white;
-        padding: 0.75rem 2rem;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
+
+      .nav-link {
+        color: #374151;
+        text-decoration: none;
+        font-weight: 500;
         font-size: 1rem;
-        margin-top: 1rem;
+        transition: color 0.2s;
+        white-space: nowrap;
       }
-      .team-image {
-        flex: 1;
+
+      .nav-link:hover {
+        color: #2563eb;
       }
-      .team-image img {
-        width: 100%;
-        border-radius: 8px;
-        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+
+      .header-right {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        flex-shrink: 0;
+      }
+
+      .login-button {
+        background: #2563eb;
+        color: white;
+        border: none;
+        padding: 0.5rem 1.5rem;
+        border-radius: 0.375rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background-color 0.2s;
+        white-space: nowrap;
+      }
+
+      .login-button:hover {
+        background: #1d4ed8;
+      }
+
+      .language-selector {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        white-space: nowrap;
+      }
+
+      .lang-select {
+        border: none;
+        background: transparent;
+        font-size: 0.875rem;
+        color: #374151;
+        cursor: pointer;
       }
     `,
   },
+  // Add more blocks as needed...
 ]
 
 export const commonStyles = `
@@ -308,18 +358,37 @@ export const commonStyles = `
     padding: 0;
     box-sizing: border-box;
   }
+
   body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
     line-height: 1.6;
-    color: #2c3e50;
+    color: #1a1a1a;
+    overflow-x: hidden;
   }
+
   img {
     max-width: 100%;
     height: auto;
+    display: block;
   }
+
+  button {
+    font-family: inherit;
+  }
+
+  [data-gjs-type="wrapper"] {
+    min-height: 100vh;
+    width: 100%;
+  }
+
+  [data-gjs-type="header"] {
+    width: 100%;
+  }
+
   .container {
+    width: 100%;
     max-width: 1200px;
     margin: 0 auto;
-    padding: 0 1rem;
+    padding: 0 2rem;
   }
 `

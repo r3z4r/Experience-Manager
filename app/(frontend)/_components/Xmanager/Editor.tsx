@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import grapesjs, { Editor as GrapesEditor } from 'grapesjs'
+import grapesjs, { Editor as GrapesEditor, ProjectData } from 'grapesjs'
 import 'grapesjs/dist/css/grapes.min.css'
 import './Editor.globals.css'
 import styles from './Editor.module.css'
@@ -17,16 +17,34 @@ import {
   fetchTemplateById,
   updateTemplate,
   createTemplate,
+  TemplateData,
 } from '@/app/(frontend)/_actions/templates'
 import { toast } from 'sonner'
 
 interface EditorProps {
   templateId?: string
   mode?: 'edit' | 'view'
-  onSave?: () => void // Callback to refresh template list
 }
 
-const Editor = ({ templateId, mode = 'edit', onSave }: EditorProps) => {
+interface ValidationError {
+  type: 'validation'
+  message: string
+}
+
+interface ServerError {
+  type: 'server'
+  message: string
+  statusCode?: number
+}
+
+interface NetworkError {
+  type: 'network'
+  message: string
+}
+
+type TemplateError = ValidationError | ServerError | NetworkError
+
+const Editor = ({ templateId, mode = 'edit' }: EditorProps) => {
   const router = useRouter()
   const editorRef = useRef<HTMLDivElement>(null)
   const [editor, setEditor] = useState<GrapesEditor | null>(null)
@@ -35,79 +53,66 @@ const Editor = ({ templateId, mode = 'edit', onSave }: EditorProps) => {
   const [templateDescription, setTemplateDescription] = useState('')
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle')
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
+  const [initialData, setInitialData] = useState<{
+    html: string
+    css: string
+    gjsData?: unknown
+  } | null>(null)
+
+  // Fetch data before editor initialization
+  useEffect(() => {
+    const fetchInitialData = async () => {
+      if (!templateId) return
+
+      try {
+        const template = await fetchTemplateById(templateId)
+        if (!template) {
+          toast.error('Template not found')
+          return
+        }
+
+        setInitialData({
+          gjsData: template.gjsData,
+          html: template.htmlContent || '',
+          css: template.cssContent || '',
+        })
+
+        setTemplateName(template.title || '')
+        setTemplateDescription(template.description || '')
+      } catch (error) {
+        console.error('Error loading template:', error)
+        toast.error('Failed to load template')
+      }
+    }
+
+    fetchInitialData()
+  }, [templateId])
 
   useEffect(() => {
-    if (!editorRef.current) return
+    if (!editorRef.current || !initialData) return
 
     const editorConfig = {
       container: editorRef.current,
       fromElement: true,
       height: '93vh',
       width: '100%',
+
+      // Storage manager configuration
       storageManager: {
         type: 'remote',
         autosave: true,
-        autoload: true,
-        stepsBeforeSave: 20,
-        contentTypeJson: true,
+        autoload: false, // Disable autoload since we're loading manually
+        stepsBeforeSave: 2,
         options: {
           remote: {
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            onLoad: async () => {
-              if (!templateId) {
-                return {
-                  components: [],
-                  styles: [],
-                  html: '',
-                  css: '',
-                }
-              }
-
-              try {
-                const template = await fetchTemplateById(templateId)
-                if (!template) {
-                  toast.error('Template not found')
-                  return {
-                    components: [],
-                    styles: [],
-                    html: '',
-                    css: '',
-                  }
-                }
-
-                setTemplateName(template.title || '')
-                setTemplateDescription(template.description || '')
-
-                return {
-                  components: template.gjsData?.components || [],
-                  styles: template.gjsData?.styles || [],
-                  html: template.htmlContent || '',
-                  css: template.cssContent || '',
-                }
-              } catch (error) {
-                console.error('Error loading template:', error)
-                toast.error('Failed to load template')
-                return {
-                  components: [],
-                  styles: [],
-                  html: '',
-                  css: '',
-                }
-              }
-            },
             onStore: async (data: unknown) => {
               try {
                 const templateData = {
                   title: templateName,
                   description: templateDescription,
-                  htmlContent: editor.getHtml(),
-                  cssContent: editor.getCss(),
-                  gjsData: {
-                    components: editor.getComponents(),
-                    styles: editor.getStyle(),
-                  },
+                  htmlContent: editor?.getHtml() || '',
+                  cssContent: editor?.getCss() || '',
+                  gjsData: data,
                 }
 
                 if (templateId) {
@@ -140,17 +145,37 @@ const Editor = ({ templateId, mode = 'edit', onSave }: EditorProps) => {
           modalImportContent: '',
         },
         [basicBlocks]: {
-          blocks: ['column1', 'column2', 'column3', 'text', 'link', 'image', 'video'],
+          blocks: [
+            'column1',
+            'column2',
+            'column3',
+            'column3-7',
+            'text',
+            'link',
+            'image',
+            'video',
+            'map',
+          ],
           flexGrid: true,
         },
         [flexbox]: {
           flexboxBlock: {
-            label: 'Flexbox',
+            label: 'Flexbox Container',
             category: 'Layout',
+            attributes: {
+              class: 'flex-container',
+            },
+            content: `
+              <div class="flex-container" data-gjs-droppable="true" data-gjs-custom-name="Flex Container">
+                <div class="flex-item" data-gjs-draggable="true" data-gjs-custom-name="Flex Item">Item 1</div>
+                <div class="flex-item" data-gjs-draggable="true" data-gjs-custom-name="Flex Item">Item 2</div>
+                <div class="flex-item" data-gjs-draggable="true" data-gjs-custom-name="Flex Item">Item 3</div>
+              </div>
+            `,
           },
         },
         [forms]: {
-          blocks: ['form', 'input', 'textarea', 'select', 'button', 'label', 'checkbox'],
+          blocks: ['form', 'input', 'textarea', 'select', 'button', 'label', 'checkbox', 'radio'],
         },
         [styleFilter]: {
           filterTypes: [
@@ -167,76 +192,21 @@ const Editor = ({ templateId, mode = 'edit', onSave }: EditorProps) => {
         },
       },
       styleManager: {
-        appendTo: '.styles-container',
         sectors: [
           {
             name: 'Dimension',
             open: false,
-            properties: [
-              'width',
-              'height',
-              'min-width',
-              'min-height',
-              'max-width',
-              'max-height',
-              'padding',
-              'margin',
-              'position',
-              'top',
-              'right',
-              'bottom',
-              'left',
-            ],
-          },
-          {
-            name: 'Typography',
-            open: false,
-            properties: [
-              'font-family',
-              'font-size',
-              'font-weight',
-              'letter-spacing',
-              'color',
-              'line-height',
-              'text-align',
-              'text-decoration',
-              'text-shadow',
-              'text-transform',
-            ],
-          },
-          {
-            name: 'Decorations',
-            open: false,
-            properties: [
-              'background-color',
-              'border',
-              'border-radius',
-              'box-shadow',
-              'background',
-              'opacity',
-            ],
+            buildProps: ['width', 'height', 'min-height', 'padding', 'margin'],
           },
           {
             name: 'Flex',
             open: false,
-            properties: [
-              {
-                name: 'Flex Container',
-                property: 'display',
-                type: 'select',
-                defaults: 'block',
-                options: [
-                  { value: 'block', name: 'Block' },
-                  { value: 'flex', name: 'Flex' },
-                  { value: 'inline-flex', name: 'Inline Flex' },
-                ],
-              },
+            buildProps: [
               'flex-direction',
               'flex-wrap',
               'justify-content',
               'align-items',
               'align-content',
-              'gap',
               'order',
               'flex-basis',
               'flex-grow',
@@ -247,14 +217,144 @@ const Editor = ({ templateId, mode = 'edit', onSave }: EditorProps) => {
           {
             name: 'Extra',
             open: false,
-            properties: [
-              'transition',
-              'transform',
-              'cursor',
-              'overflow',
-              'z-index',
+            buildProps: ['opacity', 'transition', 'transform'],
+          },
+          {
+            name: 'Flex Container',
+            open: true,
+            buildProps: [
               'display',
-              'visibility',
+              'flex-direction',
+              'flex-wrap',
+              'justify-content',
+              'align-items',
+              'align-content',
+              'gap',
+            ],
+            properties: [
+              {
+                name: 'Display',
+                property: 'display',
+                type: 'select',
+                defaults: 'flex',
+                options: [
+                  { value: 'flex', name: 'Flex' },
+                  { value: 'inline-flex', name: 'Inline Flex' },
+                ],
+              },
+              {
+                name: 'Direction',
+                property: 'flex-direction',
+                type: 'select',
+                defaults: 'row',
+                options: [
+                  { value: 'row', name: 'Row' },
+                  { value: 'row-reverse', name: 'Row Reverse' },
+                  { value: 'column', name: 'Column' },
+                  { value: 'column-reverse', name: 'Column Reverse' },
+                ],
+              },
+              {
+                name: 'Wrap',
+                property: 'flex-wrap',
+                type: 'select',
+                defaults: 'nowrap',
+                options: [
+                  { value: 'nowrap', name: 'No Wrap' },
+                  { value: 'wrap', name: 'Wrap' },
+                  { value: 'wrap-reverse', name: 'Wrap Reverse' },
+                ],
+              },
+              {
+                name: 'Justify',
+                property: 'justify-content',
+                type: 'select',
+                defaults: 'flex-start',
+                options: [
+                  { value: 'flex-start', name: 'Start' },
+                  { value: 'flex-end', name: 'End' },
+                  { value: 'center', name: 'Center' },
+                  { value: 'space-between', name: 'Space Between' },
+                  { value: 'space-around', name: 'Space Around' },
+                  { value: 'space-evenly', name: 'Space Evenly' },
+                ],
+              },
+              {
+                name: 'Items Align',
+                property: 'align-items',
+                type: 'select',
+                defaults: 'stretch',
+                options: [
+                  { value: 'flex-start', name: 'Start' },
+                  { value: 'flex-end', name: 'End' },
+                  { value: 'center', name: 'Center' },
+                  { value: 'baseline', name: 'Baseline' },
+                  { value: 'stretch', name: 'Stretch' },
+                ],
+              },
+              {
+                name: 'Gap',
+                property: 'gap',
+                type: 'slider',
+                defaults: '10px',
+                min: 0,
+                max: 100,
+                step: 1,
+              },
+            ],
+          },
+          {
+            name: 'Flex Item',
+            open: true,
+            buildProps: ['flex-grow', 'flex-shrink', 'flex-basis', 'align-self', 'order'],
+            properties: [
+              {
+                name: 'Grow',
+                property: 'flex-grow',
+                type: 'number',
+                defaults: 0,
+                min: 0,
+                max: 10,
+              },
+              {
+                name: 'Shrink',
+                property: 'flex-shrink',
+                type: 'number',
+                defaults: 1,
+                min: 0,
+                max: 10,
+              },
+              {
+                name: 'Basis',
+                property: 'flex-basis',
+                type: 'slider',
+                units: ['px', '%', 'auto'],
+                defaults: 'auto',
+                min: 0,
+                max: 100,
+              },
+              {
+                name: 'Self Align',
+                property: 'align-self',
+                type: 'select',
+                defaults: 'auto',
+                options: [
+                  { value: 'auto', name: 'Auto' },
+                  { value: 'flex-start', name: 'Start' },
+                  { value: 'flex-end', name: 'End' },
+                  { value: 'center', name: 'Center' },
+                  { value: 'baseline', name: 'Baseline' },
+                  { value: 'stretch', name: 'Stretch' },
+                ],
+              },
+              {
+                name: 'Order',
+                property: 'order',
+                type: 'number',
+                defaults: 0,
+                min: -10,
+                max: 10,
+              },
             ],
           },
         ],
@@ -344,66 +444,208 @@ const Editor = ({ templateId, mode = 'edit', onSave }: EditorProps) => {
           {
             name: 'Tablet',
             width: '768px',
-            widthMedia: '992px',
+            widthMedia: '991px',
           },
           {
             name: 'Mobile',
             width: '320px',
-            widthMedia: '480px',
+            widthMedia: '767px',
           },
         ],
       },
       blockManager: {
-        blocks: templateBlocks.map((block) => ({
-          label: block.label,
-          category: block.category,
-          content: `<div data-gjs-type="flex-container">${block.content}</div>`,
-          style: block.css,
-        })),
+        blocks: [
+          ...templateBlocks.map((block) => ({
+            id: block.label.toLowerCase().replace(/\s+/g, '-'),
+            label: block.label,
+            category: block.category,
+            content: block.content,
+            style: block.css,
+            attributes: block.attributes || {},
+            media: block.media || `<div class="gjs-block-label">${block.label}</div>`,
+          })),
+        ],
       },
       containerScroll: true,
       customClass: styles.customGjsEditor,
+      canvas: {
+        styles: [
+          'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap',
+        ],
+        customStyles: `
+          ${commonStyles}
+          
+          .hero-banner {
+            min-height: 600px;
+            position: relative;
+            overflow: hidden;
+          }
+          
+          .service-card:hover {
+            transform: translateY(-5px);
+          }
+          
+          .appointment-btn {
+            background: #0066cc;
+            color: white;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            border-radius: 4px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s;
+          }
+          
+          .appointment-btn:hover {
+            background: #0052a3;
+          }
+          
+          /* Default Flexbox Styles */
+          .flex-container {
+            display: flex;
+            padding: 20px;
+            gap: 10px;
+            min-height: 100px;
+            background-color: rgba(0,0,0,0.05);
+            border-radius: 4px;
+          }
+
+          .flex-item {
+            padding: 20px;
+            background-color: #fff;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            min-width: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          }
+        `,
+      },
+      componentsOpts: {
+        wrapper: {
+          stylable: [
+            'background',
+            'background-color',
+            'background-image',
+            'background-repeat',
+            'background-attachment',
+            'background-position',
+            'background-size',
+          ],
+          removable: false,
+          copyable: false,
+          draggable: false,
+          style: commonStyles,
+        },
+      },
+      assetManager: {
+        assets: [
+          // Hero Banner Images
+          {
+            type: 'image',
+            src: 'https://moments-healthcare.tecnotree.com/media/sparsh/banner/image/i/m/image_-_1_1.jpg',
+            height: 350,
+            width: 250,
+            category: 'Hero Images',
+          },
+          {
+            type: 'image',
+            src: 'https://moments-healthcare.tecnotree.com/media/sparsh/banner/image/i/m/image_-_6.jpg',
+            height: 350,
+            width: 250,
+            category: 'Hero Images',
+          },
+          {
+            type: 'image',
+            src: 'https://moments-healthcare.tecnotree.com/media/sparsh/banner/image/i/m/image_-_5.jpg',
+            height: 350,
+            width: 250,
+            category: 'Hero Images',
+          },
+          // Doctor Images
+          {
+            type: 'image',
+            src: 'https://moments-healthcare.tecnotree.com/media/sparsh/banner/image/i/m/image_-_4.jpg',
+            height: 350,
+            width: 250,
+            category: 'Doctor Images',
+          },
+          {
+            type: 'image',
+            src: 'https://moments-healthcare.tecnotree.com/media/sparsh/banner/image/i/m/image_-_3.jpg',
+            height: 350,
+            width: 250,
+            category: 'Doctor Images',
+          },
+          // Service Images
+          {
+            type: 'image',
+            src: 'https://moments-healthcare.tecnotree.com/media/sparsh/banner/image/i/m/image_-_2.jpg',
+            height: 350,
+            width: 250,
+            category: 'Service Images',
+          },
+          {
+            type: 'image',
+            src: 'https://moments-healthcare.tecnotree.com/media/sparsh/banner/image/i/m/image_-_1.jpg',
+            height: 350,
+            width: 250,
+            category: 'Service Images',
+          },
+          // Logo
+          {
+            type: 'image',
+            src: '/logo.webp',
+            height: 40,
+            width: 180,
+            category: 'Logos',
+          },
+        ],
+        upload: false,
+        modalTitle: 'Select Image',
+        addBtnText: 'Add Image',
+        categories: [
+          { id: 'hero', label: 'Hero Images' },
+          { id: 'doctors', label: 'Doctor Images' },
+          { id: 'services', label: 'Service Images' },
+          { id: 'logos', label: 'Logos' },
+        ],
+      },
     }
 
     const editor = grapesjs.init(editorConfig)
-
-    const panelTop = document.querySelector('.panel__top')
-    if (!panelTop) {
-      const newPanel = document.createElement('div')
-      newPanel.className = 'panel__top'
-      editorRef.current.insertBefore(newPanel, editorRef.current.firstChild)
+    if (
+      initialData?.gjsData &&
+      initialData.gjsData !== '' &&
+      typeof initialData.gjsData === 'object'
+    ) {
+      const projectData: ProjectData = initialData.gjsData as ProjectData
+      editor.loadProjectData(projectData)
     }
 
-    editor.Commands.add('save-template', {
-      run: () => setShowSaveDialog(true),
-    })
-
+    // Additional setup after editor is loaded
     editor.on('load', () => {
-      const panelManager = editor.Panels
-      panelManager.addPanel({
-        id: 'custom-panel',
-        el: '.panel__top',
-        className: 'custom-panel-top',
-      })
-    })
+      console.log('Editor loaded')
 
-    editor.Panels.addPanel({
-      id: 'panel-styles',
-      visible: true,
-      buttons: [],
-      content: `
-        <div class="styles-container" style="height: 100%;">
-          <div class="gjs-one-bg gjs-two-color" style="padding: 10px;">
-            <div class="gjs-sm-sectors"></div>
-          </div>
-        </div>
-      `,
+      // Set up commands, panels, etc.
+      editor.Commands.add('save-template', {
+        run: () => setShowSaveDialog(true),
+      })
+
+      // Additional editor customizations
+      editor.Panels.addButton('options', {
+        id: 'save-db',
+        className: 'fa fa-floppy-o ',
+        command: 'save-template',
+        attributes: { title: 'Save Template' },
+      })
     })
 
     setEditor(editor)
 
     return () => editor.destroy()
-  }, [templateId, templateName, templateDescription, router])
+  }, [templateId, initialData, router])
 
   useEffect(() => {
     if (mode === 'view') {
@@ -440,60 +682,156 @@ const Editor = ({ templateId, mode = 'edit', onSave }: EditorProps) => {
     }
   }, [hasUnsavedChanges])
 
-  const handleSaveTemplate = async () => {
-    if (!editor) return
-    if (!templateName.trim()) {
-      toast.error('Please enter a template name')
+  const handleSaveTemplate = async (): Promise<void> => {
+    if (!editor) {
+      throw new Error('Editor is not initialized')
+    }
+
+    // Validation checks
+    const validationError = validateTemplateData()
+    if (validationError) {
+      setSaveStatus('error')
+      toast.error(validationError.message)
       return
     }
 
     setSaveStatus('saving')
 
     try {
-      const pageData = {
-        title: templateName,
+      const pageData: TemplateData = {
+        title: templateName.trim(),
         description: templateDescription,
         htmlContent: editor.getHtml(),
         cssContent: editor.getCss(),
         gjsData: editor.getProjectData(),
       }
 
-      const savedTemplate = templateId
-        ? await updateTemplate(templateId, pageData)
-        : await createTemplate(pageData)
-
-      if (savedTemplate?.id) {
-        setHasUnsavedChanges(false)
-        setSaveStatus('saved')
-        setShowSaveDialog(false)
-        onSave?.()
-
-        if (!templateId) {
-          router.push(`/editor/${savedTemplate.id}`)
+      if (templateId) {
+        const response = await updateTemplate(templateId, pageData)
+        if (!response) {
+          throw {
+            type: 'server',
+            message: 'Failed to update template - no response received',
+            statusCode: 500,
+          } as ServerError
         }
 
-        toast.success(
-          templateId ? 'Template updated successfully' : 'New template created successfully',
-        )
+        handleSuccessfulSave('Template updated successfully')
+      } else {
+        const savedTemplate = await createTemplate(pageData)
+        if (!savedTemplate?.id) {
+          throw {
+            type: 'server',
+            message: 'Failed to create template - no ID received',
+            statusCode: 500,
+          } as ServerError
+        }
 
-        setTimeout(() => setSaveStatus('idle'), 2000)
+        handleSuccessfulSave('New template created successfully', savedTemplate.id)
       }
     } catch (error) {
-      console.error('Error saving template:', error)
-      setSaveStatus('error')
-      toast.error('Failed to save template')
+      handleSaveError(error)
     }
   }
+
+  const validateTemplateData = (): ValidationError | null => {
+    if (!templateName.trim()) {
+      return {
+        type: 'validation',
+        message: 'Please enter a template name',
+      }
+    }
+
+    if (!editor?.getHtml()) {
+      return {
+        type: 'validation',
+        message: 'Template content cannot be empty',
+      }
+    }
+
+    return null
+  }
+
+  const handleSuccessfulSave = (message: string, newTemplateId?: string): void => {
+    setHasUnsavedChanges(false)
+    setSaveStatus('saved')
+    setShowSaveDialog(false)
+    toast.success(message)
+
+    if (newTemplateId) {
+      router.push(`/editor/${newTemplateId}`)
+    }
+
+    // Reset save status after 2 seconds
+    setTimeout(() => setSaveStatus('idle'), 2000)
+  }
+
+  const handleSaveError = (error: unknown): void => {
+    setSaveStatus('error')
+    console.error('Error saving template:', error)
+
+    if (isTemplateError(error)) {
+      switch (error.type) {
+        case 'validation':
+          toast.error(error.message)
+          break
+        case 'server':
+          toast.error(`Server error: ${error.message}`)
+          break
+        case 'network':
+          toast.error('Network error: Please check your connection')
+          break
+      }
+    } else {
+      toast.error('An unexpected error occurred while saving')
+    }
+  }
+
+  // Type guard for TemplateError
+  const isTemplateError = (error: unknown): error is TemplateError => {
+    return (
+      typeof error === 'object' &&
+      error !== null &&
+      'type' in error &&
+      'message' in error &&
+      typeof (error as TemplateError).message === 'string'
+    )
+  }
+
+  useEffect(() => {
+    if (!editor) return
+
+    editor.on('block:drag:start', (block) => {
+      const type = block.get('type')
+      if (['hero-banner', 'service-card', 'doctor-profile'].includes(type)) {
+        editor.setDragMode('absolute')
+      }
+    })
+
+    editor.on('block:drag:stop', () => {
+      editor.setDragMode('translate')
+    })
+  }, [editor])
 
   return (
     <>
       <div className={styles.editorWrapper}>
         <div className={`${styles.panelTop} panel__top custom-panel-top`}>
           <div className={styles.panelBasicActions}>
-            <button onClick={() => router.push('/template-list')} className={styles.backButton}>
-              <ArrowLeft className="w-4 h-4" />
-              Back to Templates
+            <button
+              onClick={() => router.push('/template-list')}
+              className="ml-0 mr-2 rounded-md hover:bg-gray-100 active:bg-gray-200 transition-colors p-4"
+            >
+              <ArrowLeft className="w-6 h-6 text-gray-500 hover:text-gray-900" />
             </button>
+            <div className="flex flex-col gap-1 ">
+              <h1 className="text-xl font-semibold text-gray-800 truncate">
+                {templateName || 'Untitled Template'}
+              </h1>
+              <p className="text-sm text-gray-600 line-clamp-2">
+                {templateDescription || 'No description provided'}
+              </p>
+            </div>
           </div>
           <div className={styles.panelRightActions}>
             <button onClick={() => setShowSaveDialog(true)} className={styles.customSaveButton}>
