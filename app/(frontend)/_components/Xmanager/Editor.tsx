@@ -10,7 +10,7 @@ import basicBlocks from 'grapesjs-blocks-basic'
 import flexbox from 'grapesjs-blocks-flexbox'
 import forms from 'grapesjs-plugin-forms'
 import styleFilter from 'grapesjs-style-filter'
-import { templateBlocks, commonStyles } from './default-template'
+// import { templateBlocks, commonStyles } from './default-template'
 import { SaveIcon, ArrowLeft } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import {
@@ -20,6 +20,7 @@ import {
   TemplateData,
 } from '@/app/(frontend)/_actions/templates'
 import { toast } from 'sonner'
+import { customBlocks } from './blocks'
 
 interface EditorProps {
   templateId?: string
@@ -449,14 +450,14 @@ const Editor = ({ templateId, mode = 'edit' }: EditorProps) => {
           {
             name: 'Mobile',
             width: '320px',
-            widthMedia: '767px',
+            widthMedia: '320px',
           },
         ],
       },
       blockManager: {
         blocks: [
-          ...templateBlocks.map((block) => ({
-            id: block.label.toLowerCase().replace(/\s+/g, '-'),
+          ...customBlocks.map((block) => ({
+            id: block.id,
             label: block.label,
             category: block.category,
             content: block.content,
@@ -472,55 +473,9 @@ const Editor = ({ templateId, mode = 'edit' }: EditorProps) => {
         styles: [
           'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap',
         ],
-        customStyles: `
-          ${commonStyles}
-          
-          .hero-banner {
-            min-height: 600px;
-            position: relative;
-            overflow: hidden;
-          }
-          
-          .service-card:hover {
-            transform: translateY(-5px);
-          }
-          
-          .appointment-btn {
-            background: #0066cc;
-            color: white;
-            border: none;
-            padding: 0.75rem 1.5rem;
-            border-radius: 4px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: background-color 0.2s;
-          }
-          
-          .appointment-btn:hover {
-            background: #0052a3;
-          }
-          
-          /* Default Flexbox Styles */
-          .flex-container {
-            display: flex;
-            padding: 20px;
-            gap: 10px;
-            min-height: 100px;
-            background-color: rgba(0,0,0,0.05);
-            border-radius: 4px;
-          }
-
-          .flex-item {
-            padding: 20px;
-            background-color: #fff;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            min-width: 100px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-          }
-        `,
+        // customStyles: `
+        //    ${commonStyles}
+        //   `,
       },
       componentsOpts: {
         wrapper: {
@@ -536,15 +491,36 @@ const Editor = ({ templateId, mode = 'edit' }: EditorProps) => {
           removable: false,
           copyable: false,
           draggable: false,
-          style: commonStyles,
+          // style: commonStyles,
         },
       },
       assetManager: {
         assets: [
-          // Hero Banner Images
+          // Logo
+          {
+            type: 'image',
+            src: '/logo.webp',
+            height: 40,
+            width: 180,
+            category: 'Logos',
+          },
           {
             type: 'image',
             src: 'https://moments-healthcare.tecnotree.com/media/sparsh/banner/image/i/m/image_-_1_1.jpg',
+            height: 350,
+            width: 250,
+            category: 'Banner Images',
+          },
+          {
+            type: 'image',
+            src: 'https://moments-healthcare.tecnotree.com/app/_next/image?url=https%3A%2F%2Fmoments-healthcare.tecnotree.com%2Fmedia%2Fcatalog%2Fproduct%2Ft%2Fh%2Ftherapy_session.jpg&w=1920&q=75',
+            height: 350,
+            width: 250,
+            category: 'Hero Images',
+          },
+          {
+            type: 'image',
+            src: 'https://moments-healthcare.tecnotree.com/app/_next/image?url=%2Fapp%2Fassets%2Fimages%2FAppointBooking.png&w=1920&q=75',
             height: 350,
             width: 250,
             category: 'Hero Images',
@@ -554,14 +530,14 @@ const Editor = ({ templateId, mode = 'edit' }: EditorProps) => {
             src: 'https://moments-healthcare.tecnotree.com/media/sparsh/banner/image/i/m/image_-_6.jpg',
             height: 350,
             width: 250,
-            category: 'Hero Images',
+            category: 'Banner Images',
           },
           {
             type: 'image',
             src: 'https://moments-healthcare.tecnotree.com/media/sparsh/banner/image/i/m/image_-_5.jpg',
             height: 350,
             width: 250,
-            category: 'Hero Images',
+            category: 'Banner Images',
           },
           // Doctor Images
           {
@@ -593,14 +569,6 @@ const Editor = ({ templateId, mode = 'edit' }: EditorProps) => {
             width: 250,
             category: 'Service Images',
           },
-          // Logo
-          {
-            type: 'image',
-            src: '/logo.webp',
-            height: 40,
-            width: 180,
-            category: 'Logos',
-          },
         ],
         upload: false,
         modalTitle: 'Select Image',
@@ -626,13 +594,10 @@ const Editor = ({ templateId, mode = 'edit' }: EditorProps) => {
 
     // Additional setup after editor is loaded
     editor.on('load', () => {
-      console.log('Editor loaded')
-
       // Set up commands, panels, etc.
       editor.Commands.add('save-template', {
         run: () => setShowSaveDialog(true),
       })
-
       // Additional editor customizations
       editor.Panels.addButton('options', {
         id: 'save-db',

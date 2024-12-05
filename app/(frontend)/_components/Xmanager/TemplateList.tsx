@@ -20,8 +20,9 @@ import {
   PaginatedTemplatesResponse,
 } from '@/app/(frontend)/_actions/templates'
 import Image from 'next/image'
+import { TemplatePreview } from './TemplatePreview'
 
-const ITEMS_PER_PAGE = 7
+const ITEMS_PER_PAGE = 4
 
 export function TemplateList() {
   const router = useRouter()
@@ -97,8 +98,8 @@ export function TemplateList() {
     <div>
       <header className="flex justify-between items-center px-6 py-4 bg-white border-b">
         <div className="flex items-center">
-          <Image src="/logo.webp" alt="Logo" width={100} height={100} className="object-contain" />
-          <span className="ml-3 font-bold text-2xl bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent drop-shadow-sm hover:from-blue-500 hover:to-purple-500 transition-all duration-300 font-sans">
+          <Image src="/logo.webp" alt="Logo" width={120} height={120} className="object-contain" />
+          <span className="ml-3 font-semibold text-2xl bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent drop-shadow-sm hover:from-blue-500 hover:to-purple-500 transition-all duration-300 font-sans">
             Template List
           </span>
         </div>
@@ -119,50 +120,66 @@ export function TemplateList() {
               {templates.map((template) => (
                 <div
                   key={template.id}
-                  className="border rounded-lg p-4 shadow hover:shadow-md transition-shadow relative"
+                  className="group border rounded-lg shadow-sm hover:shadow-md transition-all duration-300 relative bg-white overflow-hidden"
                 >
+                  <div className="relative w-full h-48 bg-gray-50">
+                    <TemplatePreview
+                      html={template.htmlContent}
+                      css={template.cssContent}
+                      className="w-full h-full"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-white/90 pointer-events-none" />
+                  </div>
+
                   <button
                     onClick={() => {
                       if (window.confirm('Are you sure you want to delete this template?')) {
                         handleDeleteTemplate(template.id)
                       }
                     }}
-                    className="absolute top-2 right-2 p-2 text-gray-400 hover:text-red-500 transition-colors rounded-full hover:bg-gray-100"
+                    className="absolute top-4 right-4 p-2 text-gray-500 bg-gray-50 hover:bg-red-500 hover:text-white transition-colors rounded-xl shadow-lg z-20"
                     aria-label="Delete template"
                   >
-                    <TrashIcon className="w-4 h-4" />
+                    <TrashIcon className="w-5 h-5" />
                   </button>
-                  <div className="flex flex-col gap-4">
-                    <div>
-                      <h3 className="text-lg font-semibold pr-8">{template.title}</h3>
-                      <p className="text-gray-600 text-sm">{template.description}</p>
-                    </div>
-                    <div className="flex justify-end gap-2 mt-4">
-                      <Link
-                        href={`/editor/${template.id}`}
-                        className="px-4 py-2 text-sm bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors flex items-center"
-                      >
-                        <EditIcon className="w-4 h-4 mr-1" />
-                        Edit
-                      </Link>
-                      <Link
-                        href={`/preview/${template.id}`}
-                        className="px-4 py-2 text-sm bg-gray-500 text-white rounded hover:bg-gray-600 transition-colors flex items-center"
-                      >
-                        <EyeIcon className="w-4 h-4 mr-1" />
-                        Preview
-                      </Link>
+
+                  <div className="p-4 relative z-10">
+                    <div className="flex flex-col gap-4 mt-8">
+                      <div>
+                        <h3 className="text-lg font-semibold pr-8 line-clamp-1">
+                          {template.title}
+                        </h3>
+                        <p className="text-gray-600 text-sm line-clamp-2">{template.description}</p>
+                      </div>
+                      <div className="flex justify-end gap-2">
+                        <Link
+                          href={`/editor/${template.id}`}
+                          className="px-4 py-2 text-sm bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors flex items-center shadow-sm"
+                        >
+                          <EditIcon className="w-4 h-4 mr-1" />
+                          Edit
+                        </Link>
+                        <Link
+                          href={`/preview/${template.id}`}
+                          className="px-4 py-2 text-sm bg-gray-500 text-white rounded-md hover:bg-gray-600 transition-colors flex items-center shadow-sm"
+                        >
+                          <EyeIcon className="w-4 h-4 mr-1" />
+                          Preview
+                        </Link>
+                      </div>
                     </div>
                   </div>
                 </div>
               ))}
               <button
                 onClick={handleCreateTemplate}
-                className="border-2 border-dashed rounded-lg p-4 flex items-center justify-center hover:bg-gray-50 transition-colors"
+                className="border-2 border-dashed border-gray-300 rounded-lg p-4 flex items-center justify-center transition-all duration-200 bg-[repeating-linear-gradient(45deg,#f8fafc,#f8fafc_10px,#f1f5f9_10px,#f1f5f9_20px)] hover:bg-[repeating-linear-gradient(45deg,#f3f4f6,#f3f4f6_10px,#e5e7eb_10px,#e5e7eb_20px)] hover:border-gray-400 hover:shadow-md hover:scale-[1.005]"
               >
                 <div className="text-center">
-                  <PlusIcon className="w-8 h-8 mx-auto mb-2 text-gray-400" />
-                  <span className="text-gray-600">Create New Template</span>
+                  <PlusIcon className="w-8 h-8 mx-auto mb-2 text-gray-400 group-hover:text-gray-500 transition-colors" />
+                  <span className="text-gray-600 group-hover:text-gray-700 transition-colors">
+                    Create New Template
+                  </span>
                 </div>
               </button>
             </>
