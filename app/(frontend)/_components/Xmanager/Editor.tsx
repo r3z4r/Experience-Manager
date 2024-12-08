@@ -580,6 +580,54 @@ const Editor = ({ templateId, mode = 'edit' }: EditorProps) => {
           { id: 'logos', label: 'Logos' },
         ],
       },
+      // Editable Regions configuration
+      components: {
+        editable: {
+          model: {
+            defaults: {
+              traits: [
+                {
+                  type: 'text',
+                  name: 'data-gjs-editable-id',
+                  label: 'Editable ID',
+                },
+                {
+                  type: 'text',
+                  name: 'data-gjs-editable-label',
+                  label: 'Label',
+                },
+              ],
+            },
+          },
+        },
+      },
+      commands: {
+        defaults: [
+          {
+            id: 'make-editable',
+            run: (editor) => {
+              const selected = editor.getSelected()
+              if (!selected) return
+
+              const id = `editable-${Date.now()}`
+              selected.addAttributes({
+                'data-gjs-editable-id': id,
+                'data-gjs-editable-label': 'Editable Region',
+              })
+
+              // Update template data with new editable region
+              const regions = editor.getConfig().editableRegions || []
+              regions.push({
+                id,
+                selector: `[data-gjs-editable-id="${id}"]`,
+                label: 'Editable Region',
+                content: selected.get('content'),
+              })
+              editor.getConfig().editableRegions = regions
+            },
+          },
+        ],
+      },
     }
 
     const editor = grapesjs.init(editorConfig)

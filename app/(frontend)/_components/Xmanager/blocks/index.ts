@@ -6,6 +6,8 @@ import { momentsHeaderBlock } from './MomentsHeader/MomentsHeader.config'
 import { carouselBlock } from './Carousel/Carousel.config'
 import { footerBlock } from './Footer/Footer.config'
 import { subscriptionBlock } from './Subscription/Subscription.config'
+import { statisticsBlock } from './Statistics/Statistics.config'
+import { cardBlock, cardRightBlock } from './Card/Card.config'
 
 export const customBlocks: BlockConfig[] = [
   headerBlock,
@@ -15,4 +17,7 @@ export const customBlocks: BlockConfig[] = [
   carouselBlock,
   footerBlock,
   subscriptionBlock,
+  statisticsBlock,
+  cardBlock,
+  cardRightBlock,
 ]

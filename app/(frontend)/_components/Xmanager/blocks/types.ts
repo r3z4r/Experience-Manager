@@ -55,3 +55,19 @@ export interface FooterProps extends CustomBlockProps {
   socialLinks?: Array<{ icon: string; href: string }>
   quickLinks?: Array<{ label: string; href: string }>
 }
+
+export interface StatisticsProps extends CustomBlockProps {
+  items?: Array<{
+    percentage: number
+    description: string
+  }>
+}
+
+export interface CardProps extends CustomBlockProps {
+  title: string
+  listItems: string[]
+  imageUrl: string
+  buttonText: string
+  buttonUrl: string
+  imagePosition: 'left' | 'right'
+}

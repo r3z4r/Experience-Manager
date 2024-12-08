@@ -101,8 +101,30 @@ export interface Media {
  */
 export interface Page {
   id: string;
-  title?: string | null;
+  title: string;
   description?: string | null;
+  editableRegions?:
+    | {
+        id: string | null;
+        label: string;
+        selector: string;
+        content?: {
+          root: {
+            type: string;
+            children: {
+              type: string;
+              version: number;
+              [k: string]: unknown;
+            }[];
+            direction: ('ltr' | 'rtl') | null;
+            format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+            indent: number;
+            version: number;
+          };
+          [k: string]: unknown;
+        } | null;
+      }[]
+    | null;
   htmlContent?: string | null;
   cssContent?: string | null;
   gjsData?:
@@ -218,6 +240,14 @@ export interface MediaSelect<T extends boolean = true> {
 export interface PagesSelect<T extends boolean = true> {
   title?: T;
   description?: T;
+  editableRegions?:
+    | T
+    | {
+        id?: T;
+        label?: T;
+        selector?: T;
+        content?: T;
+      };
   htmlContent?: T;
   cssContent?: T;
   gjsData?: T;

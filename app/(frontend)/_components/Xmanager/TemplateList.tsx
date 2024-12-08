@@ -21,6 +21,7 @@ import {
 } from '@/app/(frontend)/_actions/templates'
 import Image from 'next/image'
 import { TemplatePreview } from './TemplatePreview'
+import { LoadingSpinner } from '@/app/(frontend)/_components/ui/loading-spinner'
 
 const ITEMS_PER_PAGE = 4
 
@@ -114,7 +115,12 @@ export function TemplateList() {
       <div className="p-4">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
           {isLoading ? (
-            <div className="col-span-full text-center">Loading templates...</div>
+            <div className="col-span-full flex flex-col items-center justify-center py-12">
+              <LoadingSpinner
+                text="Loading templates"
+                subText="Please wait while we fetch your templates..."
+              />
+            </div>
           ) : templates.length > 0 ? (
             <>
               {templates.map((template) => (

@@ -20,7 +20,11 @@ export default async function PreviewPage({ params }: { params: { id: string } }
 
   return (
     <div className="p-4">
-      <Link href="/template-list" className="text-blue-500 hover:underline mb-4 inline-block">
+      <Link
+        href="/template-list"
+        style={{ position: 'fixed', top: '1rem', left: '1rem', zIndex: 1001 }}
+        className="text-blue-500 hover:underline"
+      >
         &larr; Back to Template List
       </Link>
       <style dangerouslySetInnerHTML={{ __html: template.cssContent ?? '' }} />
