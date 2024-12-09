@@ -5,6 +5,8 @@ import forms from 'grapesjs-plugin-forms'
 import styleFilter from 'grapesjs-style-filter'
 import { Editor as GrapesEditor } from 'grapesjs'
 import { createTemplate, updateTemplate } from '@/app/(frontend)/_actions/templates'
+import { getAssetManagerConfig } from './assetConfig'
+import { PayloadImage } from '@/app/(frontend)/_actions/images'
 
 export const getEditorConfig = (
   container: HTMLElement,
@@ -14,11 +16,13 @@ export const getEditorConfig = (
   templateId: string | undefined,
   onSave: (hasChanges: boolean) => void,
   onTemplateCreated: (newTemplateId: string) => void,
+  images: PayloadImage[],
 ) => ({
   container,
   fromElement: true,
   height: '93vh',
   width: '100%',
+  assetManager: getAssetManagerConfig(images),
   storageManager: {
     type: 'remote',
     autosave: true,

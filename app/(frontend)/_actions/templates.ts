@@ -43,7 +43,7 @@ export async function fetchTemplates(
   const { page = 1, limit = 10, filter = {} } = options
 
   const response = await payload.find({
-    collection: 'pages', // Keep collection name as 'pages' in database
+    collection: 'pages',
     where: filter,
     limit,
     page,
