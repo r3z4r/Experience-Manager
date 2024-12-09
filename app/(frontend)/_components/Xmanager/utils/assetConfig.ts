@@ -1,15 +1,18 @@
 import { AssetManagerConfig } from 'grapesjs'
 import { PayloadImage, uploadImage } from '@/app/(frontend)/_actions/images'
+import type { Editor } from 'grapesjs'
 
 export const getAssetManagerConfig = (images: PayloadImage[] = []): AssetManagerConfig => ({
   assets: images.map((image) => ({
     type: 'image',
-    src: image.url,
+    src: `${process.env.NEXT_PUBLIC_APP_URL}${image.url}`,
     height: image.height,
     width: image.width,
     category: image.category,
     name: image.title || image.filename,
-    thumbnail: image.sizes?.thumbnail?.url || image.url,
+    thumbnail: image.sizes?.thumbnail?.url
+      ? `${process.env.NEXT_PUBLIC_APP_URL}${image.sizes.thumbnail.url}`
+      : `${process.env.NEXT_PUBLIC_APP_URL}${image.url}`,
   })),
   upload: '/api/upload-images',
   uploadFile: async (e: DragEvent | Event) => {
@@ -21,16 +24,18 @@ export const getAssetManagerConfig = (images: PayloadImage[] = []): AssetManager
         const file = files[i]
         if (file.type.startsWith('image/')) {
           const uploadedImage = await uploadImage(file)
-          // Add the uploaded image to the asset manager
-          const editor = (e.target as any)?.editor
+          const editor = (e.target as { editor?: Editor })?.editor
+
           editor?.AssetManager.add({
             type: 'image',
-            src: uploadedImage.url,
+            src: `${process.env.NEXT_PUBLIC_APP_URL}${uploadedImage.url}`,
             height: uploadedImage.height,
             width: uploadedImage.width,
             category: uploadedImage.category,
             name: uploadedImage.title || uploadedImage.filename,
-            thumbnail: uploadedImage.sizes?.thumbnail?.url || uploadedImage.url,
+            thumbnail: uploadedImage.sizes?.thumbnail?.url
+              ? `${process.env.NEXT_PUBLIC_APP_URL}${uploadedImage.sizes.thumbnail.url}`
+              : `${process.env.NEXT_PUBLIC_APP_URL}${uploadedImage.url}`,
           })
         }
       }
@@ -39,16 +44,13 @@ export const getAssetManagerConfig = (images: PayloadImage[] = []): AssetManager
     }
   },
   dropzone: true,
-  // categories: [
-  //   { id: 'hero', label: 'Hero Images' },
-  //   { id: 'doctors', label: 'Doctor Images' },
-  //   { id: 'services', label: 'Service Images' },
-  //   { id: 'logos', label: 'Logos' },
-  // ],
-  // Add custom styles for the asset manager
   stylePrefix: 'am-',
-  // Enable multiple selection
   multiUpload: true,
-  // Enable preview
   showUrlInput: true,
+  categories: [
+    { id: 'hero', label: 'Hero Images' },
+    { id: 'doctors', label: 'Doctor Images' },
+    { id: 'services', label: 'Service Images' },
+    { id: 'logos', label: 'Logos' },
+  ],
 })

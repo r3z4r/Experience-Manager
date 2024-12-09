@@ -94,31 +94,57 @@ export async function uploadImage(file: File, category?: string): Promise<Payloa
     formData.append('category', category)
   }
 
-  const response = await fetch('/api/upload-images', {
+  console.log('Uploading file:', {
+    name: file.name,
+    size: file.size,
+    type: file.type,
+    category,
+  })
+
+  const response = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/upload-images`, {
     method: 'POST',
     body: formData,
   })
 
+  const data = await response.json()
+
   if (!response.ok) {
-    throw new Error('Failed to upload image')
+    console.error('Upload failed:', data)
+    throw new Error(data.details || 'Failed to upload image')
   }
 
-  return response.json()
+  return data
 }
 
 export async function createImage(file: File, category?: string) {
-  const payload = await getPayload({
-    config: configPromise,
-  })
+  try {
+    const payload = await getPayload({
+      config: configPromise,
+    })
 
-  return payload.create({
-    collection: 'images',
-    data: {
-      title: file.name,
-      alt: file.name,
-      category: category || 'hero',
-      status: 'published',
-    },
-    file: file as unknown as PayloadFile, // Type assertion for Payload's file type
-  })
+    const buffer = Buffer.from(await file.arrayBuffer())
+
+    const image = await payload.create<Image>({
+      collection: 'images',
+      data: {
+        title: file.name,
+        alt: file.name,
+        category: (category || 'hero') as 'hero' | 'doctors' | 'services' | 'logos',
+        status: 'published' as const,
+        width: 0,
+        height: 0,
+      },
+      file: {
+        data: buffer,
+        mimetype: file.type,
+        name: file.name,
+        size: file.size,
+      },
+    })
+
+    return image
+  } catch (error) {
+    console.error('Error in createImage:', error)
+    throw error
+  }
 }

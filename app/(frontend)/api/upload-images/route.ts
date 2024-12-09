@@ -11,10 +11,24 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'No file provided' }, { status: 400 })
     }
 
+    console.log('Received upload request:', {
+      fileName: file.name,
+      fileSize: file.size,
+      fileType: file.type,
+      category,
+    })
+
     const image = await createImage(file, category)
+    console.log('Upload successful:', image)
     return NextResponse.json(image)
   } catch (error) {
-    console.error('Upload error:', error)
-    return NextResponse.json({ error: 'Failed to upload image' }, { status: 500 })
+    console.error('Upload error details:', error)
+    return NextResponse.json(
+      {
+        error: 'Failed to upload image',
+        details: error instanceof Error ? error.message : String(error),
+      },
+      { status: 500 },
+    )
   }
 }

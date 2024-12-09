@@ -179,11 +179,11 @@ export function TemplateList() {
               ))}
               <button
                 onClick={handleCreateTemplate}
-                className="border-2 border-dashed border-gray-300 rounded-lg p-4 flex items-center justify-center transition-all duration-200 bg-[repeating-linear-gradient(45deg,#f8fafc,#f8fafc_10px,#f1f5f9_10px,#f1f5f9_20px)] hover:bg-[repeating-linear-gradient(45deg,#f3f4f6,#f3f4f6_10px,#e5e7eb_10px,#e5e7eb_20px)] hover:border-gray-400 hover:shadow-md hover:scale-[1.005]"
+                className="group relative border-2 border-dashed border-gray-300 rounded-lg p-4 flex items-center justify-center transition-all duration-200 bg-[repeating-linear-gradient(45deg,#f8fafc,#f8fafc_10px,#f1f5f9_10px,#f1f5f9_20px)] hover:bg-[repeating-linear-gradient(45deg,#f3f4f6,#f3f4f6_10px,#e5e7eb_10px,#e5e7eb_20px)] hover:shadow-md before:absolute before:inset-0 before:p-[2px] before:rounded-lg before:content-[''] group-hover:before:bg-gradient-to-r group-hover:before:from-violet-600 group-hover:before:to-blue-600 before:opacity-0 group-hover:before:opacity-100 before:transition-opacity border-transparent before:hover:scale-[1.005]"
               >
-                <div className="text-center">
-                  <PlusIcon className="w-8 h-8 mx-auto mb-2 text-gray-400 group-hover:text-gray-500 transition-colors" />
-                  <span className="text-gray-600 group-hover:text-gray-700 transition-colors">
+                <div className="relative text-center">
+                  <PlusIcon className="w-8 h-8 mx-auto mb-2 text-gray-400 transition-colors duration-300 group-hover:text-blue-600" />
+                  <span className="text-gray-600 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-blue-600 group-hover:to-purple-600 transition-colors">
                     Create New Template
                   </span>
                 </div>
