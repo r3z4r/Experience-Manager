@@ -150,6 +150,7 @@ export interface Image {
   title: string;
   category: 'hero' | 'doctors' | 'services' | 'logos';
   alt: string;
+  status: 'published' | 'draft' | 'archived';
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -307,6 +308,7 @@ export interface ImagesSelect<T extends boolean = true> {
   title?: T;
   category?: T;
   alt?: T;
+  status?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;

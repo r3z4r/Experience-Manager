@@ -9,8 +9,8 @@ export const Images: CollectionConfig = {
     read: () => true,
   },
   upload: {
-    // staticURL: '/media',
     staticDir: 'media',
+    mimeTypes: ['image/*'],
     imageSizes: [
       {
         name: 'thumbnail',
@@ -26,7 +26,6 @@ export const Images: CollectionConfig = {
       },
     ],
     adminThumbnail: 'thumbnail',
-    mimeTypes: ['image/*'],
   },
   fields: [
     {
@@ -61,6 +60,17 @@ export const Images: CollectionConfig = {
       type: 'number',
       required: true,
       defaultValue: 350,
+    },
+    {
+      name: 'status',
+      type: 'select',
+      required: true,
+      options: [
+        { label: 'Published', value: 'published' },
+        { label: 'Draft', value: 'draft' },
+        { label: 'Archived', value: 'archived' },
+      ],
+      defaultValue: 'draft',
     },
   ],
 }

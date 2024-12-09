@@ -15,6 +15,8 @@ import { useTemplateData, useEditorSetup } from './utils/hooks'
 import { ValidationError as PayloadValidationError } from 'payload'
 import { ServerError, NetworkError } from './utils/types'
 import { createTemplate, TemplateData, updateTemplate } from '../../_actions/templates'
+import { fetchImages } from '@/app/(frontend)/_actions/images'
+import type { PayloadImage } from '@/app/(frontend)/_actions/images'
 
 type TemplateError = PayloadValidationError | ServerError | NetworkError
 
@@ -25,6 +27,7 @@ const Editor = ({ templateId, mode = 'edit' }: EditorProps) => {
   const [showSaveDialog, setShowSaveDialog] = useState(false)
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle')
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
+  const [images, setImages] = useState<PayloadImage[]>([])
 
   const {
     initialData,
@@ -34,9 +37,22 @@ const Editor = ({ templateId, mode = 'edit' }: EditorProps) => {
     setTemplateDescription,
   } = useTemplateData(templateId)
 
+  useEffect(() => {
+    const loadImages = async () => {
+      try {
+        const fetchedImages = await fetchImages()
+        setImages(fetchedImages ?? [])
+      } catch (error) {
+        console.error('Error loading images:', error)
+      }
+    }
+
+    loadImages()
+  }, [])
+
   // Initialize editor
   useEffect(() => {
-    if (!editorRef.current || !initialData) return
+    if (!editorRef.current) return
 
     const editorInstance = grapesjs.init(
       getEditorConfig(
@@ -47,13 +63,14 @@ const Editor = ({ templateId, mode = 'edit' }: EditorProps) => {
         templateId,
         setHasUnsavedChanges,
         (newTemplateId) => router.replace(`/editor/${newTemplateId}`),
+        images,
       ),
     )
 
-    editorInstance.setStyle(initialData.css)
-    editorInstance.setComponents(initialData.html)
+    editorInstance.setStyle(initialData?.css || '')
+    editorInstance.setComponents(initialData?.html || '')
 
-    if (initialData.gjsData) {
+    if (initialData?.gjsData) {
       editorInstance.loadProjectData(initialData.gjsData as ProjectData)
     }
 
@@ -77,6 +94,11 @@ const Editor = ({ templateId, mode = 'edit' }: EditorProps) => {
       })
     })
     setEditor(editorInstance)
+
+    return () => {
+      console.log('destroying editor')
+      editorInstance.destroy()
+    }
   }, [editorRef.current, initialData])
 
   // Setup editor configurations and cleanup

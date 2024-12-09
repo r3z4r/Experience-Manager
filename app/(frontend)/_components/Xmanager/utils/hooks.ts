@@ -99,6 +99,7 @@ export const useEditorSetup = (editor: GrapesEditor | null, mode: 'edit' | 'view
     return () => {
       if (editor && !editor.destroy) {
         try {
+          console.log('destroying editor')
           editor.destroy()
         } catch (error) {
           console.error('Error destroying editor:', error)

@@ -16,13 +16,21 @@ export const getEditorConfig = (
   templateId: string | undefined,
   onSave: (hasChanges: boolean) => void,
   onTemplateCreated: (newTemplateId: string) => void,
-  images: PayloadImage[],
+  images: PayloadImage[] = [],
 ) => ({
   container,
   fromElement: true,
   height: '93vh',
   width: '100%',
-  assetManager: getAssetManagerConfig(images),
+  assetManager: {
+    ...getAssetManagerConfig(images),
+    onSelect: (asset: PayloadImage) => {
+      console.log('Selected asset:', asset)
+    },
+    onError: (err: Error) => {
+      console.error('Asset manager error:', err)
+    },
+  },
   storageManager: {
     type: 'remote',
     autosave: true,
