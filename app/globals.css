@@ -156,3 +156,263 @@
 .font-helvetica {
   font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
+
+@layer components {
+  .template-card {
+    @apply border rounded-lg shadow-sm hover:shadow-md transition-all duration-300 relative bg-white overflow-hidden;
+  }
+
+  .template-preview-container {
+    @apply relative w-full h-48 bg-gray-50;
+  }
+
+  .template-preview-overlay {
+    @apply absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-white/90 pointer-events-none;
+  }
+
+  .delete-button {
+    @apply absolute top-4 right-4 p-2 text-gray-500 bg-gray-50 hover:bg-red-500 hover:text-white transition-colors rounded-xl shadow-lg z-20;
+  }
+
+  .action-button-primary {
+    @apply px-4 py-2 text-sm bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors flex items-center shadow-sm;
+  }
+
+  .action-button-secondary {
+    @apply px-4 py-2 text-sm bg-gray-500 text-white rounded-md hover:bg-gray-600 transition-colors flex items-center shadow-sm;
+  }
+
+  .pagination-button {
+    @apply p-2 rounded;
+  }
+
+  .pagination-button-active {
+    @apply text-blue-500 hover:bg-blue-50;
+  }
+
+  .pagination-button-disabled {
+    @apply text-gray-300;
+  }
+
+  /* Editor Components */
+  .editor-wrapper {
+    @apply h-screen bg-white relative;
+  }
+
+  .editor-panel-top {
+    @apply bg-white py-3 px-4 border-b border-gray-200 sticky top-0 z-10 flex items-center justify-between;
+  }
+
+  .editor-panel-actions {
+    @apply flex items-center gap-2 flex-1;
+  }
+
+  .editor-back-button {
+    @apply ml-0 mr-2 rounded-md hover:bg-gray-100 active:bg-gray-200 transition-colors p-4;
+  }
+
+  .editor-back-icon {
+    @apply w-6 h-6 text-gray-500 hover:text-gray-900;
+  }
+
+  .editor-title-section {
+    @apply flex flex-col gap-1;
+  }
+
+  .editor-title {
+    @apply text-xl font-semibold text-gray-800 truncate;
+  }
+
+  .editor-description {
+    @apply text-sm text-gray-600 line-clamp-2;
+  }
+
+  .editor-save-button {
+    @apply inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors;
+  }
+
+  /* Editor Modal Components */
+  .editor-modal-overlay {
+    @apply fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50;
+  }
+
+  .editor-modal {
+    @apply bg-white rounded-lg p-6 w-full max-w-md;
+  }
+
+  .editor-modal-header {
+    @apply flex justify-between items-center mb-4;
+  }
+
+  .editor-modal-title {
+    @apply text-lg font-semibold;
+  }
+
+  .editor-modal-close {
+    @apply text-gray-500 hover:text-gray-700;
+  }
+
+  .editor-form-field {
+    @apply space-y-1;
+  }
+
+  .editor-form-label {
+    @apply block text-sm font-medium text-gray-700;
+  }
+
+  .editor-form-input {
+    @apply w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500;
+  }
+
+  .editor-status-text {
+    @apply text-sm;
+  }
+
+  .editor-status-error {
+    @apply text-red-600;
+  }
+
+  .editor-status-success {
+    @apply text-green-600;
+  }
+
+  .editor-status-saving {
+    @apply text-blue-600;
+  }
+
+  .editor-status-idle {
+    @apply text-gray-500;
+  }
+
+  /* Modal Components */
+  .modal-content {
+    @apply bg-white shadow-lg;
+  }
+
+  .modal-header {
+    @apply border-b border-gray-200;
+  }
+
+  .modal-close {
+    @apply p-2 rounded-md hover:bg-gray-100;
+  }
+
+  /* Form Components */
+  .input-label {
+    @apply text-gray-700;
+  }
+
+  .input-field {
+    @apply w-full transition-colors focus:border-blue-500;
+  }
+
+  /* Service Card Components */
+  .service-card {
+    @apply bg-white rounded-lg p-6 shadow-md text-center transition-transform hover:translate-y-[-5px] max-w-[350px];
+  }
+
+  .service-image-container {
+    @apply mb-4 rounded-md overflow-hidden;
+  }
+
+  .service-image {
+    @apply w-full h-[200px] object-cover transition-transform hover:scale-105;
+  }
+
+  .service-title {
+    @apply text-gray-900 text-xl mb-3 font-semibold;
+  }
+
+  .service-description {
+    @apply text-gray-600 text-sm mb-6 leading-relaxed;
+  }
+
+  .service-button {
+    @apply bg-blue-600 text-white border-none py-3 px-6 rounded-md font-medium cursor-pointer transition-colors hover:bg-blue-700;
+  }
+
+  /* Feature Card Components */
+  .feature-card {
+    @apply flex gap-8 p-8 bg-gray-900 rounded-lg min-h-[300px];
+  }
+
+  .feature-content {
+    @apply flex-1 flex flex-col justify-center text-white;
+  }
+
+  .feature-title {
+    @apply text-4xl font-bold text-cyan-400 mb-6;
+  }
+
+  .feature-list {
+    @apply list-none p-0 m-0 space-y-4;
+  }
+
+  .feature-list-item {
+    @apply flex items-center gap-2 text-base leading-relaxed;
+  }
+
+  .feature-image-container {
+    @apply flex-1 bg-cyan-400 rounded-lg overflow-hidden flex items-center justify-center;
+  }
+
+  .feature-button {
+    @apply inline-block bg-cyan-400 text-gray-900 py-3 px-6 rounded-md font-semibold mt-6 self-start transition-all hover:bg-cyan-500 hover:translate-y-[-2px];
+  }
+
+  /* Template List Components */
+  .template-header {
+    @apply flex justify-between items-center px-6 py-4 bg-white border-b;
+  }
+
+  .template-logo {
+    @apply flex items-center;
+  }
+
+  .template-title {
+    @apply ml-3 font-semibold text-2xl bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent drop-shadow-sm hover:from-blue-500 hover:to-purple-500 transition-all duration-300 font-sans;
+  }
+
+  .template-admin-link {
+    @apply flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors;
+  }
+
+  .template-grid {
+    @apply grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4;
+  }
+
+  .template-loading {
+    @apply col-span-full flex flex-col items-center justify-center py-12;
+  }
+
+  .template-empty-state {
+    @apply col-span-full text-center p-8;
+  }
+
+  .template-empty-content {
+    @apply mx-auto max-w-md;
+  }
+
+  .template-empty-title {
+    @apply text-lg font-medium text-gray-900 mb-2;
+  }
+
+  .template-empty-description {
+    @apply text-gray-500 mb-4;
+  }
+
+  .template-create-button {
+    @apply inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-500 rounded-md hover:bg-blue-600;
+  }
+}
+
+/* Media query for responsive design */
+@media (max-width: 768px) {
+  .feature-card {
+    @apply flex-col;
+  }
+
+  .feature-image-container {
+    @apply min-h-[200px];
+  }
+}

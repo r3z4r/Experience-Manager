@@ -265,86 +265,68 @@ const Editor = ({ templateId, mode = 'edit' }: EditorProps) => {
   }, [editor])
 
   return (
-    <div className={styles.editorWrapper}>
-      <div className={`${styles.panelTop} panel__top custom-panel-top`}>
-        <div className={styles.panelBasicActions}>
-          <button
-            onClick={() => router.push('/template-list')}
-            className="ml-0 mr-2 rounded-md hover:bg-gray-100 active:bg-gray-200 transition-colors p-4"
-          >
-            <ArrowLeft className="w-6 h-6 text-gray-500 hover:text-gray-900" />
+    <div className="editor-wrapper">
+      <div className="editor-panel-top">
+        <div className="editor-panel-actions">
+          <button onClick={() => router.push('/template-list')} className="editor-back-button">
+            <ArrowLeft className="editor-back-icon" />
           </button>
-          <div className="flex flex-col gap-1 ">
-            <h1 className="text-xl font-semibold text-gray-800 truncate">
-              {templateName || 'Untitled Template'}
-            </h1>
-            <p className="text-sm text-gray-600 line-clamp-2">
-              {templateDescription || 'No description provided'}
-            </p>
+          <div className="editor-title-section">
+            <h1 className="editor-title">{templateName || 'Untitled Template'}</h1>
+            <p className="editor-description">{templateDescription || 'No description provided'}</p>
           </div>
         </div>
-        <div className={styles.panelRightActions}>
-          <button onClick={() => setShowSaveDialog(true)} className={styles.customSaveButton}>
-            <CloudUploadIcon className="w-4 h-4" />
-            Publish
-          </button>
-        </div>
+        <button onClick={() => setShowSaveDialog(true)} className="editor-save-button">
+          <CloudUploadIcon className="w-4 h-4" />
+          Publish
+        </button>
       </div>
-      <div ref={editorRef} className={styles.customGjsEditor} />
+
+      <div ref={editorRef} className="h-[calc(100vh-50px)]" />
+
       {showSaveDialog && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className={`${styles.modalContent} bg-white rounded-lg p-6 w-full max-w-md`}>
-            <div className={`${styles.modalHeader} flex justify-between items-center mb-4`}>
-              <h3 className="text-lg font-semibold">Save Template</h3>
-              <button
-                onClick={() => setShowSaveDialog(false)}
-                className={`${styles.modalClose} text-gray-500 hover:text-gray-700`}
-              >
+        <div className="editor-modal-overlay">
+          <div className="editor-modal">
+            <div className="editor-modal-header">
+              <h3 className="editor-modal-title">Save Template</h3>
+              <button onClick={() => setShowSaveDialog(false)} className="editor-modal-close">
                 ✕
               </button>
             </div>
 
             <div className="space-y-4">
-              <div>
-                <label
-                  className={`${styles.inputLabel} block text-sm font-medium text-gray-700 mb-1`}
-                >
-                  Template Name
-                </label>
+              <div className="editor-form-field">
+                <label className="editor-form-label">Template Name</label>
                 <input
                   type="text"
                   value={templateName}
                   onChange={(e) => setTemplateName(e.target.value)}
                   placeholder="Enter template name"
-                  className={`${styles.input} w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                  className="editor-form-input"
                 />
               </div>
 
-              <div>
-                <label
-                  className={`${styles.inputLabel} block text-sm font-medium text-gray-700 mb-1`}
-                >
-                  Description
-                </label>
+              <div className="editor-form-field">
+                <label className="editor-form-label">Description</label>
                 <input
                   type="text"
                   value={templateDescription}
                   onChange={(e) => setTemplateDescription(e.target.value)}
                   placeholder="Enter template description"
-                  className={`${styles.input} w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500`}
+                  className="editor-form-input"
                 />
               </div>
 
               <div className="flex items-center justify-between mt-4">
                 <span
-                  className={`text-sm ${
+                  className={`editor-status-text ${
                     saveStatus === 'error'
-                      ? styles.statusError
+                      ? 'editor-status-error'
                       : saveStatus === 'saved'
-                        ? styles.statusSuccess
+                        ? 'editor-status-success'
                         : saveStatus === 'saving'
-                          ? styles.statusSaving
-                          : styles.statusIdle
+                          ? 'editor-status-saving'
+                          : 'editor-status-idle'
                   }`}
                 >
                   {saveStatus === 'error' && 'Failed to save'}
@@ -355,8 +337,8 @@ const Editor = ({ templateId, mode = 'edit' }: EditorProps) => {
                 <button
                   onClick={handleSaveTemplate}
                   disabled={saveStatus === 'saving'}
-                  className={`${styles.saveButton} ${
-                    saveStatus === 'saving' ? styles.saveButtonDisabled : ''
+                  className={`editor-save-button ${
+                    saveStatus === 'saving' ? 'editor-save-button-disabled' : ''
                   }`}
                 >
                   {saveStatus === 'saving'

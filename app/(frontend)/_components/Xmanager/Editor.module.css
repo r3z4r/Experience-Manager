@@ -1,113 +1,41 @@
 .editorWrapper {
-  height: 100vh;
-  background: white;
-  position: relative;
+  @apply editor-wrapper;
 }
 
 .panelTop {
-  background: white;
-  padding: 0.75rem 1rem;
-  border-bottom: 1px solid #e5e7eb;
-  position: sticky;
-  top: 0;
-  z-index: 10;
+  @apply editor-panel-top;
 }
 
 .panelBasicActions {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+  @apply editor-panel-actions;
 }
 
 .customSaveButton {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 1rem;
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: white;
-  background-color: #3b82f6;
-  border-radius: 0.375rem;
-  border: none;
-  cursor: pointer;
-  transition: background-color 0.2s;
-}
-
-.customSaveButton:hover {
-  background-color: #2563eb;
+  @apply editor-save-button;
 }
 
 .customGjsEditor {
-  height: calc(100vh - 50px);
+  @apply editor-container;
 }
 
 /* Modal Styles */
 .modalContent {
-  background: white;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  @apply modal-content;
 }
 
 .modalHeader {
-  border-bottom: 1px solid #e5e7eb;
+  @apply modal-header;
 }
 
 .modalClose {
-  padding: 0.5rem;
-  border-radius: 0.375rem;
-}
-
-.modalClose:hover {
-  background-color: #f3f4f6;
+  @apply modal-close;
 }
 
 /* Input Styles */
 .inputLabel {
-  color: #374151;
+  @apply input-label;
 }
 
 .input {
-  width: 100%;
-  transition: border-color 0.2s;
-}
-
-.input:focus {
-  border-color: #3b82f6;
-}
-
-/* Status Styles */
-.statusError {
-  color: #ef4444;
-}
-
-.statusSuccess {
-  color: #10b981;
-}
-
-.statusSaving {
-  color: #3b82f6;
-}
-
-.statusIdle {
-  color: #6b7280;
-}
-
-/* Save Button */
-.saveButton {
-  width: 100%;
-  background-color: #3b82f6;
-  color: white;
-  padding: 0.5rem 1rem;
-  border-radius: 0.375rem;
-  font-weight: 500;
-  transition: background-color 0.2s;
-}
-
-.saveButton:hover:not(:disabled) {
-  background-color: #2563eb;
-}
-
-.saveButtonDisabled {
-  opacity: 0.5;
-  cursor: not-allowed;
+  @apply input-field;
 }

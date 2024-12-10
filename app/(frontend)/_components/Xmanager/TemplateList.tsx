@@ -97,25 +97,20 @@ export function TemplateList() {
 
   return (
     <div>
-      <header className="flex justify-between items-center px-6 py-4 bg-white border-b">
-        <div className="flex items-center">
+      <header className="template-header">
+        <div className="template-logo">
           <Image src="/logo.webp" alt="Logo" width={120} height={120} className="object-contain" />
-          <span className="ml-3 font-semibold text-2xl bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent drop-shadow-sm hover:from-blue-500 hover:to-purple-500 transition-all duration-300 font-sans">
-            Template List
-          </span>
+          <span className="template-title">Template List</span>
         </div>
-        <Link
-          href="/admin"
-          className="flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors"
-        >
-          Switch to Admin Penel
+        <Link href="/admin" className="template-admin-link">
+          Switch to Admin Panel
         </Link>
       </header>
 
       <div className="p-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-4">
+        <div className="template-grid">
           {isLoading ? (
-            <div className="col-span-full flex flex-col items-center justify-center py-12">
+            <div className="template-loading">
               <LoadingSpinner
                 text="Loading templates"
                 subText="Please wait while we fetch your templates..."
@@ -124,17 +119,14 @@ export function TemplateList() {
           ) : templates.length > 0 ? (
             <>
               {templates.map((template) => (
-                <div
-                  key={template.id}
-                  className="group border rounded-lg shadow-sm hover:shadow-md transition-all duration-300 relative bg-white overflow-hidden"
-                >
-                  <div className="relative w-full h-48 bg-gray-50">
+                <div key={template.id} className="group template-card">
+                  <div className="template-preview-container">
                     <TemplatePreview
                       html={template.htmlContent}
                       css={template.cssContent}
                       className="w-full h-full"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-white/90 pointer-events-none" />
+                    <div className="template-preview-overlay" />
                   </div>
 
                   <button
@@ -143,7 +135,7 @@ export function TemplateList() {
                         handleDeleteTemplate(template.id)
                       }
                     }}
-                    className="absolute top-4 right-4 p-2 text-gray-500 bg-gray-50 hover:bg-red-500 hover:text-white transition-colors rounded-xl shadow-lg z-20"
+                    className="delete-button"
                     aria-label="Delete template"
                   >
                     <TrashIcon className="w-5 h-5" />
@@ -158,17 +150,11 @@ export function TemplateList() {
                         <p className="text-gray-600 text-sm line-clamp-2">{template.description}</p>
                       </div>
                       <div className="flex justify-end gap-2">
-                        <Link
-                          href={`/editor/${template.id}`}
-                          className="px-4 py-2 text-sm bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors flex items-center shadow-sm"
-                        >
+                        <Link href={`/editor/${template.id}`} className="action-button-primary">
                           <EditIcon className="w-4 h-4 mr-1" />
                           Edit
                         </Link>
-                        <Link
-                          href={`/preview/${template.id}`}
-                          className="px-4 py-2 text-sm bg-gray-500 text-white rounded-md hover:bg-gray-600 transition-colors flex items-center shadow-sm"
-                        >
+                        <Link href={`/preview/${template.id}`} className="action-button-secondary">
                           <EyeIcon className="w-4 h-4 mr-1" />
                           Preview
                         </Link>
@@ -179,7 +165,7 @@ export function TemplateList() {
               ))}
               <button
                 onClick={handleCreateTemplate}
-                className="group relative border-2 border-dashed border-gray-300 rounded-lg p-4 flex items-center justify-center transition-all duration-200 bg-[repeating-linear-gradient(45deg,#f8fafc,#f8fafc_10px,#f1f5f9_10px,#f1f5f9_20px)] hover:bg-[repeating-linear-gradient(45deg,#f3f4f6,#f3f4f6_10px,#e5e7eb_10px,#e5e7eb_20px)] hover:shadow-md before:absolute before:inset-0 before:p-[2px] before:rounded-lg before:content-[''] group-hover:before:bg-gradient-to-r group-hover:before:from-violet-600 group-hover:before:to-blue-600 before:opacity-0 group-hover:before:opacity-100 before:transition-opacity border-transparent before:hover:scale-[1.005]"
+                className="group relative border-2 border-dashed border-gray-300 rounded-lg p-4 flex items-center justify-center transition-all duration-200 bg-[repeating-linear-gradient(45deg,#f8fafc,#f8fafc_10px,#f1f5f9_10px,#f1f5f9_20px)] hover:bg-[repeating-linear-gradient(45deg,#f3f4f6,#f3f4f6_10px,#e5e7eb_10px,#e5e7eb_20px)] hover:shadow-md before:absolute before:inset-0 before:p-[2px] before:rounded-lg before:content-[''] group-hover:before:bg-gradient-to-r group-hover:before:from-blue-600 group-hover:before:to-purple-600 before:opacity-0 group-hover:before:opacity-100 before:transition-opacity border-transparent before:hover:scale-[1.01] before:transition-transform"
               >
                 <div className="relative text-center">
                   <PlusIcon className="w-8 h-8 mx-auto mb-2 text-gray-400 transition-colors duration-300 group-hover:text-blue-600" />
@@ -190,14 +176,13 @@ export function TemplateList() {
               </button>
             </>
           ) : (
-            <div className="col-span-full text-center p-8">
-              <div className="mx-auto max-w-md">
-                <h3 className="text-lg font-medium text-gray-900 mb-2">No templates found</h3>
-                <p className="text-gray-500 mb-4">Get started by creating your first template</p>
-                <button
-                  onClick={handleCreateTemplate}
-                  className="inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-500 rounded-md hover:bg-blue-600"
-                >
+            <div className="template-empty-state">
+              <div className="template-empty-content">
+                <h3 className="template-empty-title">No templates found</h3>
+                <p className="template-empty-description">
+                  Get started by creating your first template
+                </p>
+                <button onClick={handleCreateTemplate} className="template-create-button">
                   <PlusIcon className="w-4 h-4 mr-2" />
                   Create First Template
                 </button>
@@ -212,8 +197,8 @@ export function TemplateList() {
             <button
               onClick={() => fetchTemplatesData(pagination.prevPage || 1)}
               disabled={!pagination.hasPrevPage}
-              className={`p-2 rounded ${
-                pagination.hasPrevPage ? 'text-blue-500 hover:bg-blue-50' : 'text-gray-300'
+              className={`pagination-button ${
+                pagination.hasPrevPage ? 'pagination-button-active' : 'pagination-button-disabled'
               }`}
             >
               <ChevronLeftIcon className="w-5 h-5" />
@@ -224,8 +209,8 @@ export function TemplateList() {
             <button
               onClick={() => fetchTemplatesData(pagination.nextPage || 1)}
               disabled={!pagination.hasNextPage}
-              className={`p-2 rounded ${
-                pagination.hasNextPage ? 'text-blue-500 hover:bg-blue-50' : 'text-gray-300'
+              className={`pagination-button ${
+                pagination.hasNextPage ? 'pagination-button-active' : 'pagination-button-disabled'
               }`}
             >
               <ChevronRightIcon className="w-5 h-5" />
