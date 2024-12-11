@@ -54,8 +54,20 @@ export const fetchImages = async (): Promise<PayloadImage[]> => {
       createdAt: doc.createdAt,
       updatedAt: doc.updatedAt,
       sizes: {
-        thumbnail: doc.sizes?.thumbnail || null,
-        card: doc.sizes?.card || null,
+        thumbnail: doc.sizes?.thumbnail
+          ? {
+              url: doc.sizes.thumbnail.url || '',
+              width: doc.sizes.thumbnail.width || 0,
+              height: doc.sizes.thumbnail.height || 0,
+            }
+          : null,
+        card: doc.sizes?.card
+          ? {
+              url: doc.sizes.card.url || '',
+              width: doc.sizes.card.width || 0,
+              height: doc.sizes.card.height || 0,
+            }
+          : null,
       },
     }))
 
@@ -124,7 +136,7 @@ export async function createImage(file: File, category?: string) {
 
     const buffer = Buffer.from(await file.arrayBuffer())
 
-    const image = await payload.create<Image>({
+    const image = await payload.create({
       collection: 'images',
       data: {
         title: file.name,

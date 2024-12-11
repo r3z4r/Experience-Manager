@@ -26,6 +26,7 @@ export const Card: React.FC<CardProps> = ({
           </a>
         </div>
         <div className="feature-image">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={imageUrl} alt={title} />
         </div>
       </div>

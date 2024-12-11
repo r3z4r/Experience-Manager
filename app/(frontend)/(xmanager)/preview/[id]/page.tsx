@@ -8,15 +8,20 @@ async function getTemplate(id: string): Promise<TemplateData> {
     if (!template) {
       throw new Error('Template not found')
     }
-    return template
+    return {
+      ...template,
+      cssContent: template.cssContent ?? undefined,
+      htmlContent: template.htmlContent ?? undefined,
+    } as TemplateData
   } catch (error) {
     console.error('Error fetching template:', error)
     throw new Error('Failed to load template')
   }
 }
 
-export default async function PreviewPage({ params }: { params: { id: string } }) {
-  const template = await getTemplate(params.id)
+export default async function PreviewPage({ params }: { params: Promise<{ id: string }> }) {
+  const resolvedParams = await params
+  const template = await getTemplate(resolvedParams.id)
 
   return (
     <div className="p-4">

@@ -1,7 +1,6 @@
-import { CustomBlockProps } from '../types'
 import { headerStyles } from './Header.styles'
 
-export function Header({ className = '' }: CustomBlockProps) {
+export function Header() {
   return (
     <>
       <style>{headerStyles}</style>

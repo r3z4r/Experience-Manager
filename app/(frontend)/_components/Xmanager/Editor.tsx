@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import grapesjs, { Editor as GrapesEditor, ProjectData } from 'grapesjs'
 import 'grapesjs/dist/css/grapes.min.css'
 import './Editor.globals.css'
-import styles from './Editor.module.css'
+// import styles from './Editor.module.css'
 import { ArrowLeft, CloudUploadIcon } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
@@ -99,6 +99,7 @@ const Editor = ({ templateId, mode = 'edit' }: EditorProps) => {
       console.log('destroying editor')
       editorInstance.destroy()
     }
+    //eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editorRef.current, initialData])
 
   // Setup editor configurations and cleanup
@@ -188,15 +189,27 @@ const Editor = ({ templateId, mode = 'edit' }: EditorProps) => {
   const validateTemplateData = (): PayloadValidationError | null => {
     if (!templateName.trim()) {
       return {
-        type: 'validation',
+        name: 'validation',
         message: 'Please enter a template name',
+        data: {
+          errors: [{ message: 'Template name is required', path: 'title' }],
+        },
+        isOperational: true,
+        isPublic: true,
+        status: 400,
       }
     }
 
     if (!editor?.getHtml()) {
       return {
-        type: 'validation',
+        name: 'validation',
         message: 'Template content cannot be empty',
+        data: {
+          errors: [{ message: 'Template content is required', path: 'content' }],
+        },
+        isOperational: true,
+        isPublic: true,
+        status: 400,
       }
     }
 
@@ -222,16 +235,17 @@ const Editor = ({ templateId, mode = 'edit' }: EditorProps) => {
     console.error('Error saving template:', error)
 
     if (isTemplateError(error)) {
-      switch (error.type) {
-        case 'validation':
-          toast.error(error.message)
-          break
-        case 'server':
-          toast.error(`Server error: ${error.message}`)
-          break
-        case 'network':
-          toast.error('Network error: Please check your connection')
-          break
+      if ('name' in error && error.name === 'validation') {
+        toast.error(error.message)
+      } else if ('type' in error) {
+        switch (error.type) {
+          case 'server':
+            toast.error(`Server error: ${error.message}`)
+            break
+          case 'network':
+            toast.error('Network error: Please check your connection')
+            break
+        }
       }
     } else {
       toast.error('An unexpected error occurred while saving')

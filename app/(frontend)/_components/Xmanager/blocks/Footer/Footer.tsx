@@ -24,6 +24,7 @@ export function Footer({
         <div className="footer-container">
           <div className="footer-main">
             <div className="footer-brand">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={logoSrc} alt="Company Logo" className="footer-logo" />
               <p className="footer-description">
                 Providing quality healthcare services to improve lives and well-being.

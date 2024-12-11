@@ -4,10 +4,13 @@ const EditorPage = async ({
   params,
   searchParams,
 }: {
-  params: { id: string }
-  searchParams: { [key: string]: string | string[] | undefined }
+  params: Promise<{ id: string }>
+  searchParams: Promise<{ mode?: 'edit' | 'view' }>
 }) => {
-  return <Editor templateId={params.id} mode={(searchParams.mode as 'edit' | 'view') ?? 'edit'} />
+  const resolvedParams = await params
+  const resolvedSearchParams = await searchParams
+
+  return <Editor templateId={resolvedParams.id} mode={resolvedSearchParams.mode ?? 'edit'} />
 }
 
 export default EditorPage

@@ -1,25 +1,7 @@
 import { CarouselProps } from '../types'
 import { carouselStyles } from './Carousel.styles'
 
-export function Carousel({
-  items = [
-    {
-      imageUrl: '/xpm/images/service1.jpg',
-      title: 'Online Consultation',
-      description: 'Connect with healthcare professionals remotely',
-    },
-    {
-      imageUrl: '/xpm/images/service2.jpg',
-      title: 'Lab Tests',
-      description: 'Book lab tests and health checkups',
-    },
-    {
-      imageUrl: '/xpm/images/service3.jpg',
-      title: 'Medicine Delivery',
-      description: 'Get medicines delivered to your doorstep',
-    },
-  ],
-}: CarouselProps) {
+export function Carousel({ items = [] }: CarouselProps) {
   return (
     <>
       <style>{carouselStyles}</style>
@@ -29,6 +11,7 @@ export function Carousel({
             {items.map((item, index) => (
               <div key={index} className="carousel-item">
                 <div className="carousel-image">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src={item.imageUrl} alt={item.title} />
                 </div>
                 <h3>{item.title}</h3>

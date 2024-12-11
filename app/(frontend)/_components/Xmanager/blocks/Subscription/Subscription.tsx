@@ -2,7 +2,6 @@ import { SubscriptionProps } from '../types'
 import { subscriptionStyles } from './Subscription.styles'
 
 export function Subscription({
-  className = '',
   title = 'Therapy Session',
   price = '₹300.00',
   period = '/Weekly',
@@ -17,6 +16,7 @@ export function Subscription({
       <section className="subscription-section">
         <div className="subscription-container">
           <div className="subscription-image">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={imageUrl} alt="Therapy Team" />
           </div>
           <div className="subscription-content">

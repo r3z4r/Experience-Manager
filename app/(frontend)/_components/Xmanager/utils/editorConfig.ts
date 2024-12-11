@@ -3,7 +3,7 @@ import basicBlocks from 'grapesjs-blocks-basic'
 import flexbox from 'grapesjs-blocks-flexbox'
 import forms from 'grapesjs-plugin-forms'
 import styleFilter from 'grapesjs-style-filter'
-import { Editor as GrapesEditor } from 'grapesjs'
+import { Editor as GrapesEditor, ProjectData } from 'grapesjs'
 import { createTemplate, updateTemplate } from '@/app/(frontend)/_actions/templates'
 import { getAssetManagerConfig } from './assetConfig'
 import { PayloadImage } from '@/app/(frontend)/_actions/images'
@@ -45,7 +45,7 @@ export const getEditorConfig = (
               description: templateDescription,
               htmlContent: editor?.getHtml() || '',
               cssContent: editor?.getCss() || '',
-              gjsData: data,
+              gjsData: data as ProjectData,
             }
 
             if (templateId) {
@@ -69,13 +69,13 @@ export const getEditorConfig = (
   },
   plugins: [webpage, basicBlocks, flexbox, forms, styleFilter],
   pluginsOpts: {
-    [webpage]: {
+    'grapesjs-preset-webpage': {
       blocks: ['link-block', 'quote', 'text-basic'],
       modalImportButton: true,
       modalImportLabel: 'Import',
       modalImportContent: '',
     },
-    [basicBlocks]: {
+    'grapesjs-blocks-basic': {
       blocks: [
         'column1',
         'column2',
@@ -89,7 +89,7 @@ export const getEditorConfig = (
       ],
       flexGrid: true,
     },
-    [flexbox]: {
+    'grapesjs-blocks-flexbox': {
       flexboxBlock: {
         label: 'Flexbox Container',
         category: 'Layout',
@@ -103,10 +103,10 @@ export const getEditorConfig = (
         `,
       },
     },
-    [forms]: {
+    'grapesjs-plugin-forms': {
       blocks: ['form', 'input', 'textarea', 'select', 'button', 'label', 'checkbox', 'radio'],
     },
-    [styleFilter]: {
+    'grapesjs-style-filter': {
       filterTypes: [
         { name: 'blur' },
         { name: 'brightness' },

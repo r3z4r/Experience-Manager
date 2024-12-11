@@ -2,7 +2,6 @@ import { MomentsHeaderProps } from '../types'
 import { momentsHeaderStyles } from './MomentsHeader.styles'
 
 export function MomentsHeader({
-  className = '',
   logoSrc = '/logo.webp',
   logoAlt = 'Moments Healthcare',
   navLinks = [
@@ -18,6 +17,7 @@ export function MomentsHeader({
       <header className="moments-header">
         <div className="header-container">
           <div className="logo-wrapper">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={logoSrc} alt={logoAlt} className="logo" />
           </div>
           <nav className="nav-menu">

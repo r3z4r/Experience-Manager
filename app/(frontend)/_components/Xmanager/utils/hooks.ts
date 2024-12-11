@@ -95,7 +95,6 @@ export const useEditorSetup = (editor: GrapesEditor | null, mode: 'edit' | 'view
       })
     }
 
-    // Only destroy editor when component unmounts
     return () => {
       if (editor && !editor.destroy) {
         try {
@@ -106,5 +105,6 @@ export const useEditorSetup = (editor: GrapesEditor | null, mode: 'edit' | 'view
         }
       }
     }
-  }, []) // Remove dependencies to prevent re-running effect
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 }

@@ -2,7 +2,6 @@ import { HeroProps } from '../types'
 import { heroStyles } from './Hero.styles'
 
 export function Hero({
-  className = '',
   title = 'Healthcare Made Simple',
   subtitle = 'Access quality healthcare services anytime, anywhere',
   imageUrl = 'https://moments-healthcare.tecnotree.com/assets/images/banner/banner1.jpg',
@@ -21,6 +20,7 @@ export function Hero({
             </div>
           </div>
           <div className="hero-image">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={imageUrl} alt="Healthcare Services" width={1200} height={600} />
           </div>
         </div>

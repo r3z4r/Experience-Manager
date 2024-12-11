@@ -47,10 +47,4 @@ export const getAssetManagerConfig = (images: PayloadImage[] = []): AssetManager
   stylePrefix: 'am-',
   multiUpload: true,
   showUrlInput: true,
-  categories: [
-    { id: 'hero', label: 'Hero Images' },
-    { id: 'doctors', label: 'Doctor Images' },
-    { id: 'services', label: 'Service Images' },
-    { id: 'logos', label: 'Logos' },
-  ],
 })
