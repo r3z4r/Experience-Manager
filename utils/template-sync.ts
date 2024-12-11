@@ -1,11 +1,35 @@
 import type { ProjectData } from 'grapesjs'
 import { Page } from '../payload-types'
 
+type EditableRegionContent = {
+  root: {
+    type: string
+    children: Array<{
+      type: string
+      version: number
+      [key: string]: unknown
+    }>
+    direction: 'ltr' | 'rtl' | null
+    format: '' | 'center' | 'left' | 'end' | 'right' | 'start' | 'justify'
+    indent: number
+    version: number
+  }
+  [key: string]: unknown
+}
+
 interface EditableRegion {
-  id: string
+  id: string | null
   label: string
   selector: string
-  content: string
+  content?: EditableRegionContent | null
+}
+
+interface GjsComponent {
+  attributes?: {
+    'data-gjs-editable-id'?: string | null
+  }
+  content?: EditableRegionContent | null
+  components?: ProjectData['components']
 }
 
 export function syncEditableRegionsWithGjs(data: Partial<Page>): Partial<Page> {
@@ -35,7 +59,7 @@ function updateComponentContent(
 ): void {
   if (!components || !Array.isArray(components)) return
 
-  components.forEach((component: any) => {
+  components.forEach((component: GjsComponent) => {
     if (component.attributes?.['data-gjs-editable-id'] === region.id) {
       component.content = region.content
     }
