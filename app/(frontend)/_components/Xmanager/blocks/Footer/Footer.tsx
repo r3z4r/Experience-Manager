@@ -2,8 +2,7 @@ import { FooterProps } from '../types'
 import { footerStyles } from './Footer.styles'
 
 export function Footer({
-  className = '',
-  logoSrc = '/logo.webp',
+  logoSrc = '/xpm/logo.webp',
   socialLinks = [
     { icon: '📱', href: '#' },
     { icon: '📘', href: '#' },

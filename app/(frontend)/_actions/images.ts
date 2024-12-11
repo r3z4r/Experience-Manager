@@ -101,7 +101,7 @@ export async function uploadImage(file: File, category?: string): Promise<Payloa
     category,
   })
 
-  const response = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/api/upload-images`, {
+  const response = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/xpm/api/upload-images`, {
     method: 'POST',
     body: formData,
   })

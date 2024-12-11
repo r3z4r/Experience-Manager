@@ -99,7 +99,13 @@ export function TemplateList() {
     <div>
       <header className="template-header">
         <div className="template-logo">
-          <Image src="/logo.webp" alt="Logo" width={120} height={120} className="object-contain" />
+          <Image
+            src="/xpm/logo.webp"
+            alt="Logo"
+            width={120}
+            height={120}
+            className="object-contain"
+          />
           <span className="template-title">Template List</span>
         </div>
         <Link href="/admin" className="template-admin-link">

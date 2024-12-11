@@ -2,20 +2,19 @@ import { CarouselProps } from '../types'
 import { carouselStyles } from './Carousel.styles'
 
 export function Carousel({
-  className = '',
   items = [
     {
-      imageUrl: '/images/service1.jpg',
+      imageUrl: '/xpm/images/service1.jpg',
       title: 'Online Consultation',
       description: 'Connect with healthcare professionals remotely',
     },
     {
-      imageUrl: '/images/service2.jpg',
+      imageUrl: '/xpm/images/service2.jpg',
       title: 'Lab Tests',
       description: 'Book lab tests and health checkups',
     },
     {
-      imageUrl: '/images/service3.jpg',
+      imageUrl: '/xpm/images/service3.jpg',
       title: 'Medicine Delivery',
       description: 'Get medicines delivered to your doorstep',
     },
