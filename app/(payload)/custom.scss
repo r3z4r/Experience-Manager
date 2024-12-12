@@ -1,0 +1,279 @@
+// Custom styles for Payload CMS Admin Panel
+
+// Navigation
+.nav {
+  background: hsl(var(--background));
+  border-right: 1px solid hsl(var(--border));
+}
+
+.nav__link {
+  color: hsl(var(--foreground));
+  font-family: var(--font-geist-sans);
+
+  &:hover {
+    background: hsl(var(--accent));
+  }
+
+  &--active {
+    background: hsl(var(--accent));
+    color: hsl(var(--accent-foreground));
+  }
+}
+
+// Header
+.app-header {
+  background: hsl(var(--background));
+  border-bottom: 1px solid hsl(var(--border));
+}
+
+// Forms
+.field-type {
+  font-family: var(--font-geist-sans);
+}
+
+.btn {
+  font-family: var(--font-geist-sans);
+  border-radius: var(--radius-md);
+  transition: all 0.2s ease;
+  padding: 1rem;
+  margin-top: 1rem;
+
+  &--style-primary {
+    background: hsl(var(--primary));
+    color: hsl(var(--primary-foreground));
+
+    &:hover {
+      background: hsl(var(--primary));
+      opacity: 0.9;
+    }
+  }
+
+  &--style-secondary {
+    background: hsl(var(--secondary));
+    color: hsl(var(--secondary-foreground));
+
+    &:hover {
+      background: hsl(var(--secondary));
+      opacity: 0.9;
+    }
+  }
+}
+
+// Cards and Lists
+.card {
+  background: hsl(var(--card));
+  border: 1px solid hsl(var(--border));
+  border-radius: var(--radius-lg);
+}
+
+.collection-list {
+  background: hsl(var(--background));
+
+  &__header {
+    border-bottom: 1px solid hsl(var(--border));
+  }
+}
+
+// Tables
+.table {
+  font-family: var(--font-geist-sans);
+
+  th {
+    background: hsl(var(--muted));
+    color: hsl(var(--muted-foreground));
+  }
+
+  td {
+    border-bottom: 1px solid hsl(var(--border));
+  }
+
+  tr:hover {
+    background: hsl(var(--accent));
+  }
+}
+
+// Inputs
+input,
+textarea,
+select {
+  background: hsl(var(--background));
+  border: 1px solid hsl(var(--border));
+  border-radius: var(--radius-md);
+
+  &:focus {
+    border-color: hsl(var(--ring));
+    outline: none;
+    box-shadow: 0 0 0 2px hsl(var(--ring) / 0.2);
+  }
+}
+
+// Rich Text Editor
+.rich-text {
+  font-family: var(--font-geist-sans);
+
+  &__toolbar {
+    border: 1px solid hsl(var(--border));
+    border-radius: var(--radius-md);
+    background: hsl(var(--background));
+  }
+
+  &__toolbar-button {
+    color: hsl(var(--foreground));
+
+    &:hover {
+      background: hsl(var(--accent));
+    }
+
+    &--active {
+      background: hsl(var(--accent));
+      color: hsl(var(--accent-foreground));
+    }
+  }
+}
+
+// Template List Link
+.template-list-link {
+  position: fixed;
+  top: var(--space-4);
+  left: var(--space-4);
+  z-index: 999;
+  display: inline-flex;
+  align-items: center;
+  padding: var(--space-2) var(--space-3);
+  background: hsl(var(--primary));
+  color: hsl(var(--primary-foreground));
+  border-radius: var(--radius-md);
+  font-family: var(--font-geist-sans);
+  font-size: 14px;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+  &:hover {
+    background: hsl(var(--primary));
+    opacity: 0.9;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+}
+
+// Modals
+.modal {
+  &__template {
+    background: hsl(var(--background));
+    border-radius: var(--radius-lg);
+  }
+
+  &__header {
+    border-bottom: 1px solid hsl(var(--border));
+  }
+}
+
+// Notifications
+.toast {
+  font-family: var(--font-geist-sans);
+  border-radius: var(--radius-md);
+
+  &--success {
+    background: hsl(var(--success));
+    color: hsl(var(--success-foreground));
+  }
+
+  &--error {
+    background: hsl(var(--destructive));
+    color: hsl(var(--destructive-foreground));
+  }
+
+  &--warning {
+    background: hsl(var(--warning));
+    color: hsl(var(--warning-foreground));
+  }
+
+  &--info {
+    background: hsl(var(--info));
+    color: hsl(var(--info-foreground));
+  }
+}
+
+// Payload CMS specific overrides
+.payload {
+  // Header
+  &__header {
+    background-color: hsl(var(--background));
+    border-bottom: 1px solid hsl(var(--border));
+    height: var(--admin-header-height);
+  }
+
+  // Forms
+  &__field-type {
+    margin-bottom: var(--admin-form-gap);
+
+    label {
+      @apply text-sm font-medium text-foreground mb-2;
+    }
+
+    input,
+    textarea,
+    select {
+      @apply w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background
+        file:border-0 file:bg-transparent file:text-sm file:font-medium
+        placeholder:text-muted-foreground
+        focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2
+        disabled:cursor-not-allowed disabled:opacity-50;
+    }
+  }
+
+  // Buttons
+  &__btn {
+    @apply inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background 
+      transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2
+      disabled:pointer-events-none disabled:opacity-50;
+
+    &--style-primary {
+      @apply bg-primary text-primary-foreground hover:bg-primary/90;
+    }
+
+    &--style-secondary {
+      @apply bg-secondary text-secondary-foreground hover:bg-secondary/80;
+    }
+  }
+
+  // Rich Text Editor
+  &__rich-text-editor {
+    @apply rounded-md border border-input bg-background;
+
+    .editor-toolbar {
+      @apply border-b border-input bg-muted/50 p-2;
+    }
+
+    .editor-content {
+      @apply p-3 min-h-[200px];
+    }
+  }
+
+  // Tables
+  &__table {
+    @apply w-full text-sm;
+
+    th {
+      @apply h-12 px-4 text-left align-middle font-medium text-muted-foreground bg-muted/50;
+    }
+
+    td {
+      @apply p-4 align-middle border-t border-border;
+    }
+  }
+
+  // Cards
+  &__card {
+    @apply rounded-lg border bg-card text-card-foreground shadow-sm;
+    padding: var(--admin-card-padding);
+  }
+}
+
+// Template List Navigation
+.template-list-nav {
+  @apply fixed top-4 left-4 z-50 flex items-center gap-2 rounded-md bg-primary px-3 py-2 
+    text-sm text-primary-foreground shadow-sm transition-all duration-200
+    hover:bg-primary/90 hover:shadow-md hover:-translate-y-0.5;
+}

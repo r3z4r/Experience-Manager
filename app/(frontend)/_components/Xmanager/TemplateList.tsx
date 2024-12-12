@@ -98,7 +98,7 @@ export function TemplateList() {
   return (
     <div>
       <header className="template-header">
-        <div className="template-logo">
+        <div className="header-logo">
           <Image
             src="/xpm/logo.webp"
             alt="Logo"
@@ -106,7 +106,7 @@ export function TemplateList() {
             height={120}
             className="object-contain"
           />
-          <span className="template-title">Template List</span>
+          <span className="header-title">Template List</span>
         </div>
         <Link href="/admin" className="template-admin-link">
           Switch to Admin Panel
