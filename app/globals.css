@@ -99,6 +99,8 @@
     --admin-card-padding: 1.5rem;
     --admin-form-gap: 1.25rem;
     --editor-border: 216 12% 80%;
+    --editor-bg-primary: 0 0% 95%;
+    --editor-text-primary: 215 25% 15%;
   }
 
   .dark {
