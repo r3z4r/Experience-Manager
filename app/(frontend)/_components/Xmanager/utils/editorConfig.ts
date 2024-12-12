@@ -123,129 +123,141 @@ export const getEditorConfig = (
   styleManager: {
     sectors: [
       {
-        name: 'Dimension',
+        name: 'General',
         open: false,
-        buildProps: ['width', 'height', 'min-height', 'padding', 'margin'],
+        buildProps: ['float', 'display', 'position', 'top', 'right', 'left', 'bottom'],
       },
       {
-        name: 'Flex',
+        name: 'Layout',
         open: false,
-        buildProps: [
-          'flex-direction',
-          'flex-wrap',
-          'justify-content',
-          'align-items',
-          'align-content',
-          'order',
-          'flex-basis',
-          'flex-grow',
-          'flex-shrink',
-          'align-self',
-        ],
+        buildProps: ['width', 'height', 'max-width', 'min-height', 'margin', 'padding'],
       },
       {
-        name: 'Extra',
+        name: 'Colors',
         open: false,
-        buildProps: ['opacity', 'transition', 'transform'],
-      },
-      {
-        name: 'Flex Container',
-        open: true,
-        buildProps: [
-          'display',
-          'flex-direction',
-          'flex-wrap',
-          'justify-content',
-          'align-items',
-          'align-content',
-          'gap',
-        ],
         properties: [
           {
-            name: 'Display',
-            property: 'display',
-            type: 'select',
-            defaults: 'flex',
-            options: [
-              { value: 'flex', name: 'Flex' },
-              { value: 'inline-flex', name: 'Inline Flex' },
-            ],
+            type: 'color',
+            name: 'Background',
+            property: 'background-color',
+            defaults: 'none',
+            presets: [
+              { name: 'Primary', value: 'hsl(var(--primary))' },
+              { name: 'Secondary', value: 'hsl(var(--secondary))' },
+              { name: 'Accent', value: 'hsl(var(--accent))' },
+              { name: 'Background', value: 'hsl(var(--background))' },
+              { name: 'Foreground', value: 'hsl(var(--foreground))' },
+            ]
           },
           {
-            name: 'Direction',
-            property: 'flex-direction',
-            type: 'select',
-            defaults: 'row',
-            options: [
-              { value: 'row', name: 'Row' },
-              { value: 'row-reverse', name: 'Row Reverse' },
-              { value: 'column', name: 'Column' },
-              { value: 'column-reverse', name: 'Column Reverse' },
-            ],
-          },
-          {
-            name: 'Wrap',
-            property: 'flex-wrap',
-            type: 'select',
-            defaults: 'nowrap',
-            options: [
-              { value: 'nowrap', name: 'No Wrap' },
-              { value: 'wrap', name: 'Wrap' },
-              { value: 'wrap-reverse', name: 'Wrap Reverse' },
-            ],
-          },
-          {
-            name: 'Justify',
-            property: 'justify-content',
-            type: 'select',
-            defaults: 'flex-start',
-            options: [
-              { value: 'flex-start', name: 'Start' },
-              { value: 'flex-end', name: 'End' },
-              { value: 'center', name: 'Center' },
-              { value: 'space-between', name: 'Space Between' },
-              { value: 'space-around', name: 'Space Around' },
-              { value: 'space-evenly', name: 'Space Evenly' },
-            ],
-          },
-          {
-            name: 'Items Align',
-            property: 'align-items',
-            type: 'select',
-            defaults: 'stretch',
-            options: [
-              { value: 'flex-start', name: 'Start' },
-              { value: 'flex-end', name: 'End' },
-              { value: 'center', name: 'Center' },
-              { value: 'baseline', name: 'Baseline' },
-              { value: 'stretch', name: 'Stretch' },
-            ],
-          },
-          {
-            name: 'Content Align',
-            property: 'align-content',
-            type: 'select',
-            defaults: 'stretch',
-            options: [
-              { value: 'flex-start', name: 'Start' },
-              { value: 'flex-end', name: 'End' },
-              { value: 'center', name: 'Center' },
-              { value: 'space-between', name: 'Space Between' },
-              { value: 'space-around', name: 'Space Around' },
-              { value: 'stretch', name: 'Stretch' },
-            ],
-          },
-          {
-            name: 'Gap',
-            property: 'gap',
-            type: 'composite',
-            properties: [
-              { name: 'Row Gap', property: 'row-gap' },
-              { name: 'Column Gap', property: 'column-gap' },
-            ],
-          },
-        ],
+            type: 'color',
+            name: 'Text Color',
+            property: 'color',
+            defaults: 'black',
+            presets: [
+              { name: 'Primary', value: 'hsl(var(--primary))' },
+              { name: 'Secondary', value: 'hsl(var(--secondary))' },
+              { name: 'Accent', value: 'hsl(var(--accent))' },
+              { name: 'Background', value: 'hsl(var(--background))' },
+              { name: 'Foreground', value: 'hsl(var(--foreground))' },
+            ]
+          }
+        ]
       },
-    ],
+      {
+        name: 'Typography',
+        open: false,
+        properties: [
+          {
+            name: 'Font Size',
+            property: 'font-size',
+            type: 'select',
+            defaults: '16px',
+            options: [
+              { value: '12px', name: 'Small' },
+              { value: '16px', name: 'Normal' },
+              { value: '20px', name: 'Large' },
+              { value: '24px', name: 'Extra Large' },
+            ]
+          },
+          {
+            name: 'Font Weight',
+            property: 'font-weight',
+            type: 'select',
+            defaults: 'normal',
+            options: [
+              { value: 'normal', name: 'Normal' },
+              { value: 'bold', name: 'Bold' },
+              { value: 'lighter', name: 'Light' },
+            ]
+          },
+          'text-align',
+          'line-height',
+          'letter-spacing',
+          'text-decoration'
+        ]
+      },
+      {
+        name: 'Spacing',
+        open: false,
+        properties: [
+          {
+            name: 'Spacing Size',
+            property: 'margin',
+            type: 'select',
+            defaults: '0',
+            options: [
+              { value: '0', name: 'None' },
+              { value: '0.5rem', name: 'Small' },
+              { value: '1rem', name: 'Medium' },
+              { value: '2rem', name: 'Large' },
+            ]
+          },
+          {
+            name: 'Padding Size',
+            property: 'padding',
+            type: 'select',
+            defaults: '0',
+            options: [
+              { value: '0', name: 'None' },
+              { value: '0.5rem', name: 'Small' },
+              { value: '1rem', name: 'Medium' },
+              { value: '2rem', name: 'Large' },
+            ]
+          }
+        ]
+      },
+      {
+        name: 'Effects',
+        open: false,
+        properties: [
+          {
+            type: 'select',
+            name: 'Shadow',
+            property: 'box-shadow',
+            defaults: 'none',
+            options: [
+              { value: 'none', name: 'None' },
+              { value: 'var(--shadow-sm)', name: 'Small' },
+              { value: 'var(--shadow-md)', name: 'Medium' },
+              { value: 'var(--shadow-lg)', name: 'Large' },
+            ]
+          },
+          {
+            type: 'select',
+            name: 'Border Radius',
+            property: 'border-radius',
+            defaults: '0',
+            options: [
+              { value: '0', name: 'None' },
+              { value: 'var(--radius-sm)', name: 'Small' },
+              { value: 'var(--radius-md)', name: 'Medium' },
+              { value: 'var(--radius-lg)', name: 'Large' },
+              { value: '9999px', name: 'Round' },
+            ]
+          }
+        ]
+      }
+    ]
   },
 })

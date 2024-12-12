@@ -98,6 +98,7 @@
     --admin-toolbar-height: 48px;
     --admin-card-padding: 1.5rem;
     --admin-form-gap: 1.25rem;
+    --editor-border: 216 12% 80%;
   }
 
   .dark {
@@ -427,7 +428,7 @@
   }
 
   .admin-back-link {
-    @apply items-center  mr-4 text-muted-foreground hover:text-foreground transition-colors duration-200;
+    @apply items-center  mr-4 text-sm text-muted-foreground hover:text-foreground transition-colors duration-200;
   }
 
   .admin-divider {

@@ -248,6 +248,19 @@
   background-color: hsl(var(--editor-bg-primary)) !important;
 }
 
+.gjs-sm-composite {
+  margin-bottom: var(--space-4);
+  background-color: hsl(var(--editor-bg-secondary)) !important;
+}
+
+.gjs-fields {
+  border: 0.5px dashed hsl(var(--editor-border)) !important;
+  border-radius: var(--radius-md) !important;
+  background-color: hsl(var(--editor-bg-primary)) !important;
+  margin: 0.1rem;
+  padding: 0.1rem 0;
+}
+
 .gjs-sm-label {
   font-size: var(--text-xs);
   font-weight: 500;
@@ -330,10 +343,4 @@
 .gjs-am-assets-cont {
   background-color: hsl(var(--editor-bg-primary)) !important;
   color: hsl(var(--editor-text-primary)) !important;
-}
-
-.gjs-field {
-  color: hsl(var(--editor-text-primary)) !important;
-  background-color: hsl(var(--editor-bg-primary)) !important;
-  border: 1px solid hsl(var(--editor-border)) !important;
 }
