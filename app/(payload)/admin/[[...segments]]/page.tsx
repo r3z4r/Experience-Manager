@@ -5,7 +5,7 @@ import type { Metadata } from 'next'
 import config from '@payload-config'
 import { RootPage, generatePageMetadata } from '@payloadcms/next/views'
 import { importMap } from '../importMap'
-import { AdminLayout } from '../components/AdminLayout'
+import { AdminLayout } from '../_components/AdminLayout'
 
 type Args = {
   params: Promise<{

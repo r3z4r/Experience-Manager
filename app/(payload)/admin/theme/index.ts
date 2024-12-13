@@ -1,6 +1,4 @@
-import type { PayloadTheme } from 'payload'
-
-export const adminTheme: PayloadTheme = {
+export const adminTheme = {
   root: {
     '--theme-elevation-0': 'var(--background)',
     '--theme-elevation-50': 'var(--card)',

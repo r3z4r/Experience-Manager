@@ -35,7 +35,7 @@
   font-family: var(--font-geist-sans);
   border-radius: var(--radius-md);
   transition: all 0.2s ease;
-  padding: 1rem;
+  padding: 0.2rem 1rem;
   margin-top: 1rem;
 
   &--style-primary {
@@ -64,6 +64,22 @@
   background: hsl(var(--card));
   border: 1px solid hsl(var(--border));
   border-radius: var(--radius-lg);
+}
+
+.nav-group__label {
+  font-weight: 700;
+  border-bottom: 1px solid hsl(var(--border));
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+
+  &::after {
+    content: '\25BE';
+  }
+}
+
+.Collections {
+  font-size: larger;
 }
 
 .collection-list {
