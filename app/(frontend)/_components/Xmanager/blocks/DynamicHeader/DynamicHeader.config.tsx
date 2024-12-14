@@ -8,8 +8,8 @@ export const dynamicHeaderBlock: BlockConfig = {
   category: 'Layout',
   content: renderToString(
     <DynamicHeader
-      showLoginButton={true}
-      tecnotreePosition="left"
+      showLoginButton={false}
+      tecnotreePosition="center"
       logoSrc="/xpm/images/Tecnotree.png"
     />,
   ),
