@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { fetchTemplates, createTemplate } from '@/app/(frontend)/_actions/templates'
-import type { TemplateData } from '@/app/(frontend)/_actions/templates'
+import type { TemplateData } from '@/app/(frontend)/_types/template-data'
 
 export async function GET() {
   try {

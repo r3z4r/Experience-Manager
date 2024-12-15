@@ -1,6 +1,6 @@
 import { TemplateData } from '@/app/(frontend)/_types/template-data'
 import { componentHandlers } from './component-handlers'
-import { User } from 'payload'
+import { User } from '@/payload-types'
 import { Page } from '@/payload-types'
 
 export function hasAccess(template: TemplateData, user: User | null): boolean {

@@ -26,7 +26,7 @@ export default async function PreviewPage({ params }: PreviewPageProps) {
     return <SignInForm />
   }
 
-  if (isPrivate && !template.access?.allowedUsers?.includes(user?.id)) {
+  if (isPrivate && !template.access?.allowedUsers?.includes(user?.email ?? '')) {
     return <div className="p-4">You don&apos;t have access to this template.</div>
   }
 

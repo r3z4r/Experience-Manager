@@ -18,9 +18,15 @@ export async function getCurrentUser(): Promise<User | null> {
       config: configPromise,
     })
 
-    const user = await payload.findByID({
+    const {
+      docs: [user],
+    } = await payload.find({
       collection: 'users',
-      email: email.value,
+      where: {
+        email: {
+          equals: email.value,
+        },
+      },
     })
 
     return user as User

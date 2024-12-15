@@ -19,15 +19,15 @@ export async function POST(request: Request) {
       },
     })
 
-    const cookieStore = cookies()
-    cookieStore.set('user-email', email, {
+    const response = NextResponse.json({ success: true })
+    response.cookies.set('user-email', email, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
       path: '/',
     })
 
-    return NextResponse.json({ success: true })
+    return response
   } catch (error) {
     console.error('Login error:', error)
     return NextResponse.json({ error: 'Authentication failed' }, { status: 401 })
