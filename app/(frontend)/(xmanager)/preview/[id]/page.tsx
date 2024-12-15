@@ -6,14 +6,15 @@ import { notFound } from 'next/navigation'
 import Link from 'next/link'
 
 interface PreviewPageProps {
-  params: {
+  params: Promise<{
     id: string
-  }
+  }>
 }
 
 export default async function PreviewPage({ params }: PreviewPageProps) {
+  const resolvedParams = await params
   const user = await getCurrentUser()
-  const template = await fetchTemplateById(params.id)
+  const template = await fetchTemplateById(resolvedParams.id)
 
   if (!template) {
     notFound()

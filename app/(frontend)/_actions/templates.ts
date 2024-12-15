@@ -50,7 +50,7 @@ export async function createTemplate(templateData: TemplateData) {
   })
 }
 
-export async function updateTemplate(id: string, templateData: TemplateData) {
+export async function updateTemplate(id: string, data: Partial<TemplateData>) {
   const payload = await getPayload({
     config: configPromise,
   })
@@ -58,7 +58,7 @@ export async function updateTemplate(id: string, templateData: TemplateData) {
   return payload.update({
     collection: 'pages',
     id,
-    data: templateData,
+    data,
   })
 }
 

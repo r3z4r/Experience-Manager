@@ -42,6 +42,7 @@ function CheckoutForm({ onSuccess }: { onSuccess?: () => void }) {
         onSuccess?.()
       }
     } catch (error) {
+      console.error(error)
       toast.error('Payment failed')
     } finally {
       setIsLoading(false)

@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server'
 import { getPayload } from 'payload'
 import configPromise from '@payload-config'
-import { cookies } from 'next/headers'
 
 export async function POST(request: Request) {
   try {
@@ -11,7 +10,7 @@ export async function POST(request: Request) {
       config: configPromise,
     })
 
-    const result = await payload.login({
+    await payload.login({
       collection: 'users',
       data: {
         email,
