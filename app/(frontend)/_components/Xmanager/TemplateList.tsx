@@ -140,7 +140,7 @@ export function TemplateList() {
                         handleDeleteTemplate(template.id)
                       }
                     }}
-                    className="button-destructive button-md  absolute top-0 right-0 p-6"
+                    className="button-destructive button-md absolute top-0 right-0 p-8"
                     aria-label="Delete template"
                   >
                     <TrashIcon className="w-5 h-5" />
