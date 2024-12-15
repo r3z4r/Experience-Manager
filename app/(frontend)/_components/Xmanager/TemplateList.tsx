@@ -12,16 +12,11 @@ import {
 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
-import {
-  TemplateData,
-  createTemplate,
-  fetchTemplates,
-  deleteTemplate,
-  PaginatedTemplatesResponse,
-} from '@/app/(frontend)/_actions/templates'
+import { createTemplate, fetchTemplates, deleteTemplate } from '@/app/(frontend)/_actions/templates'
 import Image from 'next/image'
 import { TemplatePreview } from './TemplatePreview'
 import { LoadingSpinner } from '@/app/(frontend)/_components/ui/loading-spinner'
+import { PaginatedTemplatesResponse, TemplateData } from '@/app/(frontend)/_types/template-data'
 
 const ITEMS_PER_PAGE = 4
 
@@ -112,7 +107,7 @@ export function TemplateList() {
           />
           <span className="header-title">Template List</span>
         </div>
-        <Link href="/admin" className="template-admin-link">
+        <Link href="/admin" className="button-primary-outline button-lg">
           Switch to Admin Panel
         </Link>
       </header>
@@ -145,7 +140,7 @@ export function TemplateList() {
                         handleDeleteTemplate(template.id)
                       }
                     }}
-                    className="delete-button"
+                    className="button-destructive button-md  absolute top-0 right-0 p-6"
                     aria-label="Delete template"
                   >
                     <TrashIcon className="w-5 h-5" />
@@ -160,11 +155,14 @@ export function TemplateList() {
                         <p className="text-gray-600 text-sm line-clamp-2">{template.description}</p>
                       </div>
                       <div className="flex justify-end gap-2">
-                        <Link href={`/editor/${template.id}`} className="action-button-primary">
+                        <Link href={`/editor/${template.id}`} className="button-primary button-md">
                           <EditIcon className="w-4 h-4 mr-1" />
                           Edit
                         </Link>
-                        <Link href={`/preview/${template.id}`} className="action-button-secondary">
+                        <Link
+                          href={`/preview/${template.id}`}
+                          className="button-secondary button-md"
+                        >
                           <EyeIcon className="w-4 h-4 mr-1" />
                           Preview
                         </Link>
@@ -192,7 +190,7 @@ export function TemplateList() {
                 <p className="template-empty-description">
                   Get started by creating your first template
                 </p>
-                <button onClick={handleCreateTemplate} className="template-create-button">
+                <button onClick={handleCreateTemplate} className="button-primary button-md">
                   <PlusIcon className="w-4 h-4 mr-2" />
                   Create First Template
                 </button>

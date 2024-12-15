@@ -20,7 +20,7 @@ export async function POST(request: Request) {
     })
 
     const cookieStore = cookies()
-    cookieStore.set('payload-token', result.token, {
+    cookieStore.set('user-email', email, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',

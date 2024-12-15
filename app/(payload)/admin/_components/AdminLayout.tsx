@@ -27,7 +27,7 @@ export function AdminLayout({ children }: AdminLayoutProps): JSX.Element {
           </div>
           <span className="header-title">Admin Panel</span>
         </div>
-        {/* <Link href="/template-list" className="template-admin-link">
+        {/* <Link href="/template-list" className="button-link">
           Switch to Templates
         </Link> */}
       </header>

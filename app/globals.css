@@ -189,18 +189,6 @@
     @apply absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-white/90 pointer-events-none;
   }
 
-  .delete-button {
-    @apply absolute top-4 right-4 p-2 text-gray-500 bg-gray-50 hover:bg-red-500 hover:text-white transition-colors rounded-xl shadow-lg z-20;
-  }
-
-  .action-button-primary {
-    @apply px-4 py-2 text-sm bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors flex items-center shadow-sm;
-  }
-
-  .action-button-secondary {
-    @apply px-4 py-2 text-sm bg-gray-500 text-white rounded-md hover:bg-gray-600 transition-colors flex items-center shadow-sm;
-  }
-
   .pagination-button {
     @apply p-2 rounded;
   }
@@ -338,10 +326,6 @@
     @apply text-gray-600 text-sm mb-6 leading-relaxed;
   }
 
-  .service-button {
-    @apply bg-blue-600 text-white border-none py-3 px-6 rounded-md font-medium cursor-pointer transition-colors hover:bg-blue-700;
-  }
-
   /* Feature Card Components */
   .feature-card {
     @apply flex gap-8 p-8 bg-gray-900 rounded-lg min-h-[300px];
@@ -367,10 +351,6 @@
     @apply flex-1 bg-cyan-400 rounded-lg overflow-hidden flex items-center justify-center;
   }
 
-  .feature-button {
-    @apply inline-block bg-cyan-400 text-gray-900 py-3 px-6 rounded-md font-semibold mt-6 self-start transition-all hover:bg-cyan-500 hover:translate-y-[-2px];
-  }
-
   /* Template List Components */
   .template-header {
     @apply flex justify-between items-center px-6 py-4 bg-white border-b;
@@ -382,10 +362,6 @@
 
   .header-title {
     @apply ml-3 font-semibold text-2xl bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent drop-shadow-sm hover:from-blue-500 hover:to-purple-500 transition-all duration-300 font-sans;
-  }
-
-  .template-admin-link {
-    @apply flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700 transition-colors;
   }
 
   .template-grid {
@@ -410,10 +386,6 @@
 
   .template-empty-description {
     @apply text-gray-500 mb-4;
-  }
-
-  .template-create-button {
-    @apply inline-flex items-center px-4 py-2 text-sm font-medium text-white bg-blue-500 rounded-md hover:bg-blue-600;
   }
 
   /* Admin Layout Components */
@@ -477,6 +449,84 @@
 
   .editor-status-item {
     @apply flex items-center gap-2 px-3 py-2 rounded-sm cursor-pointer hover:bg-primary/80 transition-colors;
+  }
+
+  /* Base Button Styles */
+  .button-base {
+    @apply inline-flex items-center justify-center rounded-md text-sm font-medium
+      transition-colors focus-visible:outline-none focus-visible:ring-2 
+      focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none 
+      disabled:opacity-50 gap-2;
+  }
+
+  /* Size Variants */
+  .button-sm {
+    @apply h-8 px-3 text-xs;
+  }
+
+  .button-md {
+    @apply h-10 px-4;
+  }
+
+  .button-lg {
+    @apply h-12 px-6 text-base;
+  }
+
+  /* Primary Button Variants */
+  .button-primary {
+    @apply button-base bg-primary text-primary-foreground shadow
+      hover:bg-primary/90 active:bg-primary/95;
+  }
+
+  .button-primary-outline {
+    @apply button-base border border-primary text-primary 
+      hover:bg-primary hover:text-primary-foreground;
+  }
+
+  /* Secondary Button Variants */
+  .button-secondary {
+    @apply button-base bg-secondary text-secondary-foreground shadow-sm
+      hover:bg-secondary/80 active:bg-secondary/90;
+  }
+
+  .button-secondary-outline {
+    @apply button-base border border-secondary text-secondary-foreground
+      hover:bg-secondary/80 active:bg-secondary/90;
+  }
+
+  /* Destructive Button Variants */
+  .button-destructive {
+    @apply button-base bg-destructive/50 text-destructive-foreground shadow-sm
+      hover:bg-destructive/90 active:bg-destructive;
+  }
+
+  /* Ghost Button Variant */
+  .button-ghost {
+    @apply button-base hover:bg-accent hover:text-accent-foreground;
+  }
+
+  /* Link Button Variant */
+  .button-link {
+    @apply button-base text-primary underline-offset-4 hover:underline;
+  }
+
+  /* Loading State */
+  .button-loading {
+    @apply opacity-80 pointer-events-none;
+  }
+
+  /* Icon Button Variant */
+  .button-icon {
+    @apply button-base p-2 h-10 w-10;
+  }
+
+  /* Special States */
+  .button-active {
+    @apply ring-2 ring-ring ring-offset-2;
+  }
+
+  .button-waiting {
+    @apply cursor-wait opacity-70;
   }
 }
 
