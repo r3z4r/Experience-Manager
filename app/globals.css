@@ -99,7 +99,7 @@
     --admin-card-padding: 1.5rem;
     --admin-form-gap: 1.25rem;
     --editor-border: 216 12% 80%;
-    --editor-bg-primary: 0 0% 95%;
+    --editor-bg-primary: 0 0% 100%;
     --editor-text-primary: 215 25% 15%;
 
     /* Dropdown Menu */
@@ -468,7 +468,7 @@
 
   /* Editor Status Button and Dropdown */
   .editor-status-button {
-    @apply flex items-center gap-2 px-4 py-2 min-w-[160px] bg-primary text-primary-foreground hover:bg-primary/90 rounded-md transition-colors;
+    @apply flex items-center gap-2 min-w-[160px] bg-primary hover:bg-primary/90 rounded-md transition-colors;
   }
 
   .editor-status-dropdown {

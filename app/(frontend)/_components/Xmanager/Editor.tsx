@@ -372,7 +372,6 @@ const Editor = ({ templateId, mode = 'edit' }: EditorProps) => {
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button
-              variant="default"
               className="editor-status-button"
               disabled={publishStatus === 'publishing' || !templateId}
             >
