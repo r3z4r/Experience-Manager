@@ -8,6 +8,8 @@ import { footerBlock } from './Footer/Footer.config'
 import { subscriptionBlock } from './Subscription/Subscription.config'
 import { statisticsBlock } from './Statistics/Statistics.config'
 import { cardBlock, cardRightBlock } from './Card/Card.config'
+import { paymentBlock } from './Payment/Payment.config'
+import { signInBlock } from './SignIn/SignIn.config'
 
 export const customBlocks: BlockConfig[] = [
   headerBlock,
@@ -20,4 +22,6 @@ export const customBlocks: BlockConfig[] = [
   statisticsBlock,
   cardBlock,
   cardRightBlock,
+  paymentBlock,
+  signInBlock,
 ]

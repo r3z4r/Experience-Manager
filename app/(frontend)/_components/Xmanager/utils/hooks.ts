@@ -2,12 +2,14 @@ import { useEffect, useState } from 'react'
 import { Editor as GrapesEditor } from 'grapesjs'
 import { fetchTemplateById } from '@/app/(frontend)/_actions/templates'
 import { toast } from 'sonner'
+import { TemplateStatus } from '@/app/(frontend)/_types/template'
 
 export const useTemplateData = (templateId: string | undefined) => {
   const [initialData, setInitialData] = useState<{
     html: string
     css: string
     gjsData?: unknown
+    status?: TemplateStatus
   } | null>(null)
   const [templateName, setTemplateName] = useState('')
   const [templateDescription, setTemplateDescription] = useState('')

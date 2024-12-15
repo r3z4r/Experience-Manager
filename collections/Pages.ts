@@ -1,17 +1,16 @@
 import type { CollectionConfig } from 'payload'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
-
-interface EditableRegion {
-  id: string
-  selector: string
-  content: string
-}
+import {
+  ACCESS_VISIBILITY,
+  COMPONENT_TYPE,
+  TEMPLATE_STATUS,
+} from '@/app/(frontend)/_types/template'
 
 export const Pages: CollectionConfig = {
   slug: 'pages',
   admin: {
     useAsTitle: 'title',
-    defaultColumns: ['title', 'updatedAt'],
+    defaultColumns: ['title', 'status', 'updatedAt'],
   },
   fields: [
     {
@@ -22,6 +21,72 @@ export const Pages: CollectionConfig = {
     {
       name: 'description',
       type: 'text',
+    },
+    {
+      name: 'status',
+      type: 'select',
+      options: Object.entries(TEMPLATE_STATUS).map(([key, value]) => ({
+        label: key.charAt(0) + key.slice(1).toLowerCase(),
+        value,
+      })),
+      defaultValue: TEMPLATE_STATUS.DRAFT,
+      required: true,
+    },
+    {
+      name: 'access',
+      type: 'group',
+      fields: [
+        {
+          name: 'visibility',
+          type: 'select',
+          options: Object.entries(ACCESS_VISIBILITY).map(([key, value]) => ({
+            label: key.charAt(0) + key.slice(1).toLowerCase(),
+            value,
+          })),
+          defaultValue: ACCESS_VISIBILITY.PUBLIC,
+          required: true,
+        },
+        {
+          name: 'allowedUsers',
+          type: 'relationship',
+          relationTo: 'users',
+          hasMany: true,
+          admin: {
+            condition: (data) => data.access?.visibility === 'restricted',
+          },
+        },
+      ],
+    },
+    {
+      name: 'components',
+      type: 'array',
+      fields: [
+        {
+          name: 'type',
+          type: 'select',
+          options: Object.entries(COMPONENT_TYPE).map(([key, value]) => ({
+            label: key
+              .split('_')
+              .map((word) => word.charAt(0) + word.slice(1).toLowerCase())
+              .join(' '),
+            value,
+          })),
+        },
+        {
+          name: 'config',
+          type: 'json',
+          admin: {
+            description: 'Component-specific configuration',
+          },
+        },
+        {
+          name: 'placement',
+          type: 'text',
+          admin: {
+            description: 'CSS selector for component placement',
+          },
+        },
+      ],
     },
     {
       name: 'editableRegions',

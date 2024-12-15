@@ -1,38 +1,62 @@
+import type { User, Page } from '@/payload-types'
+
 export interface BlockConfig {
   id: string
   label: string
   category: string
   content: string
-  css?: string
   attributes?: Record<string, string>
-  media?: string
+  css?: string
 }
 
-export interface CustomBlockProps {
+export interface BaseBlockProps {
   className?: string
-  children?: React.ReactNode
 }
 
-export interface HeroProps extends CustomBlockProps {
+export interface AuthBlockProps extends BaseBlockProps {
+  onSuccess?: (user: User) => void
+}
+
+export interface PaymentBlockProps extends BaseBlockProps {
+  clientSecret: string
+  onSuccess?: () => void
+}
+
+export interface TemplateBlockProps extends BaseBlockProps {
+  template: Page
+}
+
+// Re-export existing block props
+export interface HeroProps extends BaseBlockProps {
   title?: string
   subtitle?: string
   imageUrl?: string
 }
 
-export interface ServiceCardProps extends CustomBlockProps {
+export interface ServiceCardProps extends BaseBlockProps {
   title?: string
   description?: string
   imageUrl?: string
 }
 
-export interface MomentsHeaderProps extends CustomBlockProps {
+export interface StatisticsProps extends BaseBlockProps {
+  items?: Array<{
+    percentage: number
+    description: string
+  }>
+}
+
+export interface MomentsHeaderProps extends BaseBlockProps {
   logoSrc?: string
   logoAlt?: string
-  navLinks?: Array<{ href: string; label: string }>
+  navLinks?: Array<{
+    href: string
+    label: string
+  }>
   showLanguageSelector?: boolean
 }
 
-export interface SubscriptionProps extends CustomBlockProps {
+export interface SubscriptionProps extends BaseBlockProps {
   title?: string
   price?: string
   period?: string
@@ -42,7 +66,7 @@ export interface SubscriptionProps extends CustomBlockProps {
   imageUrl?: string
 }
 
-export interface CarouselProps extends CustomBlockProps {
+export interface CarouselProps extends BaseBlockProps {
   items: Array<{
     imageUrl: string
     title: string
@@ -50,24 +74,22 @@ export interface CarouselProps extends CustomBlockProps {
   }>
 }
 
-export interface FooterProps extends CustomBlockProps {
+export interface FooterProps extends BaseBlockProps {
   logoSrc?: string
   socialLinks?: Array<{ icon: string; href: string }>
   quickLinks?: Array<{ label: string; href: string }>
 }
 
-export interface StatisticsProps extends CustomBlockProps {
-  items?: Array<{
-    percentage: number
-    description: string
-  }>
-}
-
-export interface CardProps extends CustomBlockProps {
+export interface CardProps extends BaseBlockProps {
   title: string
   listItems: string[]
   imageUrl: string
   buttonText: string
   buttonUrl: string
   imagePosition: 'left' | 'right'
+}
+
+export interface PaymentBlockProps extends BaseBlockProps {
+  clientSecret: string
+  onSuccess?: () => void
 }

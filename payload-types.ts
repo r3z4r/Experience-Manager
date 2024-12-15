@@ -105,6 +105,27 @@ export interface Page {
   id: string;
   title: string;
   description?: string | null;
+  status: 'draft' | 'published' | 'archived';
+  access: {
+    visibility: 'public' | 'private' | 'restricted';
+    allowedUsers?: (string | User)[] | null;
+  };
+  components?:
+    | {
+        type?: ('stripe-payment' | 'sign-in' | 'custom-form') | null;
+        config?:
+          | {
+              [k: string]: unknown;
+            }
+          | unknown[]
+          | string
+          | number
+          | boolean
+          | null;
+        placement?: string | null;
+        id?: string | null;
+      }[]
+    | null;
   editableRegions?:
     | {
         id: string | null;
@@ -286,6 +307,21 @@ export interface MediaSelect<T extends boolean = true> {
 export interface PagesSelect<T extends boolean = true> {
   title?: T;
   description?: T;
+  status?: T;
+  access?:
+    | T
+    | {
+        visibility?: T;
+        allowedUsers?: T;
+      };
+  components?:
+    | T
+    | {
+        type?: T;
+        config?: T;
+        placement?: T;
+        id?: T;
+      };
   editableRegions?:
     | T
     | {

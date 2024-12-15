@@ -206,9 +206,6 @@
   }
 
   /* Editor Components */
-  .editor-wrapper {
-    @apply h-screen bg-white relative;
-  }
 
   .editor-panel-top {
     @apply bg-white py-3 px-4 border-b border-gray-200 sticky top-0 z-10 flex items-center justify-between;
@@ -237,11 +234,6 @@
   .editor-description {
     @apply text-sm text-gray-600 line-clamp-2;
   }
-
-  .editor-save-button {
-    @apply inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors;
-  }
-
   /* Editor Modal Components */
   .editor-modal-overlay {
     @apply fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50;
@@ -435,6 +427,39 @@
 
   .admin-divider {
     @apply h-4 w-px bg-border;
+  }
+
+  /* Editor styles */
+  .editor-wrapper {
+    @apply w-full h-screen relative overflow-hidden;
+  }
+
+  .editor-topbar {
+    @apply flex items-center justify-between px-4 py-2 bg-background border-b;
+  }
+
+  .editor-content {
+    @apply flex-1 h-[calc(100vh-4rem)] relative;
+  }
+
+  .editor-back-button {
+    @apply flex items-center gap-2 text-sm font-medium hover:text-primary transition-colors;
+  }
+
+  .editor-button {
+    @apply flex items-center gap-2 px-4 py-2 rounded-md transition-colors;
+  }
+
+  .editor-save-button {
+    @apply editor-button bg-primary text-primary-foreground hover:bg-primary/90;
+  }
+
+  .editor-publish-button {
+    @apply editor-button bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 hover:text-primary-foreground/90;
+  }
+
+  .editor-container {
+    @apply w-full h-full;
   }
 }
 
