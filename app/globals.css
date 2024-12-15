@@ -101,6 +101,14 @@
     --editor-border: 216 12% 80%;
     --editor-bg-primary: 0 0% 95%;
     --editor-text-primary: 215 25% 15%;
+
+    /* Dropdown Menu */
+    --dropdown-menu-min-width: 160px;
+    --dropdown-menu-padding: 6px;
+    --dropdown-item-height: 32px;
+    --dropdown-item-padding: 8px 12px;
+    --dropdown-border-radius: var(--radius-md);
+    --dropdown-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   }
 
   .dark {
@@ -454,12 +462,21 @@
     @apply editor-button bg-primary text-primary-foreground hover:bg-primary/90;
   }
 
-  .editor-publish-button {
-    @apply editor-button bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 hover:text-primary-foreground/90;
-  }
-
   .editor-container {
     @apply w-full h-full;
+  }
+
+  /* Editor Status Button and Dropdown */
+  .editor-status-button {
+    @apply flex items-center gap-2 px-4 py-2 min-w-[160px] bg-primary text-primary-foreground hover:bg-primary/90 rounded-md transition-colors;
+  }
+
+  .editor-status-dropdown {
+    @apply min-w-[160px] p-2 bg-primary border-primary/20 text-primary-foreground;
+  }
+
+  .editor-status-item {
+    @apply flex items-center gap-2 px-3 py-2 rounded-sm cursor-pointer hover:bg-primary/80 transition-colors;
   }
 }
 

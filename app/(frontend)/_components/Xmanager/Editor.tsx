@@ -373,34 +373,36 @@ const Editor = ({ templateId, mode = 'edit' }: EditorProps) => {
           <DropdownMenuTrigger asChild>
             <Button
               variant="default"
-              className="editor-publish-button"
+              className="editor-status-button"
               disabled={publishStatus === 'publishing' || !templateId}
             >
-              <CloudUploadIcon className="w-4 h-4 mr-2" />
-              {publishStatus === 'publishing' ? 'Processing...' : 'Manage Status'}
-              <ChevronDown className="w-4 h-4 ml-2" />
+              <CloudUploadIcon className="w-4 h-4" />
+              <span className="px-1">
+                {publishStatus === 'publishing' ? 'Processing...' : 'Manage Status'}
+              </span>
+              <ChevronDown className="w-4 h-4" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
+          <DropdownMenuContent align="end" className="editor-status-dropdown">
             <DropdownMenuItem
-              onClick={() => handleStatusChange('draft')}
-              className="flex items-center"
+              onClick={() => handleStatusChange(TEMPLATE_STATUS.DRAFT)}
+              className="editor-status-item group"
             >
-              <Clock className="w-4 h-4 mr-2" />
+              <Clock className="text-yellow-500 group-hover:text-yellow-600" />
               Set as Draft
             </DropdownMenuItem>
             <DropdownMenuItem
-              onClick={() => handleStatusChange('published')}
-              className="flex items-center"
+              onClick={() => handleStatusChange(TEMPLATE_STATUS.PUBLISHED)}
+              className="editor-status-item group"
             >
-              <CheckCircle2 className="w-4 h-4 mr-2" />
+              <CheckCircle2 className="text-green-500 group-hover:text-green-600" />
               Publish
             </DropdownMenuItem>
             <DropdownMenuItem
-              onClick={() => handleStatusChange('archived')}
-              className="flex items-center"
+              onClick={() => handleStatusChange(TEMPLATE_STATUS.ARCHIVED)}
+              className="editor-status-item group"
             >
-              <Archive className="w-4 h-4 mr-2" />
+              <Archive className="text-gray-500 group-hover:text-gray-600" />
               Archive
             </DropdownMenuItem>
           </DropdownMenuContent>
