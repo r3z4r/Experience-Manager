@@ -71,6 +71,7 @@ export async function POST(request: Request) {
       access: {
         visibility: 'public',
       },
+      slug: body.slug,
     }
 
     const template = await createTemplate(templateData)

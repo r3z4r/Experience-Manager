@@ -57,10 +57,17 @@ export async function createTemplate(templateData: TemplateData) {
     config: configPromise,
   })
 
-  return payload.create({
+  // Create template
+  const template = await payload.create({
     collection: 'pages',
-    data: templateData,
+    data: {
+      ...templateData,
+      // Set a temporary slug that will be updated after creation
+      slug: 'temp-slug',
+    },
   })
+
+  return template
 }
 
 export async function updateTemplate(id: string, data: Partial<TemplateData>) {
@@ -105,5 +112,26 @@ export async function updateTemplateStatus(
   } catch (error) {
     console.error('Error updating template status:', error)
     throw error
+  }
+}
+
+export async function fetchTemplateBySlug(slug: string) {
+  const payload = await getPayload({
+    config: configPromise,
+  })
+
+  try {
+    const templates = await payload.find({
+      collection: 'pages',
+      where: {
+        slug: { equals: slug },
+      },
+      limit: 1,
+    })
+
+    return templates.docs[0] || null
+  } catch (error) {
+    console.error('Error fetching template by slug:', error)
+    return null
   }
 }

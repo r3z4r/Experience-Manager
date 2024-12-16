@@ -188,7 +188,7 @@
 
 /* Canvas */
 .gjs-cv-canvas {
-  background-color: hsl(var(--editor-bg-secondary)) !important;
+  background-color: hsl(var(--editor-bg-tertiary)) !important;
   padding: var(--space-4) !important;
 }
 

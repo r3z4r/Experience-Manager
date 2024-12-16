@@ -66,6 +66,7 @@ export function TemplateList() {
         access: {
           visibility: 'public',
         },
+        slug: 'temp-slug', // Temporary slug that will be updated with id
       })
 
       if (response?.id) {
