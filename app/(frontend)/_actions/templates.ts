@@ -1,6 +1,6 @@
 'use server'
 
-import { getPayload, Where } from 'payload'
+import { getPayload, WhereField } from 'payload'
 import configPromise from '@payload-config'
 import type {
   TemplateData,
@@ -18,9 +18,22 @@ export async function fetchTemplates(
 
   const { page = 1, limit = 10, filter = {} } = options
 
+  // Construct the where clause
+  const where: { [key: string]: WhereField } = {}
+
+  // Add status filter if provided
+  if (filter.status) {
+    where.status = { equals: filter.status }
+  }
+
+  // Add visibility filter if provided
+  if (filter.visibility) {
+    where['access.visibility'] = { equals: filter.visibility }
+  }
+
   const response = await payload.find({
     collection: 'pages',
-    where: filter as Where,
+    where,
     limit,
     page,
   })
