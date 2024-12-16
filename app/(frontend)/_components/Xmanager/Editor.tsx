@@ -4,7 +4,18 @@ import { useEffect, useRef, useState } from 'react'
 import grapesjs, { Editor as GrapesEditor, ProjectData } from 'grapesjs'
 import 'grapesjs/dist/css/grapes.min.css'
 import './Editor.globals.css'
-import { ArrowLeft, CloudUploadIcon, ChevronDown, CheckCircle2, Clock, Archive } from 'lucide-react'
+import {
+  ArrowLeft,
+  CloudUploadIcon,
+  ChevronDown,
+  CheckCircle2,
+  Clock,
+  Archive,
+  Check,
+  X,
+  Pencil,
+  Copy,
+} from 'lucide-react'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -30,6 +41,7 @@ import { fetchImages } from '@/app/(frontend)/_actions/images'
 import type { PayloadImage } from '@/app/(frontend)/_actions/images'
 import type { TemplateData } from '@/app/(frontend)/_types/template-data'
 import { TEMPLATE_STATUS, TemplateStatus } from '@/app/(frontend)/_types/template'
+import { generateSlug } from '@/lib/utils/slug-generator'
 
 type TemplateError = PayloadValidationError | ServerError | NetworkError
 
@@ -62,6 +74,7 @@ const Editor = ({ templateId, mode = 'edit' }: EditorProps) => {
   const [publishStatus, setPublishStatus] = useState<'idle' | 'publishing' | 'published' | 'error'>(
     'idle',
   )
+  const [copyStatus, setCopyStatus] = useState<'idle' | 'copied'>('idle')
 
   const {
     initialData,
@@ -69,11 +82,19 @@ const Editor = ({ templateId, mode = 'edit' }: EditorProps) => {
     setTemplateName,
     templateDescription,
     setTemplateDescription,
+    slug: {
+      value: slugValue,
+      isEditing: isSlugEditing,
+      tempValue: slugTempValue,
+      handleSlugChange,
+      startSlugEdit,
+      cancelSlugEdit,
+      saveSlug,
+      syncSlug,
+    },
+    status: currentStatus,
+    setStatus: setCurrentStatus,
   } = useTemplateData(templateId)
-
-  const [currentStatus, setCurrentStatus] = useState<TemplateStatus>(
-    initialData?.status || TEMPLATE_STATUS.DRAFT,
-  )
 
   useEffect(() => {
     const loadImages = async () => {
@@ -191,10 +212,11 @@ const Editor = ({ templateId, mode = 'edit' }: EditorProps) => {
       const pageData: TemplateData = {
         title: templateName.trim(),
         description: templateDescription,
+        slug: slugTempValue || templateId || '',
         htmlContent: editor.getHtml(),
         cssContent: editor.getCss(),
         gjsData: editor.getProjectData(),
-        status: 'draft',
+        status: currentStatus,
         access: {
           visibility: 'public',
         },
@@ -210,7 +232,7 @@ const Editor = ({ templateId, mode = 'edit' }: EditorProps) => {
           } as ServerError
         }
 
-        handleSuccessfulSave('Template updated successfully')
+        handleSuccessfulSave('Template updated successfully', undefined, slugTempValue)
       } else {
         const savedTemplate = await createTemplate(pageData)
         if (!savedTemplate?.id) {
@@ -220,8 +242,8 @@ const Editor = ({ templateId, mode = 'edit' }: EditorProps) => {
             statusCode: 500,
           } as ServerError
         }
-
-        handleSuccessfulSave('New template created successfully', savedTemplate.id)
+        await updateTemplate(savedTemplate.id, { slug: savedTemplate.id })
+        handleSuccessfulSave('New template created successfully', savedTemplate.id, slugTempValue)
       }
     } catch (error) {
       handleSaveError(error)
@@ -258,7 +280,12 @@ const Editor = ({ templateId, mode = 'edit' }: EditorProps) => {
     return null
   }
 
-  const handleSuccessfulSave = (message: string, newTemplateId?: string): void => {
+  const handleSuccessfulSave = (
+    message: string,
+    newTemplateId?: string,
+    slugValue: string = newTemplateId || '',
+  ): void => {
+    syncSlug(slugValue)
     setHasUnsavedChanges(false)
     setSaveStatus('saved')
     setShowSaveDialog(false)
@@ -326,9 +353,23 @@ const Editor = ({ templateId, mode = 'edit' }: EditorProps) => {
       return
     }
 
+    if (newStatus === TEMPLATE_STATUS.PUBLISHED && !slugValue.trim()) {
+      toast.error('Please set a URL slug before publishing')
+      return
+    }
+
     try {
       setPublishStatus('publishing')
-      await updateTemplateStatus(templateId, newStatus)
+
+      if (newStatus === TEMPLATE_STATUS.PUBLISHED) {
+        await updateTemplate(templateId, {
+          status: newStatus,
+          slug: slugValue,
+        })
+      } else {
+        await updateTemplateStatus(templateId, newStatus)
+      }
+
       setCurrentStatus(newStatus)
       setPublishStatus('published')
       toast.success(`Template ${newStatus} successfully`)
@@ -352,6 +393,25 @@ const Editor = ({ templateId, mode = 'edit' }: EditorProps) => {
     )
   }
 
+  const handleCopyUrl = async () => {
+    try {
+      const baseUrl = window.location.origin
+      const basePath = process.env.NEXT_PUBLIC_BASE_PATH || ''
+      const templateUrl = `${baseUrl}${basePath}/pages/${slugValue}`
+      await navigator.clipboard.writeText(templateUrl)
+      setCopyStatus('copied')
+      toast.success('URL copied to clipboard')
+
+      // Reset copy status after 2 seconds
+      setTimeout(() => {
+        setCopyStatus('idle')
+      }, 2000)
+    } catch (error) {
+      toast.error('Failed to copy URL')
+      console.error('Copy failed:', error)
+    }
+  }
+
   return (
     <div className="editor-wrapper">
       <div className="editor-panel-top">
@@ -365,14 +425,71 @@ const Editor = ({ templateId, mode = 'edit' }: EditorProps) => {
               <h1 className="editor-title">{templateName || 'Untitled Template'}</h1>
               <StatusChip />
             </div>
-            <p className="editor-description">{templateDescription || 'No description provided'}</p>
+            <div className="flex items-center gap-2 mt-1">
+              <span className="text-sm text-muted-foreground">/pages/</span>
+              {isSlugEditing ? (
+                <div className="flex items-center gap-1">
+                  <input
+                    type="text"
+                    value={slugTempValue}
+                    onChange={(e) => handleSlugChange(e.target.value)}
+                    className="h-6 px-1 text-sm border rounded bg-background"
+                    autoFocus
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        saveSlug()
+                      } else if (e.key === 'Escape') {
+                        cancelSlugEdit()
+                      }
+                    }}
+                  />
+                  <button
+                    onClick={() => saveSlug()}
+                    className="p-1 text-green-500 hover:text-green-600 rounded"
+                  >
+                    <Check className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={cancelSlugEdit}
+                    className="p-1 text-red-500 hover:text-red-600 rounded"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              ) : (
+                <div className="flex items-center gap-1 group">
+                  <span className="text-sm font-mono">{slugValue || 'no-slug'}</span>
+                  <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button
+                      onClick={startSlugEdit}
+                      className="p-1 text-muted-foreground hover:text-foreground rounded"
+                    >
+                      <Pencil className="w-3 h-3" />
+                    </button>
+                    <button
+                      onClick={handleCopyUrl}
+                      className="p-1 text-muted-foreground hover:text-foreground rounded"
+                      title="Copy URL to clipboard"
+                    >
+                      {copyStatus === 'copied' ? (
+                        <Check className="w-3 h-3 text-green-500" />
+                      ) : (
+                        <Copy className="w-3 h-3" />
+                      )}
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+            <p className="editor-description mt-1">
+              {templateDescription || 'No description provided'}
+            </p>
           </div>
         </div>
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button
-              variant="default"
               className="editor-status-button"
               disabled={publishStatus === 'publishing' || !templateId}
             >
@@ -431,6 +548,35 @@ const Editor = ({ templateId, mode = 'edit' }: EditorProps) => {
                   placeholder="Enter template name"
                   className="editor-form-input"
                 />
+              </div>
+
+              <div className="editor-form-field">
+                <label className="editor-form-label">URL Slug</label>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={slugTempValue}
+                    onChange={(e) => handleSlugChange(e.target.value)}
+                    placeholder="custom-url-slug"
+                    className="editor-form-input flex-1"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={async () => {
+                      const generatedSlug = await generateSlug(templateName)
+                      handleSlugChange(generatedSlug)
+                    }}
+                    className="whitespace-nowrap"
+                  >
+                    Generate
+                  </Button>
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  This will be used in the URL: /pages/
+                  <span className="font-mono">{slugValue || 'your-slug'}</span>
+                </p>
               </div>
 
               <div className="editor-form-field">

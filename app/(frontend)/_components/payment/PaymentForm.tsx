@@ -1,15 +1,15 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { loadStripe } from '@stripe/stripe-js'
 import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-stripe-js'
 import { toast } from 'sonner'
+import { LoadingSpinner } from '@/app/(frontend)/_components/ui/loading-spinner'
 
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY!)
 
 interface PaymentFormProps {
-  clientSecret: string
-  onSuccess?: () => void
+  templateId: string
 }
 
 function CheckoutForm({ onSuccess }: { onSuccess?: () => void }) {
@@ -42,6 +42,7 @@ function CheckoutForm({ onSuccess }: { onSuccess?: () => void }) {
         onSuccess?.()
       }
     } catch (error) {
+      console.error(error)
       toast.error('Payment failed')
     } finally {
       setIsLoading(false)
@@ -58,10 +59,25 @@ function CheckoutForm({ onSuccess }: { onSuccess?: () => void }) {
   )
 }
 
-export function PaymentForm({ clientSecret, onSuccess }: PaymentFormProps) {
+export function PaymentForm({ templateId }: PaymentFormProps) {
+  const [clientSecret, setClientSecret] = useState<string>()
+
+  // TODO: Fetch the client secret from the server for each template
+  useEffect(() => {
+    fetch('/api/payment/create-intent', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ amount: 2000 }), // $20.00
+    })
+      .then((res) => res.json())
+      .then((data) => setClientSecret(data.clientSecret))
+  }, [])
+
+  if (!clientSecret) return <LoadingSpinner />
+
   return (
     <Elements stripe={stripePromise} options={{ clientSecret }}>
-      <CheckoutForm onSuccess={onSuccess} />
+      <CheckoutForm onSuccess={() => {}} />
     </Elements>
   )
 }

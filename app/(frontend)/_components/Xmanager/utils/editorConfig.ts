@@ -7,6 +7,7 @@ import { Editor as GrapesEditor, ProjectData } from 'grapesjs'
 import { createTemplate, updateTemplate } from '@/app/(frontend)/_actions/templates'
 import { getAssetManagerConfig } from './assetConfig'
 import { PayloadImage } from '@/app/(frontend)/_actions/images'
+import { TemplateData } from '@/app/(frontend)/_types/template-data'
 
 export const getEditorConfig = (
   container: HTMLElement,
@@ -46,7 +47,11 @@ export const getEditorConfig = (
               htmlContent: editor?.getHtml() || '',
               cssContent: editor?.getCss() || '',
               gjsData: data as ProjectData,
-            }
+              status: 'draft',
+              access: {
+                visibility: 'public',
+              },
+            } as TemplateData
 
             if (templateId) {
               await updateTemplate(templateId, templateData)
@@ -147,7 +152,7 @@ export const getEditorConfig = (
               { name: 'Accent', value: 'hsl(var(--accent))' },
               { name: 'Background', value: 'hsl(var(--background))' },
               { name: 'Foreground', value: 'hsl(var(--foreground))' },
-            ]
+            ],
           },
           {
             type: 'color',
@@ -160,9 +165,9 @@ export const getEditorConfig = (
               { name: 'Accent', value: 'hsl(var(--accent))' },
               { name: 'Background', value: 'hsl(var(--background))' },
               { name: 'Foreground', value: 'hsl(var(--foreground))' },
-            ]
-          }
-        ]
+            ],
+          },
+        ],
       },
       {
         name: 'Typography',
@@ -178,7 +183,7 @@ export const getEditorConfig = (
               { value: '16px', name: 'Normal' },
               { value: '20px', name: 'Large' },
               { value: '24px', name: 'Extra Large' },
-            ]
+            ],
           },
           {
             name: 'Font Weight',
@@ -189,13 +194,13 @@ export const getEditorConfig = (
               { value: 'normal', name: 'Normal' },
               { value: 'bold', name: 'Bold' },
               { value: 'lighter', name: 'Light' },
-            ]
+            ],
           },
           'text-align',
           'line-height',
           'letter-spacing',
-          'text-decoration'
-        ]
+          'text-decoration',
+        ],
       },
       {
         name: 'Spacing',
@@ -211,7 +216,7 @@ export const getEditorConfig = (
               { value: '0.5rem', name: 'Small' },
               { value: '1rem', name: 'Medium' },
               { value: '2rem', name: 'Large' },
-            ]
+            ],
           },
           {
             name: 'Padding Size',
@@ -223,9 +228,9 @@ export const getEditorConfig = (
               { value: '0.5rem', name: 'Small' },
               { value: '1rem', name: 'Medium' },
               { value: '2rem', name: 'Large' },
-            ]
-          }
-        ]
+            ],
+          },
+        ],
       },
       {
         name: 'Effects',
@@ -241,7 +246,7 @@ export const getEditorConfig = (
               { value: 'var(--shadow-sm)', name: 'Small' },
               { value: 'var(--shadow-md)', name: 'Medium' },
               { value: 'var(--shadow-lg)', name: 'Large' },
-            ]
+            ],
           },
           {
             type: 'select',
@@ -254,10 +259,10 @@ export const getEditorConfig = (
               { value: 'var(--radius-md)', name: 'Medium' },
               { value: 'var(--radius-lg)', name: 'Large' },
               { value: '9999px', name: 'Round' },
-            ]
-          }
-        ]
-      }
-    ]
+            ],
+          },
+        ],
+      },
+    ],
   },
 })

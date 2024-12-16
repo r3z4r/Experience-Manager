@@ -2,7 +2,7 @@ import { withPayload } from '@payloadcms/next/withPayload'
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  basePath: '/xpm',
+  basePath: process.env.NEXT_PUBLIC_BASE_PATH || '/xpm',
   experimental: {
     serverActions: {
       allowedOrigins: ['demo.tecnotree.com', 'localhost:5200'],

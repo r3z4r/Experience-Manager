@@ -104,6 +104,7 @@ export interface Media {
 export interface Page {
   id: string;
   title: string;
+  slug?: string | null;
   description?: string | null;
   status: 'draft' | 'published' | 'archived';
   access: {
@@ -306,6 +307,7 @@ export interface MediaSelect<T extends boolean = true> {
  */
 export interface PagesSelect<T extends boolean = true> {
   title?: T;
+  slug?: T;
   description?: T;
   status?: T;
   access?:

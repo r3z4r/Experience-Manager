@@ -8,6 +8,7 @@ export type ComponentConfig = {
 export interface TemplateData {
   id?: string
   title: string
+  slug: string
   description?: string | null
   status: TemplateStatus
   htmlContent?: string | null
@@ -22,6 +23,8 @@ export interface TemplateData {
     config: ComponentConfig
     placement: string
   }>
+  updatedAt?: string
+  createdAt?: string
 }
 
 export interface PaginatedTemplatesResponse {

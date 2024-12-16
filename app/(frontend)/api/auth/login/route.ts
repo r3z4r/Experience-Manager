@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server'
 import { getPayload } from 'payload'
 import configPromise from '@payload-config'
-import { cookies } from 'next/headers'
 
 export async function POST(request: Request) {
   try {
@@ -11,7 +10,7 @@ export async function POST(request: Request) {
       config: configPromise,
     })
 
-    const result = await payload.login({
+    await payload.login({
       collection: 'users',
       data: {
         email,
@@ -19,15 +18,15 @@ export async function POST(request: Request) {
       },
     })
 
-    const cookieStore = cookies()
-    cookieStore.set('payload-token', result.token, {
+    const response = NextResponse.json({ success: true })
+    response.cookies.set('user-email', email, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
       path: '/',
     })
 
-    return NextResponse.json({ success: true })
+    return response
   } catch (error) {
     console.error('Login error:', error)
     return NextResponse.json({ error: 'Authentication failed' }, { status: 401 })
