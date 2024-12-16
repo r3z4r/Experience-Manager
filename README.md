@@ -94,6 +94,31 @@ Replace the placeholders:
 - Restrict MongoDB access with proper authentication
 - Use environment-specific configuration for different deployments
 
+## Environment Variables Setup
+
+Create a `.env` file in the root directory with the following variables:
+
+```env
+DATABASE_URI=mongodb://127.0.0.1/payloadcms
+PAYLOAD_SECRET=5fd2f2f287cf55f22bfb71e3
+REACT_EDITOR=code
+NEXT_PUBLIC_APP_URL=http://localhost:5200
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_51OgPHqSCeWXqwRwV9tXjKxGZvkNwvBQkWXhxJCjVEVqkzuHHNkTe8f1vH8zKdGQjJ9qXZKmqWZq4ZKmqWZq4Z
+ALLOWED_ORIGINS=http://localhost:5200,https://moments-fit.pe-lab14.bdc-rancher.tecnotree.com/,https://moments-dev.pe-lab14.bdc-rancher.tecnotree.com/
+```
+
+> **Note**: Replace the values with your actual configuration. Never commit the `.env` file to version control.
+
+### Environment Variables Description
+
+- `DATABASE_URI`: MongoDB connection string
+- `PAYLOAD_SECRET`: Secret key for PayloadCMS
+- `REACT_EDITOR`: Preferred code editor
+- `NEXT_PUBLIC_APP_URL`: Base URL for the application
+- `NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY`: Stripe public key for payment processing
+- `STRIPE_SECRET_KEY`: Stripe secret key for payment processing
+- `ALLOWED_ORIGINS`: Comma-separated list of allowed CORS origins
+
 ## Installation
 
 1. Clone the repository

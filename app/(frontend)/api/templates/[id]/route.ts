@@ -26,6 +26,10 @@ export async function PUT(request: Request, { params }: { params: Promise<{ id: 
       htmlContent: body.html,
       cssContent: body.css,
       gjsData: body.gjsData,
+      status: 'draft',
+      access: {
+        visibility: 'public',
+      },
     })
     return NextResponse.json(template)
   } catch (error) {

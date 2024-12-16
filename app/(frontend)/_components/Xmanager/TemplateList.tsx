@@ -67,6 +67,10 @@ export function TemplateList() {
         htmlContent: '',
         cssContent: '',
         gjsData: {},
+        status: 'draft',
+        access: {
+          visibility: 'public',
+        },
       })
 
       if (response?.id) {

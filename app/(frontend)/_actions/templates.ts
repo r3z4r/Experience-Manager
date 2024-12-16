@@ -1,37 +1,13 @@
 'use server'
 
-import { getPayload } from 'payload'
+import { getPayload, Where } from 'payload'
 import configPromise from '@payload-config'
-import type { Where } from 'payload'
-import { ProjectData } from 'grapesjs'
-
-export interface TemplateData {
-  id?: string
-  title: string
-  description?: string | null
-  htmlContent?: string | null
-  cssContent?: string
-  gjsData?: ProjectData
-}
-
-export interface PaginatedTemplatesResponse {
-  docs: TemplateData[]
-  totalDocs: number
-  limit: number
-  totalPages: number
-  page: number
-  pagingCounter: number
-  hasPrevPage: boolean
-  hasNextPage: boolean
-  prevPage: number | null
-  nextPage: number | null
-}
-
-export interface FetchTemplatesOptions {
-  page?: number
-  limit?: number
-  filter?: Where
-}
+import type {
+  TemplateData,
+  PaginatedTemplatesResponse,
+  FetchTemplatesOptions,
+} from '@/app/(frontend)/_types/template-data'
+import { TemplateStatus } from '@/app/(frontend)/_types/template'
 
 export async function fetchTemplates(
   options: FetchTemplatesOptions = {},
@@ -44,7 +20,7 @@ export async function fetchTemplates(
 
   const response = await payload.find({
     collection: 'pages',
-    where: filter,
+    where: filter as Where,
     limit,
     page,
   })
@@ -95,4 +71,26 @@ export async function deleteTemplate(id: string) {
     collection: 'pages',
     id,
   })
+}
+
+export async function updateTemplateStatus(
+  id: string,
+  status: TemplateStatus,
+): Promise<TemplateData> {
+  try {
+    const payload = await getPayload({
+      config: configPromise,
+    })
+    const template = await payload.update({
+      collection: 'pages',
+      id,
+      data: {
+        status,
+      },
+    })
+    return template as TemplateData
+  } catch (error) {
+    console.error('Error updating template status:', error)
+    throw error
+  }
 }

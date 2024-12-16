@@ -4,8 +4,15 @@ import { useEffect, useRef, useState } from 'react'
 import grapesjs, { Editor as GrapesEditor, ProjectData } from 'grapesjs'
 import 'grapesjs/dist/css/grapes.min.css'
 import './Editor.globals.css'
-// import styles from './Editor.module.css'
-import { ArrowLeft, CloudUploadIcon } from 'lucide-react'
+import { ArrowLeft, CloudUploadIcon, ChevronDown, CheckCircle2, Clock, Archive } from 'lucide-react'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/app/(frontend)/_components/ui/dropdown-menu'
+import { Button } from '@/app/(frontend)/_components/ui/button'
+import { Badge } from '@/app/(frontend)/_components/ui/badge'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import { customBlocks } from './blocks'
@@ -14,11 +21,35 @@ import { getEditorConfig } from './utils/editorConfig'
 import { useTemplateData, useEditorSetup } from './utils/hooks'
 import { ValidationError as PayloadValidationError } from 'payload'
 import { ServerError, NetworkError } from './utils/types'
-import { createTemplate, TemplateData, updateTemplate } from '../../_actions/templates'
+import {
+  createTemplate,
+  updateTemplate,
+  updateTemplateStatus,
+} from '@/app/(frontend)/_actions/templates'
 import { fetchImages } from '@/app/(frontend)/_actions/images'
 import type { PayloadImage } from '@/app/(frontend)/_actions/images'
+import type { TemplateData } from '@/app/(frontend)/_types/template-data'
+import { TEMPLATE_STATUS, TemplateStatus } from '@/app/(frontend)/_types/template'
 
 type TemplateError = PayloadValidationError | ServerError | NetworkError
+
+const statusConfig = {
+  draft: {
+    label: 'Draft',
+    icon: Clock,
+    className: 'bg-yellow-500/10 text-yellow-500 hover:bg-yellow-500/20',
+  },
+  published: {
+    label: 'Published',
+    icon: CheckCircle2,
+    className: 'bg-green-500/10 text-green-500 hover:bg-green-500/20',
+  },
+  archived: {
+    label: 'Archived',
+    icon: Archive,
+    className: 'bg-gray-500/10 text-gray-500 hover:bg-gray-500/20',
+  },
+}
 
 const Editor = ({ templateId, mode = 'edit' }: EditorProps) => {
   const router = useRouter()
@@ -28,6 +59,9 @@ const Editor = ({ templateId, mode = 'edit' }: EditorProps) => {
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle')
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false)
   const [images, setImages] = useState<PayloadImage[]>([])
+  const [publishStatus, setPublishStatus] = useState<'idle' | 'publishing' | 'published' | 'error'>(
+    'idle',
+  )
 
   const {
     initialData,
@@ -36,6 +70,10 @@ const Editor = ({ templateId, mode = 'edit' }: EditorProps) => {
     templateDescription,
     setTemplateDescription,
   } = useTemplateData(templateId)
+
+  const [currentStatus, setCurrentStatus] = useState<TemplateStatus>(
+    initialData?.status || TEMPLATE_STATUS.DRAFT,
+  )
 
   useEffect(() => {
     const loadImages = async () => {
@@ -156,6 +194,10 @@ const Editor = ({ templateId, mode = 'edit' }: EditorProps) => {
         htmlContent: editor.getHtml(),
         cssContent: editor.getCss(),
         gjsData: editor.getProjectData(),
+        status: 'draft',
+        access: {
+          visibility: 'public',
+        },
       }
 
       if (templateId) {
@@ -278,26 +320,97 @@ const Editor = ({ templateId, mode = 'edit' }: EditorProps) => {
     })
   }, [editor])
 
+  const handleStatusChange = async (newStatus: TemplateStatus) => {
+    if (!templateId) {
+      toast.error('Please save the template before changing status')
+      return
+    }
+
+    try {
+      setPublishStatus('publishing')
+      await updateTemplateStatus(templateId, newStatus)
+      setCurrentStatus(newStatus)
+      setPublishStatus('published')
+      toast.success(`Template ${newStatus} successfully`)
+      router.refresh()
+    } catch (error) {
+      setPublishStatus('error')
+      toast.error(`Failed to ${newStatus} template`)
+      console.error(`Error ${newStatus} template:`, error)
+    }
+  }
+
+  const StatusChip = () => {
+    const config = statusConfig[currentStatus]
+    const Icon = config.icon
+
+    return (
+      <Badge variant="secondary" className={config.className}>
+        <Icon className="w-3 h-3 mr-1" />
+        {config.label}
+      </Badge>
+    )
+  }
+
   return (
     <div className="editor-wrapper">
       <div className="editor-panel-top">
-        <div className="editor-panel-actions">
-          <button onClick={() => router.push('/template-list')} className="editor-back-button">
-            <ArrowLeft className="editor-back-icon" />
+        <div className="flex items-center gap-3">
+          <button onClick={() => router.back()} className="editor-back-button">
+            <ArrowLeft className="w-4 h-4" />
           </button>
-          <div className="editor-title-section">
-            <h1 className="editor-title">{templateName || 'Untitled Template'}</h1>
+          <div className="admin-divider" />
+          <div>
+            <div className="flex items-center gap-2">
+              <h1 className="editor-title">{templateName || 'Untitled Template'}</h1>
+              <StatusChip />
+            </div>
             <p className="editor-description">{templateDescription || 'No description provided'}</p>
           </div>
         </div>
-        <button onClick={() => setShowSaveDialog(true)} className="editor-save-button">
-          <CloudUploadIcon className="w-4 h-4" />
-          Publish
-        </button>
+
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button
+              variant="default"
+              className="editor-status-button"
+              disabled={publishStatus === 'publishing' || !templateId}
+            >
+              <CloudUploadIcon className="w-4 h-4" />
+              <span className="px-1">
+                {publishStatus === 'publishing' ? 'Processing...' : 'Manage Status'}
+              </span>
+              <ChevronDown className="w-4 h-4" />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end" className="editor-status-dropdown">
+            <DropdownMenuItem
+              onClick={() => handleStatusChange(TEMPLATE_STATUS.DRAFT)}
+              className="editor-status-item group"
+            >
+              <Clock className="text-yellow-500 group-hover:text-yellow-600" />
+              Set as Draft
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => handleStatusChange(TEMPLATE_STATUS.PUBLISHED)}
+              className="editor-status-item group"
+            >
+              <CheckCircle2 className="text-green-500 group-hover:text-green-600" />
+              Publish
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => handleStatusChange(TEMPLATE_STATUS.ARCHIVED)}
+              className="editor-status-item group"
+            >
+              <Archive className="text-gray-500 group-hover:text-gray-600" />
+              Archive
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
-
-      <div ref={editorRef} className="h-[calc(100vh-50px)]" />
-
+      <div className="editor-content">
+        <div ref={editorRef} className="editor-container" />
+      </div>
       {showSaveDialog && (
         <div className="editor-modal-overlay">
           <div className="editor-modal">
