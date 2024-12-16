@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { fetchTemplateById } from '@/app/(frontend)/_actions/templates'
 import { getCurrentUser } from '@/app/(frontend)/_actions/auth'
-import { renderTemplate } from '@/utils/template-renderer'
+import { renderTemplate } from '@/lib/utils/template-renderer'
 
 export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {

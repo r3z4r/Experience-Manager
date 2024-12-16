@@ -4,15 +4,16 @@ import { notFound } from 'next/navigation'
 import { getCurrentUser } from '@/app/(frontend)/_actions/auth'
 
 interface PageProps {
-  params: {
+  params: Promise<{
     slug: string
-  }
+  }>
 }
 
 export default async function TemplatePage({ params }: PageProps) {
   try {
+    const resolvedParams = await params
     const user = await getCurrentUser()
-    const template = await fetchTemplateBySlug(params.slug)
+    const template = await fetchTemplateBySlug(resolvedParams.slug)
 
     if (!template) {
       notFound()

@@ -1,5 +1,5 @@
 import type { ProjectData } from 'grapesjs'
-import { Page } from '../payload-types'
+import { Page } from '@/payload-types'
 
 type EditableRegionContent = {
   root: {
