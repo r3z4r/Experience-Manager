@@ -125,14 +125,13 @@ export function TemplateList() {
           ) : templates.length > 0 ? (
             <>
               {templates.map((template) => (
-                <div key={template.id} className="group template-card">
-                  <div className="template-preview-container">
+                <div key={template.id} className="group template-card h-[300px]">
+                  <div className="template-card-preview">
                     <TemplatePreview
                       html={template.htmlContent}
                       css={template.cssContent}
                       className="w-full h-full"
                     />
-                    <div className="template-preview-overlay" />
                   </div>
 
                   <button
@@ -141,32 +140,35 @@ export function TemplateList() {
                         handleDeleteTemplate(template.id)
                       }
                     }}
-                    className="button-destructive button-md absolute top-0 right-0 py-6"
+                    className="template-card-delete"
                     aria-label="Delete template"
                   >
                     <TrashIcon className="w-5 h-5" />
                   </button>
 
-                  <div className="p-4 relative z-10">
-                    <div className="flex flex-col gap-4 mt-8">
-                      <div>
-                        <h3 className="text-lg font-semibold pr-8 line-clamp-1">
-                          {template.title}
-                        </h3>
-                        <p className="text-gray-600 text-sm line-clamp-2">{template.description}</p>
-                      </div>
-                      <div className="flex justify-end gap-2">
-                        <Link href={`/editor/${template.id}`} className="button-primary button-md">
-                          <EditIcon className="w-4 h-4 mr-1" />
-                          Edit
-                        </Link>
-                        <Link
-                          href={`/preview/${template.id}`}
-                          className="button-secondary button-md"
-                        >
-                          <EyeIcon className="w-4 h-4 mr-1" />
-                          Preview
-                        </Link>
+                  <div className="template-card-overlay">
+                    <div className="template-card-content">
+                      <div className="template-card-info">
+                        <div>
+                          <h3 className="template-card-title">{template.title}</h3>
+                          <p className="template-card-description">{template.description}</p>
+                        </div>
+                        <div className="template-card-actions">
+                          <Link
+                            href={`/editor/${template.id}`}
+                            className="button-primary button-md"
+                          >
+                            <EditIcon className="w-4 h-4 mr-1" />
+                            Edit
+                          </Link>
+                          <Link
+                            href={`/preview/${template.id}`}
+                            className="button-secondary button-md"
+                          >
+                            <EyeIcon className="w-4 h-4 mr-1" />
+                            Preview
+                          </Link>
+                        </div>
                       </div>
                     </div>
                   </div>

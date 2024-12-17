@@ -496,7 +496,7 @@
 
   /* Destructive Button Variants */
   .button-destructive {
-    @apply button-base bg-destructive/50 text-destructive-foreground shadow-sm
+    @apply button-base bg-destructive/70 text-destructive-foreground shadow-sm
       hover:bg-destructive/90 active:bg-destructive;
   }
 
@@ -527,6 +527,43 @@
 
   .button-waiting {
     @apply cursor-wait opacity-70;
+  }
+
+  /* Template Card Styles */
+  .template-card {
+    @apply border rounded-lg shadow-sm hover:shadow-md transition-all duration-300 relative bg-white overflow-hidden;
+  }
+
+  .template-card-preview {
+    @apply absolute inset-0;
+  }
+
+  .template-card-delete {
+    @apply absolute top-2 right-2 z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-200 button-destructive button-md py-6;
+  }
+
+  .template-card-overlay {
+    @apply absolute inset-0 bg-gradient-to-t from-white via-white/90 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-in-out;
+  }
+
+  .template-card-content {
+    @apply absolute bottom-0 left-0 right-0 p-4;
+  }
+
+  .template-card-info {
+    @apply flex flex-col gap-4;
+  }
+
+  .template-card-title {
+    @apply text-lg font-semibold pr-8 line-clamp-1;
+  }
+
+  .template-card-description {
+    @apply text-gray-600 text-sm line-clamp-2;
+  }
+
+  .template-card-actions {
+    @apply flex justify-end gap-2;
   }
 }
 
