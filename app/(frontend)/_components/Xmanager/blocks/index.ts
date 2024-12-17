@@ -19,6 +19,11 @@ import { statisticsBlock } from './Statistics/Statistics.config'
 import { cardBlock, cardRightBlock } from './Card/Card.config'
 import { paymentBlock } from './Payment/Payment.config'
 import { signInBlock } from './SignIn/SignIn.config'
+import { DeliveryDetailsCardBlock } from './DeliveryDetails/DeliveryDetails.config'
+import { cartitemsCardBlock } from './CartItems/CartItems.config'
+import { checkoutCardBlock } from './CheckoutPage/CheckoutPage.config'
+import { ModeOfPaymentCardBlock } from './ModeOfPayment/ModeOfPayment.config'
+import { OrderSummaryCardBlock } from './OrderSummary/OrderSummary.config'
 
 export const customBlocks: BlockConfig[] = [
   headerBlock,
@@ -42,4 +47,10 @@ export const customBlocks: BlockConfig[] = [
   cardRightBlock,
   paymentBlock,
   signInBlock,
+  DeliveryDetailsCardBlock,
+  ModeOfPaymentCardBlock,
+  OrderSummaryCardBlock,
+  cartitemsCardBlock,
+  checkoutCardBlock,
+
 ]
