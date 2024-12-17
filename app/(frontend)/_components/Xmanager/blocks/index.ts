@@ -8,6 +8,10 @@ import { carouselBlock } from './Carousel/Carousel.config'
 import { footerBlock } from './Footer/Footer.config'
 import { footerBannerBlock } from './FooterBanner/FooterBanner.config'
 import { dynamicHeaderBlock } from './DynamicHeader/DynamicHeader.config'
+import { personalizedOfferBlock } from './PersonalizedOffer/PersonalizedOffer.config'
+import { technicalSpecsCardBlock } from './TechnicalSpecsCard/TechnicalSpecsCard.config'
+import { WhyBuyFromStcBlock } from './WhyBuyFromStc/WhyBuyFromStc.config'
+import { addonsCardBlock } from './AddonsCard/AddonsCard.config'
 import { subscriptionBlock } from './Subscription/Subscription.config'
 import { statisticsBlock } from './Statistics/Statistics.config'
 import { cardBlock, cardRightBlock } from './Card/Card.config'
@@ -24,6 +28,10 @@ export const customBlocks: BlockConfig[] = [
   footerBlock,
   footerBannerBlock,
   dynamicHeaderBlock,
+  personalizedOfferBlock,
+  technicalSpecsCardBlock,
+  WhyBuyFromStcBlock,
+  addonsCardBlock,
   subscriptionBlock,
   statisticsBlock,
   cardBlock,

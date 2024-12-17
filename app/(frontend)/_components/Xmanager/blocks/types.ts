@@ -38,7 +38,36 @@ export interface ServiceCardProps extends BaseBlockProps {
   description?: string
   imageUrl?: string
 }
+export interface PersonalizedOfferProps extends BaseBlockProps {
+  userName?: string
+  productName?: string
+  productImage?: string
+  productPrice?: string
+  originalPrice?: string
+  discountAmount?: string
+  bonusOffer?: string
+  buttonText?: string
+}
+export interface Spec {
+  label?: string
+  details?: string | string[]
+}
 
+export interface TechnicalSpecsProps extends BaseBlockProps {
+  title?: string
+  specs?: Spec[]
+}
+interface AddonCardProps {
+  title?: string
+  description?: string
+  image?: string
+  buttonText?: string
+}
+
+export interface AddonsCardProps extends BaseBlockProps {
+  title?: string
+  addons?: AddonCardProps[]
+}
 export interface StatisticsProps extends BaseBlockProps {
   items?: Array<{
     percentage: number
