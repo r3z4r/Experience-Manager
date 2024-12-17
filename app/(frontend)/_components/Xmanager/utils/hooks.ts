@@ -1,22 +1,54 @@
 import { useEffect, useState } from 'react'
 import { Editor as GrapesEditor } from 'grapesjs'
-import { fetchTemplateById } from '@/app/(frontend)/_actions/templates'
+import { fetchTemplateById, updateTemplate } from '@/app/(frontend)/_actions/templates'
 import { toast } from 'sonner'
-import { TemplateStatus } from '@/app/(frontend)/_types/template'
+import { TEMPLATE_STATUS, TemplateStatus } from '@/app/(frontend)/_types/template'
 
-export const useTemplateData = (templateId: string | undefined) => {
-  const [initialData, setInitialData] = useState<{
+interface SlugState {
+  value: string
+  isEditing: boolean
+  tempValue: string
+}
+
+interface TemplateState {
+  initialData: {
     html: string
     css: string
     gjsData?: unknown
     status?: TemplateStatus
-  } | null>(null)
-  const [templateName, setTemplateName] = useState('')
-  const [templateDescription, setTemplateDescription] = useState('')
+  } | null
+  templateName: string
+  templateDescription: string
+  slug: SlugState
+  status: TemplateStatus
+}
+
+export const useTemplateData = (templateId: string | undefined) => {
+  const [state, setState] = useState<TemplateState>({
+    initialData: null,
+    templateName: '',
+    templateDescription: '',
+    slug: {
+      value: '',
+      isEditing: false,
+      tempValue: '',
+    },
+    status: TEMPLATE_STATUS.DRAFT,
+  })
 
   useEffect(() => {
     const fetchInitialData = async () => {
-      if (!templateId) return
+      if (!templateId) {
+        setState((prev) => ({
+          ...prev,
+          slug: {
+            ...prev.slug,
+            value: templateId || '',
+            tempValue: templateId || '',
+          },
+        }))
+        return
+      }
 
       try {
         const template = await fetchTemplateById(templateId)
@@ -25,14 +57,22 @@ export const useTemplateData = (templateId: string | undefined) => {
           return
         }
 
-        setInitialData({
-          gjsData: template.gjsData,
-          html: template.htmlContent || '',
-          css: template.cssContent || '',
+        setState({
+          initialData: {
+            gjsData: template.gjsData,
+            html: template.htmlContent || '',
+            css: template.cssContent || '',
+            status: template.status,
+          },
+          templateName: template.title || '',
+          templateDescription: template.description || '',
+          slug: {
+            value: template.slug || template.id,
+            isEditing: false,
+            tempValue: template.slug || template.id,
+          },
+          status: template.status || TEMPLATE_STATUS.DRAFT,
         })
-
-        setTemplateName(template.title || '')
-        setTemplateDescription(template.description || '')
       } catch (error) {
         console.error('Error loading template:', error)
         toast.error('Failed to load template')
@@ -42,12 +82,111 @@ export const useTemplateData = (templateId: string | undefined) => {
     fetchInitialData()
   }, [templateId])
 
+  const setTemplateName = (name: string) => {
+    setState((prev) => ({ ...prev, templateName: name }))
+  }
+
+  const setTemplateDescription = (description: string) => {
+    setState((prev) => ({ ...prev, templateDescription: description }))
+  }
+
+  const handleSlugChange = (value: string) => {
+    const sanitizedValue = value.toLowerCase().replace(/[^a-z0-9-]/g, '-')
+    setState((prev) => ({
+      ...prev,
+      slug: {
+        ...prev.slug,
+        tempValue: sanitizedValue,
+      },
+    }))
+  }
+
+  const syncSlug = (newValue: string) => {
+    setState((prev) => ({
+      ...prev,
+      slug: {
+        ...prev.slug,
+        value: newValue,
+      },
+    }))
+  }
+
+  const startSlugEdit = () => {
+    setState((prev) => ({
+      ...prev,
+      slug: {
+        ...prev.slug,
+        isEditing: true,
+        tempValue: prev.slug.value,
+      },
+    }))
+  }
+
+  const cancelSlugEdit = () => {
+    setState((prev) => ({
+      ...prev,
+      slug: {
+        ...prev.slug,
+        isEditing: false,
+        tempValue: prev.slug.value,
+      },
+    }))
+  }
+
+  const saveSlug = async (newSlug?: string): Promise<boolean> => {
+    try {
+      const slugToSave = newSlug || state.slug.tempValue
+      const sanitizedSlug = slugToSave.toLowerCase().replace(/[^a-z0-9-]/g, '-')
+
+      if (!sanitizedSlug.trim()) {
+        toast.error('Slug cannot be empty')
+        return false
+      }
+
+      setState((prev) => ({
+        ...prev,
+        slug: {
+          value: sanitizedSlug,
+          isEditing: false,
+          tempValue: sanitizedSlug,
+        },
+      }))
+
+      if (templateId) {
+        await updateTemplate(templateId, { slug: sanitizedSlug })
+        toast.success('Slug updated successfully')
+      }
+
+      return true
+    } catch (error) {
+      console.error('Error updating slug:', error)
+      toast.error('Failed to update slug')
+      return false
+    }
+  }
+
+  const setStatus = (status: TemplateStatus) => {
+    setState((prev) => ({ ...prev, status }))
+  }
+
   return {
-    initialData,
-    templateName,
+    initialData: state.initialData,
+    templateName: state.templateName,
     setTemplateName,
-    templateDescription,
+    templateDescription: state.templateDescription,
     setTemplateDescription,
+    slug: {
+      value: state.slug.value,
+      isEditing: state.slug.isEditing,
+      tempValue: state.slug.tempValue,
+      handleSlugChange,
+      startSlugEdit,
+      cancelSlugEdit,
+      saveSlug,
+      syncSlug,
+    },
+    status: state.status,
+    setStatus,
   }
 }
 

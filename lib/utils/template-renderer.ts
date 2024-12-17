@@ -1,6 +1,7 @@
-import { TemplateData } from '@/app/(frontend)/_actions/templates'
+import { TemplateData } from '@/app/(frontend)/_types/template-data'
 import { componentHandlers } from './component-handlers'
-import { User } from 'payload'
+import { User } from '@/payload-types'
+import { Page } from '@/payload-types'
 
 export function hasAccess(template: TemplateData, user: User | null): boolean {
   // Published templates only
@@ -20,22 +21,22 @@ export function hasAccess(template: TemplateData, user: User | null): boolean {
   }
 }
 
-export async function renderTemplate(template: TemplateData, user: User | null = null) {
-  if (!hasAccess(template, user)) {
+export async function renderTemplate(template: Page, user: User | null = null) {
+  if (!hasAccess(template as TemplateData, user)) {
     throw new Error('Access denied')
   }
 
-  let html = template.htmlContent
+  let html = template.htmlContent ?? ''
   const scripts: string[] = []
 
   if (template.components) {
     for (const component of template.components) {
-      const handler = componentHandlers[component.type]
+      const handler = componentHandlers[component.type ?? '']
       if (handler) {
         const { html: componentHtml, script } = await handler.render(component.config)
 
         // Replace component placeholder with actual component
-        html = html?.replace(
+        html = html.replace(
           new RegExp(`<div data-component="${component.placement}"></div>`),
           componentHtml,
         )
@@ -49,7 +50,7 @@ export async function renderTemplate(template: TemplateData, user: User | null =
 
   return {
     html,
-    css: template.cssContent,
+    css: template.cssContent ?? '',
     scripts: scripts.join('\n'),
   }
 }

@@ -1,21 +1,21 @@
-import { NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { updateTemplate } from '@/app/(frontend)/_actions/templates'
 
-export async function POST(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
+type RouteParams = {
+  params: Promise<{
+    id: string
+  }>
+}
+
+export async function POST(request: NextRequest, context: RouteParams) {
   try {
-    const template = await updateTemplate(params.id, {
+    const resolvedParams = await context.params
+    const template = await updateTemplate(resolvedParams.id, {
       status: 'published',
-      publishedAt: new Date().toISOString(),
     })
     return NextResponse.json(template)
   } catch (error) {
     console.error('Failed to publish template:', error)
-    return NextResponse.json(
-      { error: 'Failed to publish template' },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: 'Failed to publish template' }, { status: 500 })
   }
 }

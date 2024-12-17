@@ -1,6 +1,6 @@
 'use server'
 
-import { getPayload, Where } from 'payload'
+import { getPayload, WhereField } from 'payload'
 import configPromise from '@payload-config'
 import type {
   TemplateData,
@@ -18,9 +18,22 @@ export async function fetchTemplates(
 
   const { page = 1, limit = 10, filter = {} } = options
 
+  // Construct the where clause
+  const where: { [key: string]: WhereField } = {}
+
+  // Add status filter if provided
+  if (filter.status) {
+    where.status = { equals: filter.status }
+  }
+
+  // Add visibility filter if provided
+  if (filter.visibility) {
+    where['access.visibility'] = { equals: filter.visibility }
+  }
+
   const response = await payload.find({
     collection: 'pages',
-    where: filter as Where,
+    where,
     limit,
     page,
   })
@@ -44,13 +57,20 @@ export async function createTemplate(templateData: TemplateData) {
     config: configPromise,
   })
 
-  return payload.create({
+  // Create template
+  const template = await payload.create({
     collection: 'pages',
-    data: templateData,
+    data: {
+      ...templateData,
+      // Set a temporary slug that will be updated after creation
+      slug: 'temp-slug',
+    },
   })
+
+  return template
 }
 
-export async function updateTemplate(id: string, templateData: TemplateData) {
+export async function updateTemplate(id: string, data: Partial<TemplateData>) {
   const payload = await getPayload({
     config: configPromise,
   })
@@ -58,7 +78,7 @@ export async function updateTemplate(id: string, templateData: TemplateData) {
   return payload.update({
     collection: 'pages',
     id,
-    data: templateData,
+    data,
   })
 }
 
@@ -92,5 +112,26 @@ export async function updateTemplateStatus(
   } catch (error) {
     console.error('Error updating template status:', error)
     throw error
+  }
+}
+
+export async function fetchTemplateBySlug(slug: string) {
+  const payload = await getPayload({
+    config: configPromise,
+  })
+
+  try {
+    const templates = await payload.find({
+      collection: 'pages',
+      where: {
+        slug: { equals: slug },
+      },
+      limit: 1,
+    })
+
+    return templates.docs[0] || null
+  } catch (error) {
+    console.error('Error fetching template by slug:', error)
+    return null
   }
 }
