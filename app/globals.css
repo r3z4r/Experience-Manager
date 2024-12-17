@@ -539,7 +539,7 @@
   }
 
   .template-card-delete {
-    @apply absolute top-2 right-2 z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-200 button-destructive button-md py-6;
+    @apply absolute top-0 right-0 z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-200 button-destructive button-md py-6;
   }
 
   .template-card-overlay {
