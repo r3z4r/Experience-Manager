@@ -5,7 +5,6 @@ import {
   COMPONENT_TYPE,
   TEMPLATE_STATUS,
 } from '@/app/(frontend)/_types/template'
-import { generateSlug } from '@/lib/utils/slug-generator'
 
 export const Pages: CollectionConfig = {
   slug: 'pages',
@@ -13,17 +12,7 @@ export const Pages: CollectionConfig = {
     useAsTitle: 'title',
     defaultColumns: ['title', 'status', 'updatedAt'],
   },
-  hooks: {
-    beforeChange: [
-      async ({ data, operation }) => {
-        // Generate slug only for new documents or when title changes
-        if (operation === 'create' || (operation === 'update' && data.title)) {
-          data.slug = await generateSlug(data.title)
-        }
-        return data
-      },
-    ],
-  },
+  hooks: {},
   fields: [
     {
       name: 'title',

@@ -15,6 +15,8 @@ export default async function TemplatePage({ params }: PageProps) {
     const user = await getCurrentUser()
     const template = await fetchTemplateBySlug(resolvedParams.slug)
 
+    console.log('resolvedParams', resolvedParams)
+    console.log('template', template)
     if (!template) {
       notFound()
     }

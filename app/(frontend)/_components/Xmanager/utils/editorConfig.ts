@@ -41,31 +41,18 @@ export const getEditorConfig = (
       remote: {
         onStore: async (data: unknown) => {
           try {
-            const templateData = {
-              title: templateName,
-              description: templateDescription,
-              htmlContent: editor?.getHtml() || '',
-              cssContent: editor?.getCss() || '',
-              gjsData: data as ProjectData,
-              status: 'draft',
-              access: {
-                visibility: 'public',
-              },
-            } as TemplateData
-
-            if (templateId) {
-              await updateTemplate(templateId, templateData)
-            } else {
-              const newTemplate = await createTemplate(templateData)
-              if (newTemplate?.id) {
-                onTemplateCreated(newTemplate.id)
-              }
+            if (!templateId) {
+              console.warn('No template ID available for auto-save')
+              return false
             }
-
+            await updateTemplate(templateId, {
+              gjsData: data as ProjectData,
+            })
+            console.log('Template updated successfully')
             onSave(false)
             return true
           } catch (error) {
-            console.error('Error saving template:', error)
+            console.error('Error auto-saving template:', error)
             return false
           }
         },
