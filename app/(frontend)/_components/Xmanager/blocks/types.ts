@@ -68,6 +68,18 @@ export interface AddonsCardProps extends BaseBlockProps {
   title?: string
   addons?: AddonCardProps[]
 }
+export interface ProductCardProps {
+  imageSrc?: string
+  name?: string
+  price?: string
+  onClick?: () => void
+}
+
+export interface HeadingBannerProps {
+  title?: string
+  filterLabel?: string
+  sortLabel?: string
+}
 export interface StatisticsProps extends BaseBlockProps {
   items?: Array<{
     percentage: number
