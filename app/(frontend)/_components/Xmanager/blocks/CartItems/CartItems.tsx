@@ -9,7 +9,7 @@ export function CartItems() {
         <div className="cart-container">
           <div className="cart-card">
             <div className="cart-item">
-              <img src="iphone.png" alt="iPhone 16 Pro" className="product-img" />
+              <img src="/xpm/images/5n1dTTOB.png" alt="iPhone 16 Pro" className="product-img" />
               <div className="item-details">
                 <div className="row">
                   <p className="product-title">iPhone 16 Pro 256GB</p>

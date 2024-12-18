@@ -9,7 +9,7 @@ export function OrderSummary(){
       <div className="order-summary">
         <div className="summary-card">
           <div className="product-row">
-          <img src='/images/5n1dTTOB1.jpg' alt="Therapy Team" className="product-img"/>
+          <img src='/xpm/images/5n1dTTOB.png' alt="Therapy Team" className="product-img"/>
             <div className="product-details">
               <h3 className="product-name">iPhone 16 Pro 256GB</h3>
               <p className="product-subtitle">Standalone &bull; One Time</p>

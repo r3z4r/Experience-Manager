@@ -40,9 +40,10 @@ body {
 }
 
 .product-img {
-  width: 60px;
-  height: 60px;
+  height: 75px;
   margin-right: 15px;
+  margin-top:30px;
+  width:60px;
 }
 
 .product-details {
