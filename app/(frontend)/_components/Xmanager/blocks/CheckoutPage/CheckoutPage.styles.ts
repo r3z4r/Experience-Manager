@@ -11,7 +11,6 @@ body {
 .header {
   background-color: #4F008C;
   height: 150px;
-  max-width: 1200px;
   color: #fff;
   font-size: 32px;
   font-weight: 500;
@@ -40,7 +39,7 @@ body {
 .button-container {
   text-align: center;
   margin-bottom:10px;
-  margin-top: 5px;
+  margin-top: 3px;
 
 }
 
