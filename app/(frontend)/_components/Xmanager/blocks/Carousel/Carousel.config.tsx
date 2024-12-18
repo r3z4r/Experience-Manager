@@ -1,4 +1,4 @@
-import { BlockConfig } from '../types'
+import { BlockProperties } from 'grapesjs'
 import { Carousel } from './Carousel'
 import { renderToString } from 'react-dom/server'
 
@@ -20,7 +20,7 @@ const defaultItems = [
   },
 ]
 
-export const carouselBlock: BlockConfig = {
+export const carouselBlock: BlockProperties = {
   id: 'carousel',
   label: 'Service Carousel',
   category: 'Components',

@@ -1,13 +1,5 @@
 import type { User, Page } from '@/payload-types'
-
-export interface BlockConfig {
-  id: string
-  label: string
-  category: string
-  content: string
-  attributes?: Record<string, string>
-  css?: string
-}
+import { BlockProperties } from 'grapesjs'
 
 export interface BaseBlockProps {
   className?: string

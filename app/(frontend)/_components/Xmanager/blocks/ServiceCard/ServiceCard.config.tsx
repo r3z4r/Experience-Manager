@@ -1,8 +1,8 @@
-import { BlockConfig } from '../types'
+import { BlockProperties } from 'grapesjs'
 import { ServiceCard } from './ServiceCard'
 import { renderToString } from 'react-dom/server'
 
-export const serviceCardBlock: BlockConfig = {
+export const serviceCardBlock: BlockProperties = {
   id: 'service-card',
   label: 'Service Card',
   category: 'Components',

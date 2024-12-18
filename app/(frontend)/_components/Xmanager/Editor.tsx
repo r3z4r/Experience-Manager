@@ -1,7 +1,12 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import grapesjs, { Editor as GrapesEditor, ProjectData } from 'grapesjs'
+import grapesjs, {
+  BlockProperties,
+  ComponentDefinition,
+  Editor as GrapesEditor,
+  ProjectData,
+} from 'grapesjs'
 import 'grapesjs/dist/css/grapes.min.css'
 import './Editor.globals.css'
 import {
@@ -133,9 +138,38 @@ const Editor = ({ templateId, mode = 'edit' }: EditorProps) => {
       editorInstance.loadProjectData(initialData.gjsData as ProjectData)
     }
 
+    // editorInstance.Components.addType('script', {
+    //   view: {
+    //     onRender({ el }: { el: HTMLElement }) {
+    //       el.innerHTML = `<div class="script-block">
+    //                 <div class="script-block__header">
+    //                   <i class="fa fa-code"></i> Script
+    //                 </div>
+    //                 <div class="script-block__content">
+    //                   <pre>${el.textContent}</pre>
+    //                 </div>
+    //               </div>`
+    //     },
+    //   },
+    //   model: {
+    //     defaults: {
+    //       tagName: 'script',
+    //       draggable: true,
+    //       droppable: false,
+    //       attributes: { type: 'text/javascript' },
+    //       traits: [
+    //         {
+    //           type: 'textarea',
+    //           name: 'content',
+    //           label: 'Script Content',
+    //         },
+    //       ],
+    //     } as ComponentDefinition,
+    //   },
+    // })
     // Add custom blocks
     customBlocks.forEach((block) => {
-      editorInstance.BlockManager.add(block.id, block)
+      editorInstance.BlockManager.add(block.id, block as BlockProperties)
     })
 
     // Additional setup after editor is loaded
@@ -152,10 +186,10 @@ const Editor = ({ templateId, mode = 'edit' }: EditorProps) => {
         attributes: { title: 'Save Template' },
       })
     })
+
     setEditor(editorInstance)
 
     return () => {
-      console.log('destroying editor')
       editorInstance.destroy()
     }
     //eslint-disable-next-line react-hooks/exhaustive-deps
@@ -164,16 +198,57 @@ const Editor = ({ templateId, mode = 'edit' }: EditorProps) => {
   // Setup editor configurations and cleanup
   useEditorSetup(editor, mode)
 
+  const handleChange = () => {
+    setHasUnsavedChanges(true)
+  }
+
   useEffect(() => {
     if (!editor) return
-
-    const handleChange = () => {
-      setHasUnsavedChanges(true)
-    }
 
     editor.on('component:update', handleChange)
     editor.on('style:update', handleChange)
     editor.on('canvas:update', handleChange)
+    editor.on('block:drag:start', (block) => {
+      const type = block.get('type')
+      if (['hero-banner', 'service-card', 'doctor-profile'].includes(type)) {
+        editor.setDragMode('absolute')
+      }
+    })
+    editor.on('block:drag:stop', () => {
+      editor.setDragMode('translate')
+    })
+
+    editor.on('component:add', (component) => {
+      if (component.get('type') === 'script') {
+        // Handle script addition
+        console.log('Script added:', component.get('content'))
+      }
+    })
+
+    editor.on('component:update', (component) => {
+      if (component.get('type') === 'script') {
+        // Handle script updates
+        console.log('Script updated:', component.get('content'))
+      }
+    })
+
+    // Add custom command for script execution
+    editor.Commands.add('execute-script', {
+      run: (editor, sender, options = {}) => {
+        const component = options.component
+        if (component && component.get('type') === 'script') {
+          try {
+            const content = component.get('content')
+            // Execute script in a safe context
+            const func = new Function(content)
+            func()
+          } catch (error) {
+            console.error('Script execution error:', error)
+            toast.error('Script execution failed')
+          }
+        }
+      },
+    })
 
     return () => {
       editor.off('component:update', handleChange)
@@ -331,21 +406,6 @@ const Editor = ({ templateId, mode = 'edit' }: EditorProps) => {
       typeof (error as TemplateError).message === 'string'
     )
   }
-
-  useEffect(() => {
-    if (!editor) return
-
-    editor.on('block:drag:start', (block) => {
-      const type = block.get('type')
-      if (['hero-banner', 'service-card', 'doctor-profile'].includes(type)) {
-        editor.setDragMode('absolute')
-      }
-    })
-
-    editor.on('block:drag:stop', () => {
-      editor.setDragMode('translate')
-    })
-  }, [editor])
 
   const handleStatusChange = async (newStatus: TemplateStatus) => {
     if (!templateId) {

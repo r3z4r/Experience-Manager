@@ -38,7 +38,6 @@ export const cardBlock: BlockConfig = {
     class: 'feature-card',
     'data-image-position': 'right',
   },
-  css: cardStyles,
 }
 
 export const cardRightBlock: BlockConfig = {
@@ -50,5 +49,4 @@ export const cardRightBlock: BlockConfig = {
     class: 'feature-card',
     'data-image-position': 'left',
   },
-  css: cardStyles,
 }

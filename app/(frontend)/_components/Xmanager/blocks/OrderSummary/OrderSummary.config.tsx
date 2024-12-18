@@ -1,8 +1,8 @@
-import { BlockConfig } from '../types'
+import { BlockProperties } from 'grapesjs'
 import { OrderSummary } from './OrderSummary'
 import { renderToString } from 'react-dom/server'
 
-export const OrderSummaryCardBlock: BlockConfig = {
+export const OrderSummaryCardBlock: BlockProperties = {
   id: 'ordersummary-card',
   label: 'Order Summary',
   category: 'Components',

@@ -1,8 +1,8 @@
-import { BlockConfig } from '../types'
+import { BlockProperties } from 'grapesjs'
 import { Subscription } from './Subscription'
 import { renderToString } from 'react-dom/server'
 
-export const subscriptionBlock: BlockConfig = {
+export const subscriptionBlock: BlockProperties = {
   id: 'subscription',
   label: 'Subscription Plan',
   category: 'Components',

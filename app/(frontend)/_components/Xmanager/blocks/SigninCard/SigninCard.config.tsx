@@ -1,10 +1,10 @@
-import { renderToString } from 'react-dom/server'
-import { BlockConfig } from '../types'
+import { BlockProperties } from 'grapesjs'
 import { SigninCard } from './SigninCard'
+import { renderToString } from 'react-dom/server'
 
-export const signinCardBlock: BlockConfig = {
+export const signinCardBlock: BlockProperties = {
   id: 'signin-card',
-  label: 'Sign-in Card',
+  label: 'Sign In Card',
   category: 'Components',
   content: renderToString(<SigninCard />),
   attributes: {

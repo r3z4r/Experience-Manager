@@ -1,8 +1,8 @@
-import { BlockConfig } from '../types'
+import { BlockProperties } from 'grapesjs'
 import { DynamicHeader } from './DynamicHeader'
 import { renderToString } from 'react-dom/server'
 
-export const dynamicHeaderBlock: BlockConfig = {
+export const dynamicHeaderBlock: BlockProperties = {
   id: 'dynamic-header',
   label: 'Dynamic Header',
   category: 'Layout',
