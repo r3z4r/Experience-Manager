@@ -66,4 +66,42 @@ export const signinCardStyles = `
     color: #ef4444;
     text-decoration: none;
   }
+
+  /* Responsive styles */
+  @media (max-width: 768px) {
+    .signin-card {
+      padding: 1.5rem;
+      max-width: 90%; 
+    }
+
+    .signin-card h2 {
+      font-size: 1.25rem;
+    }
+
+    .signin-card .signin-btn {
+      width: 80%;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .signin-card {
+      padding: 1rem;
+    }
+
+    .signin-card h2 {
+      font-size: 1.1rem;
+    }
+
+    .signin-card .signin-btn {
+      width: 100%; 
+    }
+
+    .signin-card .forgot-password {
+      font-size: 0.8rem;
+    }
+
+    .signin-card .signup-link {
+      font-size: 0.8rem;
+    }
+  }
 `
