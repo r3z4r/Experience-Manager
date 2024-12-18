@@ -1,8 +1,8 @@
-import { BlockConfig } from '../types'
+import { BlockProperties } from 'grapesjs'
 import { PaymentBlock } from './Payment'
 import { renderToString } from 'react-dom/server'
 
-export const paymentBlock: BlockConfig = {
+export const paymentBlock: BlockProperties = {
   id: 'payment',
   label: 'Payment Form',
   category: 'Payment',

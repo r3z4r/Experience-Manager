@@ -1,7 +1,6 @@
-import { BlockConfig } from '../types'
+import { BlockProperties } from 'grapesjs'
 import { Statistics } from './Statistics'
 import { renderToString } from 'react-dom/server'
-import { statisticsStyles } from './Statistics.styles'
 
 const defaultStats = [
   { percentage: 15, description: 'reduction in customer churn' },
@@ -10,7 +9,7 @@ const defaultStats = [
   { percentage: 30, description: 'boost in customer satisfaction scores' },
 ]
 
-export const statisticsBlock: BlockConfig = {
+export const statisticsBlock: BlockProperties = {
   id: 'statistics',
   label: 'Statistics Block',
   category: 'Components',
@@ -18,5 +17,4 @@ export const statisticsBlock: BlockConfig = {
   attributes: {
     class: 'statistics-block',
   },
-  css: statisticsStyles,
 }

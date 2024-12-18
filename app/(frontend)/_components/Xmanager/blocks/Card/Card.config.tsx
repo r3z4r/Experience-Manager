@@ -1,7 +1,6 @@
-import { BlockConfig } from '../types'
+import { BlockProperties } from 'grapesjs'
 import { Card } from './Card'
 import { renderToString } from 'react-dom/server'
-import { cardStyles } from './Card.styles'
 
 const defaultCardLeft = {
   title: 'Seamless GenAI Integration with Tecnotree BSS',
@@ -29,7 +28,7 @@ const defaultCardRight = {
   imagePosition: 'left' as const,
 }
 
-export const cardBlock: BlockConfig = {
+export const cardBlock: BlockProperties = {
   id: 'feature-card',
   label: 'Feature Card',
   category: 'Components',
@@ -40,7 +39,7 @@ export const cardBlock: BlockConfig = {
   },
 }
 
-export const cardRightBlock: BlockConfig = {
+export const cardRightBlock: BlockProperties = {
   id: 'feature-card-right',
   label: 'Feature Card (Image Right)',
   category: 'Components',

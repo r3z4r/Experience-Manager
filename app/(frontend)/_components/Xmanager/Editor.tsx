@@ -169,7 +169,9 @@ const Editor = ({ templateId, mode = 'edit' }: EditorProps) => {
     // })
     // Add custom blocks
     customBlocks.forEach((block) => {
-      editorInstance.BlockManager.add(block.id, block as BlockProperties)
+      if (block?.id) {
+        editorInstance.BlockManager.add(block.id, block as BlockProperties)
+      }
     })
 
     // Additional setup after editor is loaded
