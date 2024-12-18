@@ -6,6 +6,8 @@ import grapesjs, {
   ComponentDefinition,
   Editor as GrapesEditor,
   ProjectData,
+  TraitProperties,
+  Component as GrapesComponent,
 } from 'grapesjs'
 import 'grapesjs/dist/css/grapes.min.css'
 import './Editor.globals.css'
@@ -66,6 +68,11 @@ const statusConfig = {
     icon: Archive,
     className: 'bg-gray-500/10 text-gray-500 hover:bg-gray-500/20',
   },
+}
+
+// TODO: Fix this
+interface CustomTrait extends Partial<TraitProperties> {
+  onChange?: (params: { component: GrapesComponent; value: any }) => void
 }
 
 const Editor = ({ templateId, mode = 'edit' }: EditorProps) => {
@@ -179,15 +186,14 @@ const Editor = ({ templateId, mode = 'edit' }: EditorProps) => {
               label: 'Script Content',
               changeProp: true,
               onChange({ component, value }) {
-                // Update the textnode content when trait changes
                 const textNode = component.components().models[0]
                 if (textNode) {
                   textNode.set('content', value)
-                  component.view.render()
+                  component.view?.render()
                 }
               },
             },
-          ],
+          ] as CustomTrait[],
         },
         init() {
           // Set up initial content
@@ -204,7 +210,7 @@ const Editor = ({ templateId, mode = 'edit' }: EditorProps) => {
           const textNode = this.components().models[0]
           if (textNode && content !== textNode.get('content')) {
             textNode.set('content', content)
-            this.view.render()
+            this.view?.render()
           }
         },
       },
