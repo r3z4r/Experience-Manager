@@ -43,10 +43,10 @@ body {
 }
 
 .product-img {
-  width: 80px;
-  height: 50px;
+  height: 120px;
   object-fit: cover;
-  margin-right: 15px;
+  margin-right: 25px;
+  margin-top:20px;
 }
 
 .item-details {

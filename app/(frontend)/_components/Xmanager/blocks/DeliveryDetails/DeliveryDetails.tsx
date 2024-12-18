@@ -9,7 +9,7 @@ export function DeliveryDetails() {
         <div className="details-box">
           <h3>How would you like to collect your order?</h3>
           <div className="radio-option">
-            <input type="radio" id="deliver" name="delivery" />
+            <input type="radio" id="deliver" name="delivery" defaultChecked/>
             <label htmlFor="deliver">Deliver to me</label>
           </div>
           <h3>Confirm your address</h3>
@@ -27,7 +27,7 @@ export function DeliveryDetails() {
         <div className="contact-card">
           <h3>Contact Information</h3>
           <div className="contact-row">
-            <p className="name">Mahesh Rangabhat</p>
+            <p className="name">Reza</p>
             <div className="icons">
               <i className="fas fa-pen edit-icon">✎</i>
               <i className="fas fa-trash-alt delete-icon">🗑</i>
@@ -35,7 +35,7 @@ export function DeliveryDetails() {
           </div>
           <div className="contact-details">
             <p className="phone">+966 124 478 8560</p>
-            <p className="email">mahesh.rangabhat@tecnotree.com</p>
+            <p className="email">mohamadreza.rohani@tecnotree.com</p>
           </div>
         </div>
       </div>
