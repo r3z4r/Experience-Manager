@@ -138,35 +138,36 @@ const Editor = ({ templateId, mode = 'edit' }: EditorProps) => {
       editorInstance.loadProjectData(initialData.gjsData as ProjectData)
     }
 
-    // editorInstance.Components.addType('script', {
-    //   view: {
-    //     onRender({ el }: { el: HTMLElement }) {
-    //       el.innerHTML = `<div class="script-block">
-    //                 <div class="script-block__header">
-    //                   <i class="fa fa-code"></i> Script
-    //                 </div>
-    //                 <div class="script-block__content">
-    //                   <pre>${el.textContent}</pre>
-    //                 </div>
-    //               </div>`
-    //     },
-    //   },
-    //   model: {
-    //     defaults: {
-    //       tagName: 'script',
-    //       draggable: true,
-    //       droppable: false,
-    //       attributes: { type: 'text/javascript' },
-    //       traits: [
-    //         {
-    //           type: 'textarea',
-    //           name: 'content',
-    //           label: 'Script Content',
-    //         },
-    //       ],
-    //     } as ComponentDefinition,
-    //   },
-    // })
+    editorInstance.Components.addType('script', {
+      view: {
+        onRender({ el }: { el: HTMLElement }) {
+          el.innerHTML = `<div class="script-block">
+                    <div class="script-block__header">
+                      <i class="fa fa-code"></i> Script
+                    </div>
+                    <div class="script-block__content">
+                      <pre>${el.textContent}</pre>
+                    </div>
+                  </div>`
+        },
+      },
+      model: {
+        defaults: {
+          tagName: 'script',
+          draggable: true,
+          droppable: false,
+          attributes: { type: 'text/javascript' },
+          traits: [
+            {
+              type: 'textarea',
+              name: 'content',
+              label: 'Script Content',
+            },
+          ],
+        } as ComponentDefinition,
+      },
+    })
+
     // Add custom blocks
     customBlocks.forEach((block) => {
       if (block?.id) {
@@ -176,6 +177,23 @@ const Editor = ({ templateId, mode = 'edit' }: EditorProps) => {
 
     // Additional setup after editor is loaded
     editorInstance.on('load', () => {
+      // Add custom command for script execution
+      editorInstance.Commands.add('execute-script', {
+        run: (editor, sender, options = {}) => {
+          const component = options.component
+          if (component && component.get('type') === 'script') {
+            try {
+              const content = component.get('content')
+              // Execute script in a safe context
+              const func = new Function(content)
+              func()
+            } catch (error) {
+              console.error('Script execution error:', error)
+              toast.error('Script execution failed')
+            }
+          }
+        },
+      })
       // Set up commands, panels, etc.
       editorInstance.Commands.add('save-template', {
         run: () => setShowSaveDialog(true),
@@ -232,24 +250,6 @@ const Editor = ({ templateId, mode = 'edit' }: EditorProps) => {
         // Handle script updates
         console.log('Script updated:', component.get('content'))
       }
-    })
-
-    // Add custom command for script execution
-    editor.Commands.add('execute-script', {
-      run: (editor, sender, options = {}) => {
-        const component = options.component
-        if (component && component.get('type') === 'script') {
-          try {
-            const content = component.get('content')
-            // Execute script in a safe context
-            const func = new Function(content)
-            func()
-          } catch (error) {
-            console.error('Script execution error:', error)
-            toast.error('Script execution failed')
-          }
-        }
-      },
     })
 
     return () => {

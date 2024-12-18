@@ -17,9 +17,7 @@ export const Pages: CollectionConfig = {
     beforeChange: [
       async ({ data, req, operation }) => {
         if (operation === 'create' && data.title) {
-          if (!data.slug) {
-            data.slug = await generateSlug(data.title)
-          }
+          data.slug = await generateSlug(data.title)
         }
         return data
       },

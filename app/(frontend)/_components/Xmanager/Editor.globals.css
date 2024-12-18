@@ -344,3 +344,21 @@
   background-color: hsl(var(--editor-bg-primary)) !important;
   color: hsl(var(--editor-text-primary)) !important;
 }
+
+.script-block {
+  background: #f5f5f5;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  margin: 10px 0;
+  font-family: monospace;
+}
+.script-block__header {
+  background: #e0e0e0;
+  padding: 8px;
+  border-bottom: 1px solid #ddd;
+  font-weight: bold;
+}
+.script-block__content {
+  padding: 8px;
+  white-space: pre-wrap;
+}
