@@ -140,15 +140,21 @@ const Editor = ({ templateId, mode = 'edit' }: EditorProps) => {
 
     editorInstance.Components.addType('script', {
       view: {
-        onRender({ el }: { el: HTMLElement }) {
-          el.innerHTML = `<div class="script-block">
-                    <div class="script-block__header">
-                      <i class="fa fa-code"></i> Script
-                    </div>
-                    <div class="script-block__content">
-                      <pre>${el.textContent}</pre>
-                    </div>
-                  </div>`
+        onRender({ el, model }) {
+          // Get the actual script content
+          const scriptContent = model.components().models[0]?.get('content') || ''
+
+          // Update the content display
+          el.innerHTML = `
+            <div class="script-block">
+              <div class="script-block__header">
+                <i class="fa fa-code"></i> Script
+              </div>
+              <div class="script-block__content">
+                <pre>${scriptContent}</pre>
+              </div>
+            </div>
+          `
         },
       },
       model: {
@@ -156,15 +162,51 @@ const Editor = ({ templateId, mode = 'edit' }: EditorProps) => {
           tagName: 'script',
           draggable: true,
           droppable: false,
+          layerable: true,
+          selectable: true,
+          hoverable: true,
           attributes: { type: 'text/javascript' },
+          components: [
+            {
+              type: 'textnode',
+              content: '// Your JavaScript code here',
+            },
+          ],
           traits: [
             {
               type: 'textarea',
-              name: 'content',
+              name: 'scriptContent',
               label: 'Script Content',
+              changeProp: true,
+              onChange({ component, value }) {
+                // Update the textnode content when trait changes
+                const textNode = component.components().models[0]
+                if (textNode) {
+                  textNode.set('content', value)
+                  component.view.render()
+                }
+              },
             },
           ],
-        } as ComponentDefinition,
+        },
+        init() {
+          // Set up initial content
+          const textNode = this.components().models[0]
+          if (textNode) {
+            this.set('scriptContent', textNode.get('content'))
+          }
+
+          // Listen for content changes
+          this.on('change:scriptContent', this.handleContentChange)
+        },
+        handleContentChange() {
+          const content = this.get('scriptContent')
+          const textNode = this.components().models[0]
+          if (textNode && content !== textNode.get('content')) {
+            textNode.set('content', content)
+            this.view.render()
+          }
+        },
       },
     })
 
