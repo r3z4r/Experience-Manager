@@ -10,7 +10,7 @@ export function ModeOfPayment() {
           <h3>How would you like to Pay?</h3>
           <div className="payment-option">
             <label>
-              <input type="radio" name="payment"/>
+              <input type="radio" name="payment" defaultChecked/>
               Payment through Stripe
             </label>
           </div>
