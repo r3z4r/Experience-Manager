@@ -1,5 +1,6 @@
 import type { ProjectData } from 'grapesjs'
-import type { TemplateStatus, AccessVisibility, ComponentType } from './template'
+import type { AccessVisibility, ComponentType } from './template'
+import { Page } from '@/payload-types'
 
 export type ComponentConfig = {
   [key: string]: string | number | boolean | null | undefined | ComponentConfig | ComponentConfig[]
@@ -10,7 +11,7 @@ export interface TemplateData {
   title: string
   slug: string
   description?: string | null
-  status: TemplateStatus
+  status: Page['status']
   htmlContent?: string | null
   cssContent?: string
   gjsData?: ProjectData

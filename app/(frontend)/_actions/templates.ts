@@ -1,5 +1,6 @@
 'use server'
 
+import { cache } from 'react'
 import { getPayload, WhereField } from 'payload'
 import configPromise from '@payload-config'
 import type {
@@ -7,41 +8,41 @@ import type {
   PaginatedTemplatesResponse,
   FetchTemplatesOptions,
 } from '@/app/(frontend)/_types/template-data'
-import { TemplateStatus } from '@/app/(frontend)/_types/template'
+import { Page } from '@/payload-types'
 
-export async function fetchTemplates(
-  options: FetchTemplatesOptions = {},
-): Promise<PaginatedTemplatesResponse> {
-  const payload = await getPayload({
-    config: configPromise,
-  })
+export const fetchTemplates = cache(
+  async (options: FetchTemplatesOptions = {}): Promise<PaginatedTemplatesResponse> => {
+    const payload = await getPayload({
+      config: configPromise,
+    })
 
-  const { page = 1, limit = 10, filter = {} } = options
+    const { page = 1, limit = 10, filter = {} } = options
 
-  // Construct the where clause
-  const where: { [key: string]: WhereField } = {}
+    // Construct the where clause
+    const where: { [key: string]: WhereField } = {}
 
-  // Add status filter if provided
-  if (filter.status) {
-    where.status = { equals: filter.status }
-  }
+    // Add status filter if provided
+    if (filter.status) {
+      where.status = { equals: filter.status }
+    }
 
-  // Add visibility filter if provided
-  if (filter.visibility) {
-    where['access.visibility'] = { equals: filter.visibility }
-  }
+    // Add visibility filter if provided
+    if (filter.visibility) {
+      where['access.visibility'] = { equals: filter.visibility }
+    }
 
-  const response = await payload.find({
-    collection: 'pages',
-    where,
-    limit,
-    page,
-  })
+    const response = await payload.find({
+      collection: 'pages',
+      where,
+      limit,
+      page,
+    })
 
-  return response as PaginatedTemplatesResponse
-}
+    return response as PaginatedTemplatesResponse
+  },
+)
 
-export async function fetchTemplateById(id: string) {
+export const fetchTemplateById = cache(async (id: string): Promise<Page | null> => {
   const payload = await getPayload({
     config: configPromise,
   })
@@ -50,7 +51,7 @@ export async function fetchTemplateById(id: string) {
     collection: 'pages',
     id,
   })
-}
+})
 
 export async function createTemplate(templateData: TemplateData) {
   const payload = await getPayload({
@@ -95,7 +96,7 @@ export async function deleteTemplate(id: string) {
 
 export async function updateTemplateStatus(
   id: string,
-  status: TemplateStatus,
+  status: Page['status'],
 ): Promise<TemplateData> {
   try {
     const payload = await getPayload({
@@ -115,7 +116,7 @@ export async function updateTemplateStatus(
   }
 }
 
-export async function fetchTemplateBySlug(slug: string) {
+export const fetchTemplateBySlug = cache(async (slug: string) => {
   const payload = await getPayload({
     config: configPromise,
   })
@@ -134,4 +135,4 @@ export async function fetchTemplateBySlug(slug: string) {
     console.error('Error fetching template by slug:', error)
     return null
   }
-}
+})

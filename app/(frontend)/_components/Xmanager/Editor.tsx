@@ -47,28 +47,12 @@ import {
 import { fetchImages } from '@/app/(frontend)/_actions/images'
 import type { PayloadImage } from '@/app/(frontend)/_actions/images'
 import type { TemplateData } from '@/app/(frontend)/_types/template-data'
-import { TEMPLATE_STATUS, TemplateStatus } from '@/app/(frontend)/_types/template'
+import { TEMPLATE_STATUS } from '@/app/(frontend)/_types/template'
 import { generateSlug } from '@/lib/utils/slug-generator'
+import { StatusChip } from './StatusChip'
+import { Page } from '@/payload-types'
 
 type TemplateError = PayloadValidationError | ServerError | NetworkError
-
-const statusConfig = {
-  draft: {
-    label: 'Draft',
-    icon: Clock,
-    className: 'bg-yellow-500/10 text-yellow-500 hover:bg-yellow-500/20',
-  },
-  published: {
-    label: 'Published',
-    icon: CheckCircle2,
-    className: 'bg-green-500/10 text-green-500 hover:bg-green-500/20',
-  },
-  archived: {
-    label: 'Archived',
-    icon: Archive,
-    className: 'bg-gray-500/10 text-gray-500 hover:bg-gray-500/20',
-  },
-}
 
 // TODO: Fix this
 interface CustomTrait extends Partial<TraitProperties> {
@@ -457,7 +441,7 @@ const Editor = ({ templateId, mode = 'edit' }: EditorProps) => {
     )
   }
 
-  const handleStatusChange = async (newStatus: TemplateStatus) => {
+  const handleStatusChange = async (newStatus: Page['status']) => {
     if (!templateId) {
       toast.error('Please save the template before changing status')
       return
@@ -491,18 +475,6 @@ const Editor = ({ templateId, mode = 'edit' }: EditorProps) => {
     }
   }
 
-  const StatusChip = () => {
-    const config = statusConfig[currentStatus]
-    const Icon = config.icon
-
-    return (
-      <Badge variant="secondary" className={config.className}>
-        <Icon className="w-3 h-3 mr-1" />
-        {config.label}
-      </Badge>
-    )
-  }
-
   const handleCopyUrl = async () => {
     try {
       const baseUrl = window.location.origin
@@ -533,7 +505,7 @@ const Editor = ({ templateId, mode = 'edit' }: EditorProps) => {
           <div>
             <div className="flex items-center gap-2">
               <h1 className="editor-title">{templateName || 'Untitled Template'}</h1>
-              <StatusChip />
+              <StatusChip currentStatus={currentStatus} />
             </div>
             <div className="flex items-center gap-2 mt-1">
               <span className="text-sm text-muted-foreground">/pages/</span>

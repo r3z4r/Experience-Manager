@@ -2,7 +2,8 @@ import { useEffect, useState } from 'react'
 import { Editor as GrapesEditor } from 'grapesjs'
 import { fetchTemplateById, updateTemplate } from '@/app/(frontend)/_actions/templates'
 import { toast } from 'sonner'
-import { TEMPLATE_STATUS, TemplateStatus } from '@/app/(frontend)/_types/template'
+import { TEMPLATE_STATUS } from '@/app/(frontend)/_types/template'
+import { Page } from '@/payload-types'
 
 interface SlugState {
   value: string
@@ -15,12 +16,12 @@ interface TemplateState {
     html: string
     css: string
     gjsData?: unknown
-    status?: TemplateStatus
+    status?: Page['status']
   } | null
   templateName: string
   templateDescription: string
   slug: SlugState
-  status: TemplateStatus
+  status: Page['status']
 }
 
 export const useTemplateData = (templateId: string | undefined) => {
@@ -165,7 +166,7 @@ export const useTemplateData = (templateId: string | undefined) => {
     }
   }
 
-  const setStatus = (status: TemplateStatus) => {
+  const setStatus = (status: Page['status']) => {
     setState((prev) => ({ ...prev, status }))
   }
 
