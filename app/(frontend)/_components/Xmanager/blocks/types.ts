@@ -126,3 +126,13 @@ export interface PaymentBlockProps extends BaseBlockProps {
   clientSecret: string
   onSuccess?: () => void
 }
+
+export interface CartCardProps extends BaseBlockProps {
+  title: string
+  description: string
+  featureList: string[]
+  highlightsList: string[]
+  imageUrl: string
+  buttonText: string
+  buttonUrl: string
+}
