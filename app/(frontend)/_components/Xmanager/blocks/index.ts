@@ -24,6 +24,7 @@ import { checkoutCardBlock } from './CheckoutPage/CheckoutPage.config'
 import { ModeOfPaymentCardBlock } from './ModeOfPayment/ModeOfPayment.config'
 import { OrderSummaryCardBlock } from './OrderSummary/OrderSummary.config'
 import { scriptBlock } from './Script/Script.config'
+import { cartCardBlock } from './CartCard/CartCard.config'
 
 export const customBlocks: BlockProperties[] = [
   headingBannerBlock,
@@ -52,4 +53,5 @@ export const customBlocks: BlockProperties[] = [
   cartitemsCardBlock,
   checkoutCardBlock,
   scriptBlock,
+  cartCardBlock,
 ]
