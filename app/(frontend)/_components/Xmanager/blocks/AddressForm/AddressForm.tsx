@@ -27,12 +27,7 @@ export const AddressForm: React.FC<AddressFormProps> = ({
           <label>
             {'Street Address'} <span className={'required'}>*</span>
           </label>
-          <input
-            type="text"
-            placeholder={'Enter street address'}
-            value={streetAddress}
-            required={true}
-          />
+          <input type="text" placeholder={'Enter street address'} value={streetAddress} />
         </div>
 
         {/* Country */}
@@ -40,7 +35,7 @@ export const AddressForm: React.FC<AddressFormProps> = ({
           <label>
             {'Country'} <span className={'required'}>*</span>
           </label>
-          <input type="text" placeholder={'Enter country'} value={country} required={true} />
+          <input type="text" placeholder={'Enter country'} value={country} />
         </div>
 
         {/* State/Region */}
@@ -48,7 +43,7 @@ export const AddressForm: React.FC<AddressFormProps> = ({
           <label>
             {'State/Region'} <span className={'required'}>*</span>
           </label>
-          <input type="text" placeholder={'Enter state or region'} value={state} required={true} />
+          <input type="text" placeholder={'Enter state or region'} value={state} />
         </div>
 
         {/* City */}
@@ -56,7 +51,7 @@ export const AddressForm: React.FC<AddressFormProps> = ({
           <label>
             {'City'} <span className={'required'}>*</span>
           </label>
-          <input type="text" placeholder={'Enter city'} value={city} required={true} />
+          <input type="text" placeholder={'Enter city'} value={city} />
         </div>
 
         {/* Zip/Postal Code */}
@@ -64,12 +59,7 @@ export const AddressForm: React.FC<AddressFormProps> = ({
           <label>
             {'Zip/Postal Code'} <span className={'required'}>*</span>
           </label>
-          <input
-            type="text"
-            placeholder={'Enter zip or postal code'}
-            value={zipCode}
-            required={true}
-          />
+          <input type="text" placeholder={'Enter zip or postal code'} value={zipCode} />
         </div>
       </div>
     </>
