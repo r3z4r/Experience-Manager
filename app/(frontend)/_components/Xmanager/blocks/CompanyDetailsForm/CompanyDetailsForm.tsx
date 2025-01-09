@@ -24,14 +24,13 @@ export const CompanyDetailsForm: React.FC<CompanyDetailsFormProps> = ({
             type="text"
             placeholder={'Enter Company Name'}
             value={companyName}
-            required={true}
           />
         </div>
         <div className={'inputField'}>
           <label>
             {'Website URL'} <span className={'required'}>*</span>
           </label>
-          <input type="text" placeholder={'Enter Website URL'} value={websiteURL} required={true} />
+          <input type="text" placeholder={'Enter Website URL'} value={websiteURL} />
         </div>
         <div className={'inputField'}>
           <label>
@@ -41,7 +40,6 @@ export const CompanyDetailsForm: React.FC<CompanyDetailsFormProps> = ({
             type="text"
             placeholder={'Enter Number of Employees'}
             value={numberOfEmployees}
-            required={true}
           />
         </div>
       </div>
