@@ -25,10 +25,22 @@ import { ModeOfPaymentCardBlock } from './ModeOfPayment/ModeOfPayment.config'
 import { OrderSummaryCardBlock } from './OrderSummary/OrderSummary.config'
 import { scriptBlock } from './Script/Script.config'
 import { cartCardBlock } from './CartCard/CartCard.config'
+import { addressFormBlock } from './AddressForm/AddressForm.config'
+import { breadcrumbBlock } from './BreadCrumb/BreadCrumb.config'
+import { companyDetailsBlock } from './CompanyDetailsForm/CompanyDetailsForm.config'
+import { contractSettingsBlock } from './ContractSettings/ContractSettings.config'
+import { personalInformationFormBlock } from './PersonalInfo/PersonalInfo.config'
+import { productSelectionBlock } from './ProductSelection/ProductSelection.config'
 
 export const customBlocks: BlockProperties[] = [
   headingBannerBlock,
   heroBlock,
+  breadcrumbBlock,
+  addressFormBlock,
+  companyDetailsBlock,
+  contractSettingsBlock,
+  personalInformationFormBlock,
+  productSelectionBlock,
   serviceCardBlock,
   signinCardBlock,
   momentsHeaderBlock,
