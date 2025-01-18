@@ -25,6 +25,7 @@ import { LoadingSpinner } from '@/app/(frontend)/_components/ui/loading-spinner'
 import { StatusChip } from './StatusChip'
 import { PaginatedTemplatesResponse, TemplateData } from '@/app/(frontend)/_types/template-data'
 import { SaveModal } from './SaveModal'
+import { DeleteModal } from './DeleteModal'
 
 const ITEMS_PER_PAGE = 4
 
@@ -43,6 +44,11 @@ export function TemplateList() {
     prevPage: null,
     nextPage: null,
   })
+  const [showDeleteModal, setShowDeleteModal] = useState(false)
+  const [templateToDelete, setTemplateToDelete] = useState<TemplateData | null>(null)
+  const [deleteStatus, setDeleteStatus] = useState<'idle' | 'deleting' | 'deleted' | 'error'>(
+    'idle',
+  )
   const [showDuplicateModal, setShowDuplicateModal] = useState(false)
   const [templateToDuplicate, setTemplateToDuplicate] = useState<TemplateData | null>(null)
   const [duplicateStatus, setDuplicateStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>(
@@ -94,15 +100,26 @@ export function TemplateList() {
     }
   }
 
-  const handleDeleteTemplate = async (templateId: string | undefined) => {
-    if (!templateId) return
+  const handleDeleteClick = (template: TemplateData) => {
+    setTemplateToDelete(template)
+    setShowDeleteModal(true)
+  }
+
+  const handleDeleteConfirm = async () => {
+    if (!templateToDelete) return
+
     try {
-      await deleteTemplate(templateId)
-      toast.success('Template deleted successfully')
+      setDeleteStatus('deleting')
+      await deleteTemplate(templateToDelete.id as string)
       await fetchTemplatesData(pagination.page)
+      toast.success('Template deleted successfully')
+      setDeleteStatus('idle')
+      setShowDeleteModal(false)
+      setTemplateToDelete(null)
     } catch (error) {
       console.error('Error deleting template:', error)
       toast.error('Failed to delete template')
+      setDeleteStatus('error')
     }
   }
 
@@ -183,11 +200,7 @@ export function TemplateList() {
                     <StatusChip status={template.status} />
                   </div>
                   <button
-                    onClick={() => {
-                      if (window.confirm('Are you sure you want to delete this template?')) {
-                        handleDeleteTemplate(template.id)
-                      }
-                    }}
+                    onClick={() => handleDeleteClick(template)}
                     className="template-card-delete"
                     aria-label="Delete template"
                   >
@@ -283,6 +296,18 @@ export function TemplateList() {
           </div>
         )}
       </div>
+      {showDeleteModal && templateToDelete && (
+        <DeleteModal
+          templateName={templateToDelete.title}
+          onClose={() => {
+            setShowDeleteModal(false)
+            setTemplateToDelete(null)
+            setDeleteStatus('idle')
+          }}
+          onConfirm={handleDeleteConfirm}
+          deleteStatus={deleteStatus}
+        />
+      )}
       {showDuplicateModal && templateToDuplicate && (
         <SaveModal
           initialName={`${templateToDuplicate.title} (Copy)`}
