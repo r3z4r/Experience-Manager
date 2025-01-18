@@ -13,12 +13,18 @@ import {
 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
-import { createTemplate, fetchTemplates, deleteTemplate } from '@/app/(frontend)/_actions/templates'
+import {
+  createTemplate,
+  fetchTemplates,
+  deleteTemplate,
+  duplicateTemplate,
+} from '@/app/(frontend)/_actions/templates'
 import Image from 'next/image'
 import { TemplatePreview } from './TemplatePreview'
 import { LoadingSpinner } from '@/app/(frontend)/_components/ui/loading-spinner'
 import { StatusChip } from './StatusChip'
 import { PaginatedTemplatesResponse, TemplateData } from '@/app/(frontend)/_types/template-data'
+import { SaveModal } from './SaveModal'
 
 const ITEMS_PER_PAGE = 4
 
@@ -37,6 +43,13 @@ export function TemplateList() {
     prevPage: null,
     nextPage: null,
   })
+  const [showDuplicateModal, setShowDuplicateModal] = useState(false)
+  const [templateToDuplicate, setTemplateToDuplicate] = useState<TemplateData | null>(null)
+  const [duplicateStatus, setDuplicateStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>(
+    'idle',
+  )
+  const [slugValue, setSlugValue] = useState('')
+  const [slugTempValue, setSlugTempValue] = useState('')
 
   const fetchTemplatesData = async (page: number) => {
     setIsLoading(true)
@@ -90,6 +103,37 @@ export function TemplateList() {
     } catch (error) {
       console.error('Error deleting template:', error)
       toast.error('Failed to delete template')
+    }
+  }
+
+  const handleDuplicateClick = (template: TemplateData) => {
+    setTemplateToDuplicate(template)
+    const initialSlug = `${template.slug}-copy`
+    setSlugValue(initialSlug)
+    setSlugTempValue(initialSlug)
+    setShowDuplicateModal(true)
+  }
+
+  const handleSlugChange = (value: string) => {
+    setSlugTempValue(value)
+    setSlugValue(value)
+  }
+
+  const handleDuplicate = async (name: string, description: string) => {
+    if (!templateToDuplicate) return
+
+    try {
+      setDuplicateStatus('saving')
+      await duplicateTemplate(templateToDuplicate.id as string, name, description, slugValue)
+      await fetchTemplatesData(pagination.page)
+      toast.success('Template duplicated successfully')
+      setDuplicateStatus('idle')
+      setShowDuplicateModal(false)
+      setTemplateToDuplicate(null)
+    } catch (error) {
+      console.error('Error duplicating template:', error)
+      toast.error('Failed to duplicate template')
+      setDuplicateStatus('error')
     }
   }
 
@@ -149,7 +193,11 @@ export function TemplateList() {
                   >
                     <TrashIcon className="w-5 h-5" />
                   </button>
-                  <button className="template-card-duplicate" aria-label="Duplicate template">
+                  <button
+                    onClick={() => handleDuplicateClick(template)}
+                    className="template-card-duplicate"
+                    aria-label="Duplicate template"
+                  >
                     <CopyIcon className="w-5 h-5" />
                   </button>
                   <div className="template-card-overlay">
@@ -235,6 +283,22 @@ export function TemplateList() {
           </div>
         )}
       </div>
+      {showDuplicateModal && templateToDuplicate && (
+        <SaveModal
+          initialName={`${templateToDuplicate.title} (Copy)`}
+          initialDescription={templateToDuplicate.description || ''}
+          slugValue={slugValue}
+          slugTempValue={slugTempValue}
+          onSlugChange={handleSlugChange}
+          onClose={() => {
+            setShowDuplicateModal(false)
+            setTemplateToDuplicate(null)
+            setDuplicateStatus('idle')
+          }}
+          onSave={handleDuplicate}
+          saveStatus={duplicateStatus}
+        />
+      )}
     </div>
   )
 }

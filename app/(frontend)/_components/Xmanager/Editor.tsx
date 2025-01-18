@@ -48,6 +48,7 @@ import type { TemplateData } from '@/app/(frontend)/_types/template-data'
 import { TEMPLATE_STATUS, TemplateStatus } from '@/app/(frontend)/_types/template'
 import { generateSlug } from '@/lib/utils/slug-generator'
 import { StatusChip } from './StatusChip'
+import { SaveModal } from './SaveModal'
 
 type TemplateError = PayloadValidationError | ServerError | NetworkError
 
@@ -608,101 +609,21 @@ const Editor = ({ templateId, mode = 'edit' }: EditorProps) => {
         <div ref={editorRef} className="editor-container" />
       </div>
       {showSaveDialog && (
-        <div className="editor-modal-overlay">
-          <div className="editor-modal">
-            <div className="editor-modal-header">
-              <h3 className="editor-modal-title">Save Template</h3>
-              <button onClick={() => setShowSaveDialog(false)} className="editor-modal-close">
-                ✕
-              </button>
-            </div>
-
-            <div className="space-y-4">
-              <div className="editor-form-field">
-                <label className="editor-form-label">Template Name</label>
-                <input
-                  type="text"
-                  value={templateName}
-                  onChange={(e) => setTemplateName(e.target.value)}
-                  placeholder="Enter template name"
-                  className="editor-form-input"
-                />
-              </div>
-
-              <div className="editor-form-field">
-                <label className="editor-form-label">URL Slug</label>
-                <div className="flex gap-2">
-                  <input
-                    type="text"
-                    value={slugTempValue}
-                    onChange={(e) => handleSlugChange(e.target.value)}
-                    placeholder="custom-url-slug"
-                    className="editor-form-input flex-1"
-                  />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={async () => {
-                      const generatedSlug = await generateSlug(templateName)
-                      handleSlugChange(generatedSlug)
-                    }}
-                    className="whitespace-nowrap"
-                  >
-                    Generate
-                  </Button>
-                </div>
-                <p className="text-xs text-muted-foreground mt-1">
-                  This will be used in the URL: /pages/
-                  <span className="font-mono">{slugValue || 'your-slug'}</span>
-                </p>
-              </div>
-
-              <div className="editor-form-field">
-                <label className="editor-form-label">Description</label>
-                <input
-                  type="text"
-                  value={templateDescription}
-                  onChange={(e) => setTemplateDescription(e.target.value)}
-                  placeholder="Enter template description"
-                  className="editor-form-input"
-                />
-              </div>
-
-              <div className="flex items-center justify-between mt-4">
-                <span
-                  className={`editor-status-text ${
-                    saveStatus === 'error'
-                      ? 'editor-status-error'
-                      : saveStatus === 'saved'
-                        ? 'editor-status-success'
-                        : saveStatus === 'saving'
-                          ? 'editor-status-saving'
-                          : 'editor-status-idle'
-                  }`}
-                >
-                  {saveStatus === 'error' && 'Failed to save'}
-                  {saveStatus === 'saved' && 'Saved successfully'}
-                  {saveStatus === 'saving' && 'Saving...'}
-                </span>
-
-                <button
-                  onClick={handleSaveTemplate}
-                  disabled={saveStatus === 'saving'}
-                  className={`editor-save-button ${
-                    saveStatus === 'saving' ? 'editor-save-button-disabled' : ''
-                  }`}
-                >
-                  {saveStatus === 'saving'
-                    ? 'Saving...'
-                    : templateId
-                      ? 'Update Template'
-                      : 'Save Template'}
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
+        <SaveModal
+          templateId={templateId}
+          initialName={templateName}
+          initialDescription={templateDescription}
+          slugValue={slugValue}
+          slugTempValue={slugTempValue}
+          onSlugChange={handleSlugChange}
+          onClose={() => setShowSaveDialog(false)}
+          onSave={(name, description) => {
+            setTemplateName(name)
+            setTemplateDescription(description)
+            handleSaveTemplate()
+          }}
+          saveStatus={saveStatus}
+        />
       )}
     </div>
   )

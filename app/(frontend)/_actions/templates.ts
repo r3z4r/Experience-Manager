@@ -1,5 +1,6 @@
 'use server'
 
+import { revalidatePath } from 'next/cache'
 import { getPayload, WhereField } from 'payload'
 import configPromise from '@payload-config'
 import type {
@@ -133,5 +134,38 @@ export async function fetchTemplateBySlug(slug: string) {
   } catch (error) {
     console.error('Error fetching template by slug:', error)
     return null
+  }
+}
+
+export async function duplicateTemplate(
+  templateId: string,
+  newName: string,
+  newDescription: string,
+  newSlug: string,
+): Promise<TemplateData> {
+  const payload = await getPayload({
+    config: configPromise,
+  })
+  try {
+    // Create new template with the original template's data
+    const duplicatedTemplate = await payload.duplicate({
+      collection: 'pages',
+      id: templateId,
+    })
+    // Update the duplicated template with the new data
+    await payload.update({
+      collection: 'pages',
+      id: duplicatedTemplate.id,
+      data: {
+        title: newName,
+        description: newDescription,
+        slug: newSlug,
+      },
+    })
+    revalidatePath('/xmanager')
+    return duplicatedTemplate as TemplateData
+  } catch (error) {
+    console.error('Error duplicating template:', error)
+    throw error
   }
 }
