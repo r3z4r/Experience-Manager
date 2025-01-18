@@ -542,6 +542,10 @@
     @apply absolute top-0 right-0 z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-200 button-destructive button-md py-6;
   }
 
+  .template-card-duplicate {
+    @apply absolute top-12 right-0 z-20 opacity-0 group-hover:opacity-100 transition-opacity duration-200 button-base p-4 bg-violet-100  hover:bg-violet-200 active:bg-violet-300 text-violet-600;
+  }
+
   .template-card-overlay {
     @apply absolute inset-0 bg-gradient-to-t from-white via-white/90 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 ease-in-out;
   }
@@ -551,19 +555,19 @@
   }
 
   .template-card-info {
-    @apply flex flex-col gap-4;
+    @apply flex items-end justify-between gap-4;
   }
 
   .template-card-title {
-    @apply text-lg font-semibold pr-8 line-clamp-1;
+    @apply text-lg font-semibold line-clamp-1;
   }
 
   .template-card-description {
-    @apply text-gray-600 text-sm line-clamp-2;
+    @apply text-gray-600 text-sm line-clamp-1;
   }
 
   .template-card-actions {
-    @apply flex justify-end gap-2;
+    @apply flex gap-2 shrink-0;
   }
 }
 

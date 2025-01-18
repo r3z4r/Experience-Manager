@@ -9,6 +9,7 @@ import {
   EditIcon,
   EyeIcon,
   TrashIcon,
+  CopyIcon,
 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
@@ -16,6 +17,7 @@ import { createTemplate, fetchTemplates, deleteTemplate } from '@/app/(frontend)
 import Image from 'next/image'
 import { TemplatePreview } from './TemplatePreview'
 import { LoadingSpinner } from '@/app/(frontend)/_components/ui/loading-spinner'
+import { StatusChip } from './StatusChip'
 import { PaginatedTemplatesResponse, TemplateData } from '@/app/(frontend)/_types/template-data'
 
 const ITEMS_PER_PAGE = 4
@@ -133,7 +135,9 @@ export function TemplateList() {
                       className="w-full h-full"
                     />
                   </div>
-
+                  <div className="absolute top-2 left-2 z-20">
+                    <StatusChip status={template.status} />
+                  </div>
                   <button
                     onClick={() => {
                       if (window.confirm('Are you sure you want to delete this template?')) {
@@ -145,11 +149,13 @@ export function TemplateList() {
                   >
                     <TrashIcon className="w-5 h-5" />
                   </button>
-
+                  <button className="template-card-duplicate" aria-label="Duplicate template">
+                    <CopyIcon className="w-5 h-5" />
+                  </button>
                   <div className="template-card-overlay">
                     <div className="template-card-content">
                       <div className="template-card-info">
-                        <div>
+                        <div className="flex flex-col min-w-0">
                           <h3 className="template-card-title">{template.title}</h3>
                           <p className="template-card-description">{template.description}</p>
                         </div>
@@ -176,7 +182,7 @@ export function TemplateList() {
               ))}
               <button
                 onClick={handleCreateTemplate}
-                className="group relative border-2 border-dashed border-gray-300 rounded-lg p-4 flex items-center justify-center transition-all duration-200 bg-[repeating-linear-gradient(45deg,#f8fafc,#f8fafc_10px,#f1f5f9_10px,#f1f5f9_20px)] hover:bg-[repeating-linear-gradient(45deg,#f3f4f6,#f3f4f6_10px,#e5e7eb_10px,#e5e7eb_20px)] hover:shadow-md before:absolute before:inset-0 before:p-[2px] before:rounded-lg before:content-[''] group-hover:before:bg-gradient-to-r group-hover:before:from-blue-600 group-hover:before:to-purple-600 before:opacity-0 group-hover:before:opacity-100 before:transition-[opacity,transform] before:hover:scale-[1.01] border-transparent"
+                className="h-[300px] group relative border-4 border-transparent rounded-lg p-6 flex items-center justify-center transition-all duration-200 bg-[repeating-linear-gradient(45deg,#f8fafc,#f8fafc_10px,#f1f5f9_10px,#f1f5f9_20px)] hover:bg-[repeating-linear-gradient(45deg,#f3f4f6,#f3f4f6_10px,#e5e7eb_10px,#e5e7eb_20px)] hover:shadow-md"
               >
                 <div className="relative text-center">
                   <PlusIcon className="w-8 h-8 mx-auto mb-2 text-gray-400 transition-colors duration-300 group-hover:text-blue-600" />
