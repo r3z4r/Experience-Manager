@@ -28,6 +28,9 @@ export const Pages: CollectionConfig = {
       name: 'title',
       type: 'text',
       required: true,
+      admin: {
+        position: 'sidebar',
+      },
     },
     {
       name: 'slug',
@@ -41,6 +44,9 @@ export const Pages: CollectionConfig = {
     {
       name: 'description',
       type: 'text',
+      admin: {
+        position: 'sidebar',
+      },
     },
     {
       name: 'status',
@@ -51,6 +57,9 @@ export const Pages: CollectionConfig = {
       })),
       defaultValue: TEMPLATE_STATUS.DRAFT,
       required: true,
+      admin: {
+        position: 'sidebar',
+      },
     },
     {
       name: 'access',
@@ -76,6 +85,9 @@ export const Pages: CollectionConfig = {
           },
         },
       ],
+      admin: {
+        position: 'sidebar',
+      },
     },
     {
       name: 'components',

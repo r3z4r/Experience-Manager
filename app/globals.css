@@ -361,7 +361,7 @@
   }
 
   .header-title {
-    @apply ml-3 font-semibold text-2xl bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent drop-shadow-sm hover:from-blue-500 hover:to-purple-500 transition-all duration-300 font-sans;
+    @apply ml-3 font-semibold text-2xl bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent drop-shadow-sm  font-medium cursor-default;
   }
 
   .template-grid {
