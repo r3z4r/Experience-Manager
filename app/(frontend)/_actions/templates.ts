@@ -160,6 +160,7 @@ export async function duplicateTemplate(
         title: newName,
         description: newDescription,
         slug: newSlug,
+        status: 'draft',
       },
     })
     revalidatePath('/xmanager')
