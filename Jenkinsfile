@@ -14,6 +14,9 @@ def enableSQgate  = true
 def abortPipelineSQgate  = true
 def anchoreBAILgate = false
 
+// Add fallback version if no tags exist
+def DEFAULT_VERSION = "0.1.0"
+
 // DO NOT MODIFY pipeline below except for the stage 'Build Code' script
 def IMAGE_TAG
 def IMAGE_OPTIONS
@@ -33,8 +36,18 @@ pipeline {
 			steps {
 				script {
 					echo "initialize build package traceabilty properties"
-					IMAGE_TAG = cicd.getImageTag()
-					IMAGE_OPTIONS = '--build-arg RELEASE=' + IMAGE_TAG + ' --label release-version=' + IMAGE_TAG + ' --label branch-name=' + GIT_LOCAL_BRANCH + ' --label vendor="Tecnotree" .'
+					
+					// Try to get tag, fallback to commit hash if no tags exist
+					def version = sh(script: '''
+						git describe --tags 2>/dev/null || \
+						echo ''' + DEFAULT_VERSION + '''-$(git rev-parse --short HEAD)
+					''', returnStdout: true).trim()
+					
+					IMAGE_TAG = version
+					IMAGE_OPTIONS = '--build-arg RELEASE=' + IMAGE_TAG + 
+								  ' --label release-version=' + IMAGE_TAG + 
+								  ' --label branch-name=' + env.BRANCH_NAME + 
+								  ' --label vendor="Tecnotree" .'
 					IMAGE_STAGING = "${REPO_STAGING}/${IMAGE_NAME}:${IMAGE_TAG}"
 					IMAGE_DEVELOP = "${REPO_DEVELOP}/${IMAGE_NAME}:${IMAGE_TAG}"
 					IMAGE_DELIVER = "${REPO_DELIVER}/${IMAGE_NAME}:${IMAGE_TAG}"
