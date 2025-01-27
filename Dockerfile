@@ -1,6 +1,6 @@
 # From https://github.com/vercel/next.js/blob/canary/examples/with-docker/Dockerfile
 
-FROM node:18-alpine AS base
+FROM dev-docker-registry.tecnotree.com/mirror/registry.docker.io/node:18-latest
 
 # Install dependencies only when needed
 FROM base AS deps
