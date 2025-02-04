@@ -23,7 +23,7 @@ def IMAGE_DELIVER
 
 pipeline {
 	agent {
-		label 'nodejs-18-node'
+		label 'nodejs-20-node'
 	}
 	options {
 		timeout(time: 1, unit: 'HOURS')
