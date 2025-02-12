@@ -50,7 +50,7 @@ setImage() {
           echo "FAILED: cannot update image for deployment/${DEPLOYMENT} ${CONTAINER}=${BUILD_IMAGE} --namespace=${NAMESPACE}"
           return 1
      else
-          ./rancher kubectl set env deployment/${DEPLOYMENT} --namespace=${NAMESPACE} --from=configmap/moments-campaign-management-ui-config
+          ./rancher kubectl set env deployment/${DEPLOYMENT} --namespace=${NAMESPACE} --from=configmap/${DEPLOYMENT}-config
           echo "SUCCESS: image updated for deployment/${DEPLOYMENT} ${CONTAINER}=${BUILD_IMAGE} --namespace=${NAMESPACE}"
           return 0
      fi

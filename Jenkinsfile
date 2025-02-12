@@ -93,10 +93,13 @@ pipeline {
 			}*/
 			steps {
 				script {
-				    cicd.docker_build("https://${REGISTRY_DEVELOP}", "${IMAGE_STAGING}", IMAGE_OPTIONS)
-					}
+				    def buildArgs = '--build-arg NEXT_PUBLIC_BASE_PATH=/xpm ' +
+				                    '--build-arg NEXT_PUBLIC_SITE_URL=https://demo.tecnotree.com ' +
+				                    IMAGE_OPTIONS
+				    cicd.docker_build("https://${REGISTRY_DEVELOP}", "${IMAGE_STAGING}", buildArgs)
 				}
 			}
+		}
 		stage('Anchore ScanImage') {
 			when {
 				expression { executeBIQstages == true }
