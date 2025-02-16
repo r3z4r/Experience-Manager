@@ -1,61 +1,84 @@
-import { FooterProps } from '../types'
+import React from 'react'
 import { footerStyles } from './Footer.styles'
 
+interface FooterColumn {
+  title: string
+  links: {
+    label: string
+    href: string
+  }[]
+}
+
+interface SocialLink {
+  icon: React.ReactNode
+  href: string
+  label: string
+}
+
+interface FooterProps {
+  logo: {
+    src: string
+    alt: string
+  }
+  description: string
+  columns: FooterColumn[]
+  socialLinks: SocialLink[]
+  bottomText: string
+  theme?: 'light' | 'dark'
+}
+
 export function Footer({
-  logoSrc = '/xpm/logo.webp',
-  socialLinks = [
-    { icon: '📱', href: '#' },
-    { icon: '📘', href: '#' },
-    { icon: '🐦', href: '#' },
-    { icon: '📸', href: '#' },
-  ],
-  quickLinks = [
-    { label: 'About Us', href: '/about' },
-    { label: 'Services', href: '/services' },
-    { label: 'Contact', href: '/contact' },
-    { label: 'Privacy Policy', href: '/privacy' },
-    { label: 'Terms of Service', href: '/terms' },
-  ],
+  logo,
+  description,
+  columns,
+  socialLinks,
+  bottomText,
+  theme = 'light',
 }: FooterProps) {
   return (
     <>
       <style>{footerStyles}</style>
-      <footer className="footer">
+      <footer className={`footer footer-${theme}`}>
         <div className="footer-container">
-          <div className="footer-main">
+          <div className="footer-grid">
+            {/* Brand Column */}
             <div className="footer-brand">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={logoSrc} alt="Company Logo" className="footer-logo" />
-              <p className="footer-description">
-                Providing quality healthcare services to improve lives and well-being.
-              </p>
-              <div className="social-links">
-                {socialLinks.map((link, index) => (
-                  <a key={index} href={link.href} className="social-link">
-                    {link.icon}
+              <img src={logo.src} alt={logo.alt} className="footer-logo" />
+              <p className="footer-description">{description}</p>
+              <div className="footer-social">
+                {socialLinks.map((social, index) => (
+                  <a
+                    key={index}
+                    href={social.href}
+                    className="social-link"
+                    aria-label={social.label}
+                  >
+                    {social.icon}
                   </a>
                 ))}
               </div>
             </div>
-            <div className="footer-links">
-              <h3>Quick Links</h3>
-              <ul>
-                {quickLinks.map((link, index) => (
-                  <li key={index}>
-                    <a href={link.href}>{link.label}</a>
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <div className="footer-contact">
-              <h3>Contact Us</h3>
-              <p>📍 123 Healthcare Street</p>
-              <p>📞 +1 234 567 890</p>
-              <p>✉️ contact@healthcare.com</p>
-            </div>
+
+            {/* Link Columns */}
+            {columns.map((column, index) => (
+              <div key={index} className="footer-column">
+                <h3 className="footer-column-title">{column.title}</h3>
+                <ul className="footer-links">
+                  {column.links.map((link, linkIndex) => (
+                    <li key={linkIndex}>
+                      <a href={link.href} className="footer-link">
+                        {link.label}
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
           </div>
+
+          {/* Bottom Text */}
           <div className="footer-bottom">
-            <p>&copy; 2024 Healthcare Services. All rights reserved.</p>
+            <p className="footer-copyright">{bottomText}</p>
           </div>
         </div>
       </footer>

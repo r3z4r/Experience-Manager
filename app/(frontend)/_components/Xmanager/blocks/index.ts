@@ -7,7 +7,6 @@ import { momentsHeaderBlock } from './MomentsHeader/MomentsHeader.config'
 import { carouselBlock } from './Carousel/Carousel.config'
 import { footerBlock } from './Footer/Footer.config'
 import { footerBannerBlock } from './FooterBanner/FooterBanner.config'
-import { dynamicHeaderBlock } from './DynamicHeader/DynamicHeader.config'
 import { personalizedOfferBlock } from './PersonalizedOffer/PersonalizedOffer.config'
 import { technicalSpecsCardBlock } from './TechnicalSpecsCard/TechnicalSpecsCard.config'
 import { WhyBuyFromStcBlock } from './WhyBuyFromStc/WhyBuyFromStc.config'
@@ -20,25 +19,23 @@ import { paymentBlock } from './Payment/Payment.config'
 import { signInBlock } from './SignIn/SignIn.config'
 import { DeliveryDetailsCardBlock } from './DeliveryDetails/DeliveryDetails.config'
 import { cartitemsCardBlock } from './CartItems/CartItems.config'
-import { checkoutCardBlock } from './CheckoutPage/CheckoutPage.config'
 import { ModeOfPaymentCardBlock } from './ModeOfPayment/ModeOfPayment.config'
 import { OrderSummaryCardBlock } from './OrderSummary/OrderSummary.config'
 import { scriptBlock } from './Script/Script.config'
-import { cartCardBlock } from './CartCard/CartCard.config'
 import { addressFormBlock } from './AddressForm/AddressForm.config'
 import { breadcrumbBlock } from './BreadCrumb/BreadCrumb.config'
-import { companyDetailsBlock } from './CompanyDetailsForm/CompanyDetailsForm.config'
-import { contractSettingsBlock } from './ContractSettings/ContractSettings.config'
 import { personalInformationFormBlock } from './PersonalInfo/PersonalInfo.config'
 import { productSelectionBlock } from './ProductSelection/ProductSelection.config'
+import { featuresBlock } from './Features/Features.config'
+import { planCardBlock } from './PlanCard/PlanCard.config'
+import { ctaBlock } from './CTA/CTA.config'
+import { navbarBlock } from './Navbar/Navbar.config'
 
 export const customBlocks: BlockProperties[] = [
   headingBannerBlock,
   heroBlock,
   breadcrumbBlock,
   addressFormBlock,
-  companyDetailsBlock,
-  contractSettingsBlock,
   personalInformationFormBlock,
   productSelectionBlock,
   serviceCardBlock,
@@ -47,7 +44,6 @@ export const customBlocks: BlockProperties[] = [
   carouselBlock,
   footerBlock,
   footerBannerBlock,
-  dynamicHeaderBlock,
   personalizedOfferBlock,
   technicalSpecsCardBlock,
   WhyBuyFromStcBlock,
@@ -63,7 +59,9 @@ export const customBlocks: BlockProperties[] = [
   ModeOfPaymentCardBlock,
   OrderSummaryCardBlock,
   cartitemsCardBlock,
-  checkoutCardBlock,
   scriptBlock,
-  cartCardBlock,
+  featuresBlock,
+  planCardBlock,
+  ctaBlock,
+  navbarBlock,
 ]
