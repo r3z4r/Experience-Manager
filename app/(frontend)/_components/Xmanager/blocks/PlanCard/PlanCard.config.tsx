@@ -23,6 +23,6 @@ export const planCardBlock: BlockProperties = {
   category: 'Components',
   content: renderToString(<PlanCard {...defaultPlanData} />),
   attributes: {
-    class: 'fa fa-credit-card',
+    class: 'fa fa-percent',
   },
 }

@@ -15,6 +15,6 @@ export const statisticsBlock: BlockProperties = {
   category: 'Components',
   content: renderToString(<Statistics items={defaultStats} />),
   attributes: {
-    class: 'statistics-block',
+    class: 'fa fa-bar-chart',
   },
 }

@@ -8,6 +8,6 @@ export const DeliveryDetailsCardBlock: BlockProperties = {
   category: 'Components',
   content: renderToString(<DeliveryDetails />),
   attributes: {
-    class: 'deliverydetails-card',
+    class: 'fa fa-map-marker',
   },
 }

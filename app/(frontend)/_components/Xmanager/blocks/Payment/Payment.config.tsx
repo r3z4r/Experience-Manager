@@ -1,13 +1,13 @@
 import { BlockProperties } from 'grapesjs'
-import { PaymentBlock } from './Payment'
 import { renderToString } from 'react-dom/server'
+import { PaymentBlock } from './Payment'
 
 export const paymentBlock: BlockProperties = {
   id: 'payment',
   label: 'Payment Form',
-  category: 'Payment',
+  category: 'Sections',
   content: renderToString(<PaymentBlock />),
   attributes: {
-    class: 'payment-block',
+    class: 'fa fa-credit-card',
   },
 }

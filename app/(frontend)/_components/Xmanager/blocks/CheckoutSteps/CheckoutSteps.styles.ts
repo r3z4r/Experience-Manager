@@ -1,25 +1,35 @@
 export const checkoutStepsStyles = `
   .checkout-steps {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
+    max-width: 800px;
+    margin: 0 auto;
     padding: 2rem;
-    background: #ffffff;
-    border-radius: 0.5rem;
-    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
   }
 
   .step {
-    display: flex;
-    align-items: flex-start;
-    gap: 1rem;
-    padding: 1rem;
-    border-radius: 0.375rem;
-    transition: all 0.2s;
+    margin-bottom: 1rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem;
+    background: #ffffff;
   }
 
-  .step.active {
-    background: #f0f9ff;
+  .step-checkbox {
+    display: none;
+  }
+
+  .step-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.25rem;
+    background: #ffffff;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  .step-indicator {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
   }
 
   .step-number {
@@ -28,9 +38,9 @@ export const checkoutStepsStyles = `
     display: flex;
     align-items: center;
     justify-content: center;
-    border-radius: 9999px;
     background: #e5e7eb;
     color: #4b5563;
+    border-radius: 9999px;
     font-weight: 600;
   }
 
@@ -44,7 +54,7 @@ export const checkoutStepsStyles = `
     color: #ffffff;
   }
 
-  .step-content {
+  .step-info {
     flex: 1;
   }
 
@@ -55,7 +65,62 @@ export const checkoutStepsStyles = `
   }
 
   .step-description {
-    color: #6b7280;
     font-size: 0.875rem;
+    color: #6b7280;
+  }
+
+  .toggle-icon {
+    width: 1.25rem;
+    height: 1.25rem;
+    color: #6b7280;
+    transition: transform 0.2s ease;
+  }
+
+  .step-content {
+    display: none;
+    background: #f9fafb;
+    border-top: 1px solid #e5e7eb;
+    padding: 1.5rem;
+    min-height: 100px;
+  }
+
+  /* Checkbox-based toggle functionality */
+  .step-checkbox:checked + .step-header + .step-content {
+    display: block;
+  }
+
+  .step-checkbox:checked + .step-header .toggle-icon {
+    transform: rotate(180deg);
+  }
+
+  /* Active state styles */
+  .step.active {
+    border-color: #3b82f6;
+  }
+
+  .step.active .step-title {
+    color: #3b82f6;
+  }
+
+  /* Completed state styles */
+  .step.completed .step-title {
+    color: #10b981;
+  }
+
+  .step-content-placeholder {
+    text-align: center;
+    color: #9ca3af;
+    padding: 2rem;
+    border: 2px dashed #e5e7eb;
+    border-radius: 0.375rem;
+  }
+
+  /* Hover states */
+  .step-header:hover {
+    background: #f9fafb;
+  }
+
+  .step-header:hover .toggle-icon {
+    color: #3b82f6;
   }
 `
