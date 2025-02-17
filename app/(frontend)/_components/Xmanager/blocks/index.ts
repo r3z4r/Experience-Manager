@@ -30,6 +30,10 @@ import { featuresBlock } from './Features/Features.config'
 import { planCardBlock } from './PlanCard/PlanCard.config'
 import { ctaBlock } from './CTA/CTA.config'
 import { navbarBlock } from './Navbar/Navbar.config'
+import { checkoutStepsBlock } from './CheckoutSteps/CheckoutSteps.config'
+import { creditCardFormBlock } from './CreditCardForm/CreditCardForm.config'
+import { esimOfferBlock } from './ESIMOffer/ESIMOffer.config'
+import { applicationConfirmationBlock } from './ApplicationConfirmation/ApplicationConfirmation.config'
 
 export const customBlocks: BlockProperties[] = [
   headingBannerBlock,
@@ -64,4 +68,8 @@ export const customBlocks: BlockProperties[] = [
   planCardBlock,
   ctaBlock,
   navbarBlock,
+  checkoutStepsBlock,
+  creditCardFormBlock,
+  esimOfferBlock,
+  applicationConfirmationBlock,
 ]
