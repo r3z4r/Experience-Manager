@@ -3,6 +3,7 @@
 import { getPayload } from 'payload'
 import configPromise from '@payload-config'
 import type { Image } from '@/payload-types'
+import { revalidatePath } from 'next/cache'
 
 export interface PayloadImage {
   id: string
@@ -38,9 +39,7 @@ export const fetchImages = async (): Promise<PayloadImage[]> => {
       },
     })
 
-    console.log('response', response)
-
-    const images = (response?.docs || []).map((doc: Image) => ({
+    return (response?.docs || []).map((doc: Image) => ({
       id: doc.id,
       title: doc.title || '',
       category: doc.category,
@@ -70,8 +69,6 @@ export const fetchImages = async (): Promise<PayloadImage[]> => {
           : null,
       },
     }))
-
-    return images
   } catch (error) {
     console.error('Error fetching images:', error)
     return []
@@ -99,36 +96,7 @@ export const fetchImagesByCategory = async (category: string): Promise<PayloadIm
   }
 }
 
-export async function uploadImage(file: File, category?: string): Promise<PayloadImage> {
-  const formData = new FormData()
-  formData.append('file', file)
-  if (category) {
-    formData.append('category', category)
-  }
-
-  console.log('Uploading file:', {
-    name: file.name,
-    size: file.size,
-    type: file.type,
-    category,
-  })
-
-  const response = await fetch(`${process.env.NEXT_PUBLIC_APP_URL}/xpm/api/upload-images`, {
-    method: 'POST',
-    body: formData,
-  })
-
-  const data = await response.json()
-
-  if (!response.ok) {
-    console.error('Upload failed:', data)
-    throw new Error(data.details || 'Failed to upload image')
-  }
-
-  return data
-}
-
-export async function createImage(file: File, category?: string) {
+export async function createImage(file: File, category?: string): Promise<PayloadImage> {
   try {
     const payload = await getPayload({
       config: configPromise,
@@ -136,7 +104,7 @@ export async function createImage(file: File, category?: string) {
 
     const buffer = Buffer.from(await file.arrayBuffer())
 
-    const image = await payload.create({
+    const response = await payload.create({
       collection: 'images',
       data: {
         title: file.name,
@@ -154,7 +122,38 @@ export async function createImage(file: File, category?: string) {
       },
     })
 
-    return image
+    revalidatePath('/admin/images')
+
+    return {
+      id: response.id,
+      title: response.title || '',
+      category: response.category || '',
+      alt: response.alt || '',
+      width: response.width || 0,
+      height: response.height || 0,
+      url: response.url || '',
+      filename: response.filename || '',
+      mimeType: response.mimeType || '',
+      filesize: response.filesize || 0,
+      createdAt: response.createdAt || '',
+      updatedAt: response.updatedAt || '',
+      sizes: {
+        thumbnail: response.sizes?.thumbnail
+          ? {
+              url: response.sizes.thumbnail.url || '',
+              width: response.sizes.thumbnail.width || 0,
+              height: response.sizes.thumbnail.height || 0,
+            }
+          : null,
+        card: response.sizes?.card
+          ? {
+              url: response.sizes.card.url || '',
+              width: response.sizes.card.width || 0,
+              height: response.sizes.card.height || 0,
+            }
+          : null,
+      },
+    }
   } catch (error) {
     console.error('Error in createImage:', error)
     throw error

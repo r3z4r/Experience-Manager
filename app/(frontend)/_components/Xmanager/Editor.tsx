@@ -49,6 +49,7 @@ import { TEMPLATE_STATUS, TemplateStatus } from '@/app/(frontend)/_types/templat
 import { generateSlug } from '@/lib/utils/slug-generator'
 import { StatusChip } from './StatusChip'
 import { SaveModal } from './SaveModal'
+import { getAssetManagerConfig } from './utils/assetConfig'
 
 type TemplateError = PayloadValidationError | ServerError | NetworkError
 
@@ -238,6 +239,11 @@ const Editor = ({ templateId, mode = 'edit' }: EditorProps) => {
     })
 
     setEditor(editorInstance)
+
+    // Update asset manager configuration
+    const assetManagerConfig = getAssetManagerConfig(editorInstance, images)
+    Object.assign(editorInstance.AssetManager.getConfig(), assetManagerConfig)
+    editorInstance.AssetManager.render() // Re-render asset manager with new config
 
     return () => {
       editorInstance.destroy()

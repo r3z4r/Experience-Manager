@@ -131,17 +131,13 @@
 }
 
 .gjs-mdl-content {
-  color: hsl(var(--editor-text-primary)) !important;
+  @apply p-6 max-h-[70vh] overflow-y-auto bg-background;
 }
 
 /* Buttons in editor */
 .gjs-btn-prim {
-  background-color: hsl(var(--editor-accent)) !important;
-  color: hsl(var(--editor-bg-primary)) !important;
-}
-
-.gjs-btn-prim:hover {
-  background-color: hsl(var(--editor-accent-hover)) !important;
+  @apply px-4 py-2 bg-primary text-primary-foreground rounded-md hover:bg-primary/90 
+    transition-colors duration-200;
 }
 
 /* Device Manager */
@@ -361,4 +357,115 @@
 .script-block__content {
   padding: 8px;
   white-space: pre-wrap;
+}
+
+/* File Uploader */
+.am-file-uploader {
+  @apply mb-6 border-2 border-dashed border-border rounded-lg p-8 text-center 
+    transition-colors duration-200 hover:border-primary/50 hover:bg-primary/5 cursor-pointer;
+}
+
+.am-file-uploader form {
+  @apply relative;
+}
+
+.am-file-uploader #am-title {
+  @apply text-lg font-medium text-foreground mb-2;
+}
+
+/* Make the input cover the entire uploader area but stay invisible */
+.am-file-uploader #am-uploadFile {
+  @apply absolute inset-0 w-full h-full opacity-0 cursor-pointer;
+}
+
+/* Assets Container */
+.am-assets-cont {
+  @apply space-y-4;
+}
+
+/* Assets Header */
+.am-assets-header {
+  @apply mb-4 border-b border-border pb-4;
+}
+
+.am-add-asset {
+  @apply flex gap-2;
+}
+
+.am-add-field {
+  @apply flex-1;
+}
+
+.am-add-field input {
+  @apply w-full px-3 py-2 bg-background border border-input rounded-md text-sm 
+    focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary;
+}
+
+/* Assets Grid */
+.am-assets {
+  @apply grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4;
+}
+
+/* Individual Asset */
+.am-asset {
+  @apply relative bg-card rounded-lg overflow-hidden transition-all duration-200 hover:shadow-md;
+}
+
+/* Add group class separately */
+.am-asset {
+  @apply relative;
+}
+.am-asset {
+  @apply bg-card rounded-lg overflow-hidden transition-all duration-200 hover:shadow-md;
+}
+
+/* Add group class directly without @apply */
+.am-asset {
+  position: relative;
+}
+.am-asset.group {
+  /* Group class needs to be added to element */
+}
+
+/* Preview Container */
+.am-preview-cont {
+  @apply aspect-square relative;
+}
+
+.am-preview {
+  @apply absolute inset-0 bg-center bg-no-repeat bg-contain z-10;
+}
+
+.am-preview-bg {
+  @apply absolute inset-0 opacity-50 z-0;
+}
+
+/* Meta Information */
+.am-meta {
+  @apply absolute bottom-0 left-0 right-0 p-2 bg-background/80 backdrop-blur-sm z-20;
+}
+
+/* Close Button - Using group hover */
+.am-close {
+  @apply absolute top-2 right-2 px-1.5 rounded-full bg-destructive/80 text-destructive-foreground cursor-pointer transition-opacity duration-200 hover:bg-destructive z-10;
+}
+
+/* Group hover effects */
+.group:hover .am-close {
+  @apply opacity-100;
+}
+
+.group:hover .am-preview {
+  @apply scale-105;
+}
+
+.gjs-checker-bg {
+}
+
+.am-name {
+  @apply text-sm font-medium text-foreground truncate;
+}
+
+.am-dimensions {
+  @apply text-xs text-muted-foreground;
 }
