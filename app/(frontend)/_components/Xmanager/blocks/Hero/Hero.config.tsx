@@ -10,11 +10,19 @@ const defaultHeroData = {
   ctaUrl: '#plans',
 }
 
+const footballHeroData = {
+  title: 'Stay Connected at the Match',
+  subtitle: 'Get your eSIM for seamless connectivity while supporting your team',
+  backgroundImage: '/images/football-stadium.jpg', // Placeholder stadium image
+  ctaText: 'Get Your eSIM',
+  ctaUrl: '/plans',
+}
+
 export const heroBlock: BlockProperties = {
   id: 'hero-banner',
   label: 'Hero Banner',
   category: 'Sections',
-  content: renderToString(<Hero {...defaultHeroData} />),
+  content: renderToString(<Hero {...footballHeroData} />),
   attributes: {
     class: 'fa fa-star',
   },

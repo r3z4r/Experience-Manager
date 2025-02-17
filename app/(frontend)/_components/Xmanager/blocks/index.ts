@@ -29,6 +29,8 @@ import { creditCardFormBlock } from './CreditCardForm/CreditCardForm.config'
 import { esimOfferBlock } from './ESIMOffer/ESIMOffer.config'
 import { applicationConfirmationBlock } from './ApplicationConfirmation/ApplicationConfirmation.config'
 import { paymentBlock } from './Payment/Payment.config'
+import { footballFeaturesBlock } from './FootballFeatures/FootballFeatures.config'
+import { merchandiseCardBlock } from './MerchandiseCard/MerchandiseCard.config'
 
 export const customBlocks: BlockProperties[] = [
   headingBannerBlock,
@@ -62,4 +64,6 @@ export const customBlocks: BlockProperties[] = [
   esimOfferBlock,
   applicationConfirmationBlock,
   paymentBlock,
+  footballFeaturesBlock,
+  merchandiseCardBlock,
 ]

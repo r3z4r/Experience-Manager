@@ -14,7 +14,7 @@ export const getAssetManagerConfig = (
     category: image.category,
     name: image.alt,
   })),
-  upload: true,
+  upload: '/api/upload',
   dropzone: true,
   openAssetsOnDrop: true,
   dropzoneContent: 'Drop files here or click to upload',
