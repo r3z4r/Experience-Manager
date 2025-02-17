@@ -10,6 +10,7 @@ interface PlanCardProps {
   validity: string
   coverage: string[]
   isPopular?: boolean
+  type: 'eSIM' | 'Physical SIM'
 }
 
 export function PlanCard({
@@ -20,12 +21,14 @@ export function PlanCard({
   validity,
   coverage,
   isPopular,
+  type,
 }: PlanCardProps) {
   return (
     <>
       <style>{planCardStyles}</style>
       <div className={`plan-card ${isPopular ? 'popular' : ''}`}>
         {isPopular && <span className="popular-badge">Most Popular</span>}
+        <span className={`plan-type-badge ${type === 'eSIM' ? 'esim' : 'physical'}`}>{type}</span>
         <h3 className="plan-title">{title}</h3>
         <div className="plan-price">{price}</div>
         <div className="plan-details">
