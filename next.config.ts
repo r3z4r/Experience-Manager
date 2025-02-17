@@ -9,7 +9,11 @@ const nextConfig: NextConfig = {
       allowedOrigins: (process.env.ALLOWED_ORIGINS || 'demo.tecnotree.com,localhost:5200').split(
         ',',
       ),
+      bodySizeLimit: '10mb',
     },
+  },
+  images: {
+    domains: ['localhost', 'demo.tecnotree.com'],
   },
   env: {
     NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL || 'https://demo.tecnotree.com',
@@ -17,7 +21,6 @@ const nextConfig: NextConfig = {
     DATABASE_URI: process.env.DATABASE_URI,
     PAYLOAD_SECRET: process.env.PAYLOAD_SECRET,
   },
-  // Add output configuration for standalone deployment
   output: 'standalone' as const,
 }
 

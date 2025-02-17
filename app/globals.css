@@ -581,3 +581,5 @@
     @apply min-h-[200px];
   }
 }
+
+/* No need to add new styles here since we'll use existing Tailwind utilities */

@@ -23,13 +23,14 @@ export const getEditorConfig = (
   height: '89vh',
   width: '100%',
   assetManager: {
-    ...getAssetManagerConfig(images),
-    onSelect: (asset: PayloadImage) => {
-      console.log('Selected asset:', asset)
-    },
-    onError: (err: Error) => {
-      console.error('Asset manager error:', err)
-    },
+    ...getAssetManagerConfig(editor, images),
+    embedAsBase64: false,
+    dropzone: true,
+    openAssetsOnDrop: true,
+    modalTitle: 'Asset Manager',
+    addBtnText: 'Add Image',
+    uploadText: 'Drop files here or click to upload',
+    autoAdd: true,
   },
   storageManager: {
     type: 'remote',
