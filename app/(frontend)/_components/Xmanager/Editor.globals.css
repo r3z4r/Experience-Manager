@@ -22,7 +22,7 @@
 .gjs-pn-btn,
 .gjs-btn-prim {
   color: hsl(var(--editor-text-primary)) !important;
-  background-color: transparent !important;
+  background-color: hsl(var(--input)) !important;
   border-radius: var(--radius-md) !important;
   margin: var(--space-1) !important;
 }
@@ -108,9 +108,9 @@
 
 .gjs-field {
   color: hsl(var(--editor-text-primary)) !important;
-  background-color: hsl(var(--editor-bg-primary)) !important;
 }
 
+.gjs-field input,
 .gjs-sm-field input,
 .gjs-sm-field select,
 .gjs-sm-field textarea {

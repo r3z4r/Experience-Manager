@@ -8,14 +8,11 @@ export const getAssetManagerConfig = (
 ): AssetManagerConfig => ({
   assets: images.map((image) => ({
     type: 'image',
-    src: `${process.env.NEXT_PUBLIC_BASE_PATH}/api/images/file/${image.filename}`,
+    src: image.url,
     height: image.height,
     width: image.width,
     category: image.category,
     name: image.alt,
-    thumbnail: image.sizes?.thumbnail?.url
-      ? `${process.env.NEXT_PUBLIC_BASE_PATH}/api/images/file/${image.filename}`
-      : `${process.env.NEXT_PUBLIC_BASE_PATH}/api/images/file/${image.filename}`,
   })),
   upload: true,
   dropzone: true,
@@ -43,7 +40,7 @@ export const getAssetManagerConfig = (
               console.log('Creating asset for GrapesJS...')
               const asset = {
                 type: 'image',
-                src: `${process.env.NEXT_PUBLIC_BASE_PATH}/api/images/file/${uploadedImage.filename}`,
+                src: uploadedImage.url,
                 height: uploadedImage.height || 0,
                 width: uploadedImage.width || 0,
                 category: uploadedImage.category,
