@@ -16,6 +16,6 @@ export const addressFormBlock: BlockProperties = {
   category: 'Components',
   content: renderToString(<AddressForm {...defaultAddressForm} />),
   attributes: {
-    class: 'addressForm',
+    class: 'fa fa-address-card',
   },
 }

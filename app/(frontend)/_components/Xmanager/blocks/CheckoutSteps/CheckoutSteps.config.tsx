@@ -2,7 +2,7 @@ import { BlockProperties } from 'grapesjs'
 import { renderToString } from 'react-dom/server'
 import { CheckoutSteps } from './CheckoutSteps'
 
-const defaultCheckoutData = {
+const defaultStepsData = {
   steps: [
     {
       title: 'Plan Selection',
@@ -30,7 +30,7 @@ export const checkoutStepsBlock: BlockProperties = {
   id: 'checkout-steps',
   label: 'Checkout Steps',
   category: 'Sections',
-  content: renderToString(<CheckoutSteps {...defaultCheckoutData} />),
+  content: renderToString(<CheckoutSteps {...defaultStepsData} />),
   attributes: {
     class: 'fa fa-list-ol',
   },

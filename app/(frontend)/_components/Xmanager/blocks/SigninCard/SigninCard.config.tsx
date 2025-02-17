@@ -5,9 +5,9 @@ import { renderToString } from 'react-dom/server'
 export const signinCardBlock: BlockProperties = {
   id: 'signin-card',
   label: 'Sign In Card',
-  category: 'Components',
+  category: 'Auth',
   content: renderToString(<SigninCard />),
   attributes: {
-    class: 'signin-card',
+    class: 'fa fa-sign-in',
   },
 }

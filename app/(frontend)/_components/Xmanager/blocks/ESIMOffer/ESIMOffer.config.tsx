@@ -25,12 +25,12 @@ const defaultPlans = [
 
 export const esimOfferBlock: BlockProperties = {
   id: 'esim-offer',
-  label: 'eSIM Offer',
+  label: 'Special Offer',
   category: 'Sections',
   content: renderToString(
     <ESIMOffer plans={defaultPlans} onSelect={() => {}} onDecline={() => {}} />,
   ),
   attributes: {
-    class: 'fa fa-sim-card',
+    class: 'fa fa-fire',
   },
 }
