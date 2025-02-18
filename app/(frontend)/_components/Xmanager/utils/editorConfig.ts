@@ -3,7 +3,7 @@ import basicBlocks from 'grapesjs-blocks-basic'
 import flexbox from 'grapesjs-blocks-flexbox'
 import forms from 'grapesjs-plugin-forms'
 import styleFilter from 'grapesjs-style-filter'
-import { ComponentDefinition, Editor as GrapesEditor, ProjectData } from 'grapesjs'
+import { Editor, Editor as GrapesEditor, ProjectData } from 'grapesjs'
 import { updateTemplate } from '@/app/(frontend)/_actions/templates'
 import { getAssetManagerConfig } from './assetConfig'
 import { PayloadImage } from '@/app/(frontend)/_actions/images'
@@ -23,7 +23,7 @@ export const getEditorConfig = (
   height: '89vh',
   width: '100%',
   assetManager: {
-    ...getAssetManagerConfig(editor, images),
+    ...getAssetManagerConfig(editor as Editor, images),
     embedAsBase64: false,
     dropzone: true,
     openAssetsOnDrop: true,
@@ -256,40 +256,4 @@ export const getEditorConfig = (
     enable: true,
     allowInlineEvents: true,
   },
-  // domComponents: {
-  //   processor: (obj: ComponentDefinition) => {
-  //     if (obj.type === 'script') {
-  //       return {
-  //         ...obj,
-  //         removable: true,
-  //         draggable: true,
-  //         droppable: false,
-  //         layerable: true,
-  //         selectable: true,
-  //         hoverable: true,
-  //         editable: true,
-  //       }
-  //     }
-  //     return obj
-  //   },
-  // },
-  // style: `
-  //   .script-block {
-  //     background: #f5f5f5;
-  //     border: 1px solid #ddd;
-  //     border-radius: 4px;
-  //     margin: 10px 0;
-  //     font-family: monospace;
-  //   }
-  //   .script-block__header {
-  //     background: #e0e0e0;
-  //     padding: 8px;
-  //     border-bottom: 1px solid #ddd;
-  //     font-weight: bold;
-  //   }
-  //   .script-block__content {
-  //     padding: 8px;
-  //     white-space: pre-wrap;
-  //   }
-  // `,
 })
