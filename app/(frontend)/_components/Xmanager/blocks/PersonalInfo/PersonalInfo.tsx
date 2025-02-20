@@ -1,7 +1,7 @@
 import React from 'react'
 import { personalInfoStyles } from './PersonalInfo.styles'
 
-export const PersonalInformationForm: React.FC = () => {
+export const PersonalInfo: React.FC = () => {
   return (
     <>
       <style>{personalInfoStyles}</style>

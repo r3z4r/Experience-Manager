@@ -14,11 +14,9 @@ interface ESIMPlan {
 
 interface ESIMOfferProps {
   plans: ESIMPlan[]
-  onSelect: (plan: ESIMPlan) => void
-  onDecline: () => void
 }
 
-export function ESIMOffer({ plans, onSelect, onDecline }: ESIMOfferProps) {
+export function ESIMOffer({ plans }: ESIMOfferProps) {
   return (
     <>
       <style>{esimOfferStyles}</style>
@@ -61,16 +59,12 @@ export function ESIMOffer({ plans, onSelect, onDecline }: ESIMOfferProps) {
                 <span className="original-price">{plan.originalPrice}</span>
                 <span className="discounted-price">{plan.discountedPrice}</span>
               </div>
-              <button className="select-button" onClick={() => onSelect(plan)}>
-                Add to Application
-              </button>
+              <button className="select-button">Add to Application</button>
             </div>
           ))}
         </div>
 
-        <button className="decline-button" onClick={onDecline}>
-          No thanks, continue without eSIM
-        </button>
+        <button className="decline-button">No thanks, continue without eSIM</button>
       </div>
     </>
   )

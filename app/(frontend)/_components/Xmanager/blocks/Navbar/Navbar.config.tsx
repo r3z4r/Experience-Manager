@@ -1,5 +1,6 @@
-import { BlockProperties } from 'grapesjs'
-import { renderToString } from 'react-dom/server'
+'use server'
+
+import { createBlockConfig } from '../../utils/serverUtils'
 import { Navbar } from './Navbar'
 
 const defaultNavData = {
@@ -22,12 +23,14 @@ const defaultNavData = {
   theme: 'light' as const,
 }
 
-export const navbarBlock: BlockProperties = {
-  id: 'navbar',
-  label: 'Navigation Bar',
-  category: 'Layout',
-  content: renderToString(<Navbar {...defaultNavData} />),
-  attributes: {
-    class: 'fa fa-bars',
-  },
+export async function getNavbarBlock() {
+  return await createBlockConfig({
+    id: 'navbar',
+    label: 'Navigation Bar',
+    category: 'Layout',
+    component: <Navbar {...defaultNavData} />,
+    attributes: {
+      class: 'fa fa-bars',
+    },
+  })
 }

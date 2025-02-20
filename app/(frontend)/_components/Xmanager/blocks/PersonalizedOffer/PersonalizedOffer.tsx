@@ -1,5 +1,4 @@
 import { PersonalizedOfferProps } from '../types'
-import Image from 'next/image'
 import { personalizedOfferStyles } from './PersonalizedOffer.styles'
 
 export function PersonalizedOffer({
@@ -26,7 +25,7 @@ export function PersonalizedOffer({
         </p>
 
         <div className={'productImageContainer'}>
-          <Image
+          <img
             src={productImage}
             alt={`${productName}`}
             width={200}

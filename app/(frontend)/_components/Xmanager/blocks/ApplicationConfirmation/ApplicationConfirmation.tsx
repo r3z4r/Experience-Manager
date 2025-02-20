@@ -2,7 +2,7 @@ import React from 'react'
 import { confirmationStyles } from './ApplicationConfirmation.styles'
 import { CheckCircle } from 'lucide-react'
 
-interface ConfirmationProps {
+export interface ConfirmationProps {
   cardApproved: boolean
   selectedPlan?: {
     name: string

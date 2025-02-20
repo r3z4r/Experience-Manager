@@ -1,13 +1,16 @@
-import { BlockProperties } from 'grapesjs'
-import { SigninCard } from './SigninCard'
-import { renderToString } from 'react-dom/server'
+'use server'
 
-export const signinCardBlock: BlockProperties = {
-  id: 'signin-card',
-  label: 'Sign In Card',
-  category: 'Auth',
-  content: renderToString(<SigninCard />),
-  attributes: {
-    class: 'fa fa-sign-in',
-  },
+import { createBlockConfig } from '../../utils/serverUtils'
+import { SigninCard } from './SigninCard'
+
+export async function getSigninCardBlock() {
+  return await createBlockConfig({
+    id: 'signin-card',
+    label: 'Signin Card',
+    category: 'Components',
+    component: <SigninCard />,
+    attributes: {
+      class: 'fa fa-sign-in',
+    },
+  })
 }

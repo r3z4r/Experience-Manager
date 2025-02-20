@@ -1,5 +1,6 @@
-import { BlockProperties } from 'grapesjs'
-import { renderToString } from 'react-dom/server'
+'use server'
+
+import { createBlockConfig } from '../../utils/serverUtils'
 import { Footer } from './Footer'
 import { Facebook, Twitter, Instagram, Youtube } from 'lucide-react'
 
@@ -45,12 +46,14 @@ const defaultFooterData = {
   theme: 'light' as const,
 }
 
-export const footerBlock: BlockProperties = {
-  id: 'footer',
-  label: 'Footer',
-  category: 'Layout',
-  content: renderToString(<Footer {...defaultFooterData} />),
-  attributes: {
-    class: 'fa fa-window-minimize',
-  },
+export async function getFooterBlock() {
+  return await createBlockConfig({
+    id: 'footer',
+    label: 'Footer Section',
+    category: 'Sections',
+    component: <Footer {...defaultFooterData} />,
+    attributes: {
+      class: 'fa fa-bars',
+    },
+  })
 }

@@ -1,5 +1,6 @@
-import { BlockProperties } from 'grapesjs'
-import { renderToString } from 'react-dom/server'
+'use server'
+
+import { createBlockConfig } from '../../utils/serverUtils'
 import { Features } from './Features'
 import { Globe2, Zap, Shield } from 'lucide-react'
 
@@ -25,12 +26,14 @@ const defaultFeaturesData = {
   ],
 }
 
-export const featuresBlock: BlockProperties = {
-  id: 'features-section',
-  label: 'Features Section',
-  category: 'Sections',
-  content: renderToString(<Features {...defaultFeaturesData} />),
-  attributes: {
-    class: 'fa fa-th-large',
-  },
+export async function getFeaturesBlock() {
+  return await createBlockConfig({
+    id: 'features',
+    label: 'Features Section',
+    category: 'Sections',
+    component: <Features {...defaultFeaturesData} />,
+    attributes: {
+      class: 'fa fa-list',
+    },
+  })
 }

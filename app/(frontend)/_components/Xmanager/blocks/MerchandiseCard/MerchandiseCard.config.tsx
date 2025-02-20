@@ -1,5 +1,6 @@
-import { BlockProperties } from 'grapesjs'
-import { renderToString } from 'react-dom/server'
+'use server'
+
+import { createBlockConfig } from '../../utils/serverUtils'
 import { MerchandiseCard } from './MerchandiseCard'
 
 const defaultMerchData = {
@@ -10,12 +11,14 @@ const defaultMerchData = {
   sizes: ['S', 'M', 'L', 'XL', 'XXL'],
 }
 
-export const merchandiseCardBlock: BlockProperties = {
-  id: 'merchandise-card',
-  label: 'Club Merchandise',
-  category: 'Components',
-  content: renderToString(<MerchandiseCard {...defaultMerchData} />),
-  attributes: {
-    class: 'fa fa-tshirt',
-  },
+export async function getMerchandiseCardBlock() {
+  return await createBlockConfig({
+    id: 'merchandise-card',
+    label: 'Merchandise Card',
+    category: 'Components',
+    component: <MerchandiseCard {...defaultMerchData} />,
+    attributes: {
+      class: 'fa fa-shopping-bag',
+    },
+  })
 }
