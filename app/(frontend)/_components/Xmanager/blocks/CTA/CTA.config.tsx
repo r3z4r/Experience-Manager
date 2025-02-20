@@ -1,5 +1,6 @@
-import { BlockProperties } from 'grapesjs'
-import { renderToString } from 'react-dom/server'
+'use server'
+
+import { createBlockConfig } from '../../utils/serverUtils'
 import { CTA } from './CTA'
 
 const defaultCTAData = {
@@ -10,12 +11,14 @@ const defaultCTAData = {
   backgroundImage: '/images/travel-bg.jpg',
 }
 
-export const ctaBlock: BlockProperties = {
-  id: 'cta-section',
-  label: 'CTA Section',
-  category: 'Sections',
-  content: renderToString(<CTA {...defaultCTAData} />),
-  attributes: {
-    class: 'fa fa-bullhorn',
-  },
+export async function getCtaBlock() {
+  return await createBlockConfig({
+    id: 'cta',
+    label: 'Call to Action',
+    category: 'Sections',
+    component: <CTA {...defaultCTAData} />,
+    attributes: {
+      class: 'fa fa-bullhorn',
+    },
+  })
 }

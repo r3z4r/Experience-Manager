@@ -1,13 +1,16 @@
-import { BlockProperties } from 'grapesjs'
-import { renderToString } from 'react-dom/server'
+'use server'
+
+import { createBlockConfig } from '../../utils/serverUtils'
 import { PaymentBlock } from './Payment'
 
-export const paymentBlock: BlockProperties = {
-  id: 'payment',
-  label: 'Payment Form',
-  category: 'Sections',
-  content: renderToString(<PaymentBlock />),
-  attributes: {
-    class: 'fa fa-credit-card',
-  },
+export async function getPaymentBlock() {
+  return await createBlockConfig({
+    id: 'payment',
+    label: 'Payment Section',
+    category: 'Sections',
+    component: <PaymentBlock />,
+    attributes: {
+      class: 'fa fa-credit-card',
+    },
+  })
 }

@@ -29,18 +29,10 @@ export function SigninCard() {
       <div className="signin-card">
         <h2>Log in to your account</h2>
         <div className="input-group">
-          <input
-            type="email"
-            placeholder="Email Address"
-            onChange={(e) => handleInputChange(e, 'email')}
-          />
+          <input type="email" placeholder="Email Address" />
         </div>
         <div className="input-group">
-          <input
-            type="password"
-            placeholder="Password"
-            onChange={(e) => handleInputChange(e, 'password')}
-          />
+          <input type="password" placeholder="Password" />
         </div>
         <div className="forgot-password">
           <a href="#">Forgot Password?</a>

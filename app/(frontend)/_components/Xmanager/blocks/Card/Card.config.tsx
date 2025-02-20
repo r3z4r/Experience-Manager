@@ -1,13 +1,13 @@
-import { BlockProperties } from 'grapesjs'
+'use server'
+
+import { createBlockConfig } from '../../utils/serverUtils'
 import { Card } from './Card'
-import { renderToString } from 'react-dom/server'
 
 const defaultCardLeft = {
-  title: 'Seamless GenAI Integration with Tecnotree BSS',
+  title: 'Seamless GenAI Integration',
   listItems: [
     'Infuse GenAI intelligence throughout your entire BSS ecosystem',
-    'Enhance decision-making with AI-driven insights at every touchpoint',
-    'Ensure consistent, intelligent experiences across all operations',
+    'Enhance decision-making with AI-driven insights',
   ],
   imageUrl: '/xpm/placeholder.jpg',
   buttonText: 'Know More',
@@ -28,24 +28,28 @@ const defaultCardRight = {
   imagePosition: 'left' as const,
 }
 
-export const cardBlock: BlockProperties = {
-  id: 'feature-card',
-  label: 'Feature Card',
-  category: 'Components',
-  content: renderToString(<Card {...defaultCardLeft} />),
-  attributes: {
-    class: 'feature-card',
-    'data-image-position': 'right',
-  },
+export async function getCardBlock() {
+  return await createBlockConfig({
+    id: 'feature-card',
+    label: 'Feature Card',
+    category: 'Components',
+    component: <Card {...defaultCardLeft} />,
+    attributes: {
+      class: 'feature-card',
+      'data-image-position': 'right',
+    },
+  })
 }
 
-export const cardRightBlock: BlockProperties = {
-  id: 'feature-card-right',
-  label: 'Feature Card (Image Right)',
-  category: 'Components',
-  content: renderToString(<Card {...defaultCardRight} />),
-  attributes: {
-    class: 'feature-card',
-    'data-image-position': 'left',
-  },
+export async function getCardRightBlock() {
+  return await createBlockConfig({
+    id: 'feature-card-right',
+    label: 'Feature Card (Image Right)',
+    category: 'Components',
+    component: <Card {...defaultCardRight} />,
+    attributes: {
+      class: 'feature-card',
+      'data-image-position': 'left',
+    },
+  })
 }

@@ -1,13 +1,16 @@
-import { BlockProperties } from 'grapesjs'
-import { renderToString } from 'react-dom/server'
-import { PersonalInformationForm } from './PersonalInfo'
+'use server'
 
-export const personalInformationFormBlock: BlockProperties = {
-  id: 'personalInformationForm',
-  label: 'PersonalInformationForm Card',
-  category: 'Components',
-  content: renderToString(<PersonalInformationForm />),
-  attributes: {
-    class: 'personalInformationForm',
-  },
+import { createBlockConfig } from '../../utils/serverUtils'
+import { PersonalInfo } from './PersonalInfo'
+
+export async function getPersonalInformationFormBlock() {
+  return await createBlockConfig({
+    id: 'personal-info',
+    label: 'Personal Information Form',
+    category: 'Components',
+    component: <PersonalInfo />,
+    attributes: {
+      class: 'fa fa-user',
+    },
+  })
 }

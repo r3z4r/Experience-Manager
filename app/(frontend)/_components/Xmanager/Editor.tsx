@@ -31,7 +31,6 @@ import {
 import { Button } from '@/app/(frontend)/_components/ui/button'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
-import { customBlocks } from './blocks'
 import { EditorProps } from './utils/types'
 import { getEditorConfig } from './utils/editorConfig'
 import { useTemplateData, useEditorSetup } from './utils/hooks'
@@ -46,10 +45,10 @@ import { fetchImages } from '@/app/(frontend)/_actions/images'
 import type { PayloadImage } from '@/app/(frontend)/_actions/images'
 import type { TemplateData } from '@/app/(frontend)/_types/template-data'
 import { TEMPLATE_STATUS, TemplateStatus } from '@/app/(frontend)/_types/template'
-import { generateSlug } from '@/lib/utils/slug-generator'
 import { StatusChip } from './StatusChip'
 import { SaveModal } from './SaveModal'
 import { getAssetManagerConfig } from './utils/assetConfig'
+import { getCustomBlocks } from './blocks'
 
 type TemplateError = PayloadValidationError | ServerError | NetworkError
 
@@ -70,6 +69,7 @@ const Editor = ({ templateId, mode = 'edit' }: EditorProps) => {
     'idle',
   )
   const [copyStatus, setCopyStatus] = useState<'idle' | 'copied'>('idle')
+  const [blocks, setBlocks] = useState<BlockProperties[]>([])
 
   const {
     initialData,
@@ -92,6 +92,14 @@ const Editor = ({ templateId, mode = 'edit' }: EditorProps) => {
   } = useTemplateData(templateId)
 
   useEffect(() => {
+    const initBlocks = async () => {
+      const customBlocks = await getCustomBlocks()
+      setBlocks(customBlocks)
+    }
+    initBlocks()
+  }, [])
+
+  useEffect(() => {
     const loadImages = async () => {
       try {
         const fetchedImages = await fetchImages()
@@ -106,18 +114,19 @@ const Editor = ({ templateId, mode = 'edit' }: EditorProps) => {
 
   // Initialize editor
   useEffect(() => {
-    if (!editorRef.current) return
+    if (!editorRef.current || !blocks.length) return
 
     const editorInstance = grapesjs.init(
       getEditorConfig(
         editorRef.current,
         editor,
-        templateName,
-        templateDescription,
+        templateName ?? '',
+        templateDescription ?? '',
         templateId,
         setHasUnsavedChanges,
         (newTemplateId) => router.replace(`/editor/${newTemplateId}`),
         images,
+        blocks,
       ),
     )
 
@@ -200,7 +209,7 @@ const Editor = ({ templateId, mode = 'edit' }: EditorProps) => {
     })
 
     // Add custom blocks
-    customBlocks.forEach((block) => {
+    blocks.forEach((block) => {
       if (block?.id) {
         editorInstance.BlockManager.add(block.id, block as BlockProperties)
       }
@@ -249,7 +258,7 @@ const Editor = ({ templateId, mode = 'edit' }: EditorProps) => {
       editorInstance.destroy()
     }
     //eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [editorRef.current, initialData])
+  }, [editorRef.current, initialData, blocks])
 
   // Setup editor configurations and cleanup
   useEditorSetup(editor, mode)
@@ -288,6 +297,11 @@ const Editor = ({ templateId, mode = 'edit' }: EditorProps) => {
       }
     })
 
+    // Use the imported blocks
+    blocks.forEach((block) => {
+      editor.Blocks.add(block)
+    })
+
     return () => {
       editor.off('component:update', handleChange)
       editor.off('style:update', handleChange)
@@ -306,11 +320,16 @@ const Editor = ({ templateId, mode = 'edit' }: EditorProps) => {
     }
   }, [hasUnsavedChanges])
 
+  useEffect(() => {
+    if (editor && templateName && templateDescription) {
+      handleSaveTemplate()
+    }
+  }, [templateName, templateDescription])
+
   const handleSaveTemplate = async (): Promise<void> => {
     if (!editor) {
       throw new Error('Editor is not initialized')
     }
-
     // Validation checks
     const validationError = validateTemplateData()
     if (validationError) {
@@ -624,9 +643,8 @@ const Editor = ({ templateId, mode = 'edit' }: EditorProps) => {
           onSlugChange={handleSlugChange}
           onClose={() => setShowSaveDialog(false)}
           onSave={(name, description) => {
-            setTemplateName(name)
             setTemplateDescription(description)
-            handleSaveTemplate()
+            setTemplateName(name)
           }}
           saveStatus={saveStatus}
         />
@@ -634,5 +652,4 @@ const Editor = ({ templateId, mode = 'edit' }: EditorProps) => {
     </div>
   )
 }
-
 export default Editor

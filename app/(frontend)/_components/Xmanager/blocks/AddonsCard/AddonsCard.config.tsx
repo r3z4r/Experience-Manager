@@ -1,13 +1,16 @@
-import { BlockProperties } from 'grapesjs'
-import { AddonsCard } from './AddonsCard'
-import { renderToString } from 'react-dom/server'
+'use server'
 
-export const addonsCardBlock: BlockProperties = {
-  id: 'addonsCard',
-  label: 'Addonscard Banner',
-  category: 'Components',
-  content: renderToString(<AddonsCard />),
-  attributes: {
-    class: 'addonsCard',
-  },
+import { createBlockConfig } from '../../utils/serverUtils'
+import { AddonsCard } from './AddonsCard'
+
+export async function getAddonsCardBlock() {
+  return await createBlockConfig({
+    id: 'addonsCard',
+    label: 'Addonscard Banner',
+    category: 'Components',
+    component: <AddonsCard />,
+    attributes: {
+      class: 'addonsCard',
+    },
+  })
 }

@@ -27,7 +27,7 @@ export const AddressForm: React.FC<AddressFormProps> = ({
           <label>
             {'Street Address'} <span className={'required'}>*</span>
           </label>
-          <input type="text" placeholder={'Enter street address'} value={streetAddress} />
+          <input type="text" placeholder={'Enter street address'} />
         </div>
 
         {/* Country */}
@@ -35,7 +35,7 @@ export const AddressForm: React.FC<AddressFormProps> = ({
           <label>
             {'Country'} <span className={'required'}>*</span>
           </label>
-          <input type="text" placeholder={'Enter country'} value={country} />
+          <input type="text" placeholder={'Enter country'} />
         </div>
 
         {/* State/Region */}
@@ -43,7 +43,7 @@ export const AddressForm: React.FC<AddressFormProps> = ({
           <label>
             {'State/Region'} <span className={'required'}>*</span>
           </label>
-          <input type="text" placeholder={'Enter state or region'} value={state} />
+          <input type="text" placeholder={'Enter state or region'} />
         </div>
 
         {/* City */}
@@ -51,7 +51,7 @@ export const AddressForm: React.FC<AddressFormProps> = ({
           <label>
             {'City'} <span className={'required'}>*</span>
           </label>
-          <input type="text" placeholder={'Enter city'} value={city} />
+          <input type="text" placeholder={'Enter city'} />
         </div>
 
         {/* Zip/Postal Code */}
@@ -59,7 +59,7 @@ export const AddressForm: React.FC<AddressFormProps> = ({
           <label>
             {'Zip/Postal Code'} <span className={'required'}>*</span>
           </label>
-          <input type="text" placeholder={'Enter zip or postal code'} value={zipCode} />
+          <input type="text" placeholder={'Enter zip or postal code'} />
         </div>
       </div>
     </>

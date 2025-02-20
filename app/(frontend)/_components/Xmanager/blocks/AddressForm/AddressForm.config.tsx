@@ -1,21 +1,24 @@
-import { BlockProperties } from 'grapesjs'
-import { renderToString } from 'react-dom/server'
+'use server'
+
+import { createBlockConfig } from '../../utils/serverUtils'
 import { AddressForm } from './AddressForm'
 
-const defaultAddressForm = {
-  streetAddress: '',
-  country: '',
-  state: '',
-  city: '',
-  zipCode: '',
-}
+export async function getAddressFormBlock() {
+  const defaultAddressForm = {
+    streetAddress: '',
+    country: '',
+    state: '',
+    city: '',
+    zipCode: '',
+  }
 
-export const addressFormBlock: BlockProperties = {
-  id: 'addressForm',
-  label: 'Address Form',
-  category: 'Components',
-  content: renderToString(<AddressForm {...defaultAddressForm} />),
-  attributes: {
-    class: 'fa fa-address-card',
-  },
+  return await createBlockConfig({
+    id: 'addressForm',
+    label: 'Address Form',
+    category: 'Components',
+    component: <AddressForm {...defaultAddressForm} />,
+    attributes: {
+      class: 'fa fa-address-card',
+    },
+  })
 }

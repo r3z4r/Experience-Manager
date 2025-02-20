@@ -1,5 +1,6 @@
-import { BlockProperties } from 'grapesjs'
-import { renderToString } from 'react-dom/server'
+'use server'
+
+import { createBlockConfig } from '../../utils/serverUtils'
 import { ESIMOffer } from './ESIMOffer'
 
 const defaultPlans = [
@@ -23,14 +24,14 @@ const defaultPlans = [
   },
 ]
 
-export const esimOfferBlock: BlockProperties = {
-  id: 'esim-offer',
-  label: 'Special Offer',
-  category: 'Sections',
-  content: renderToString(
-    <ESIMOffer plans={defaultPlans} onSelect={() => {}} onDecline={() => {}} />,
-  ),
-  attributes: {
-    class: 'fa fa-fire',
-  },
+export async function getEsimOfferBlock() {
+  return await createBlockConfig({
+    id: 'esim-offer',
+    label: 'eSIM Offer',
+    category: 'Components',
+    component: <ESIMOffer plans={defaultPlans} />,
+    attributes: {
+      class: 'fa fa-sim-card',
+    },
+  })
 }

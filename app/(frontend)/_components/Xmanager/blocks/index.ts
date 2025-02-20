@@ -1,69 +1,62 @@
-import { BlockProperties } from 'grapesjs'
-import { headingBannerBlock } from './HeadingBanner/HeadingBanner.config'
-import { heroBlock } from './Hero/Hero.config'
-import { serviceCardBlock } from './ServiceCard/ServiceCard.config'
-import { signinCardBlock } from './SigninCard/SigninCard.config'
-import { momentsHeaderBlock } from './MomentsHeader/MomentsHeader.config'
-import { carouselBlock } from './Carousel/Carousel.config'
-import { footerBlock } from './Footer/Footer.config'
-import { footerBannerBlock } from './FooterBanner/FooterBanner.config'
-import { personalizedOfferBlock } from './PersonalizedOffer/PersonalizedOffer.config'
-import { technicalSpecsCardBlock } from './TechnicalSpecsCard/TechnicalSpecsCard.config'
-import { WhyBuyFromStcBlock } from './WhyBuyFromStc/WhyBuyFromStc.config'
-import { addonsCardBlock } from './AddonsCard/AddonsCard.config'
-import { productCardBlock } from './ProductCard/ProductCard.config'
-import { subscriptionBlock } from './Subscription/Subscription.config'
-import { statisticsBlock } from './Statistics/Statistics.config'
-import { cardBlock, cardRightBlock } from './Card/Card.config'
-import { DeliveryDetailsCardBlock } from './DeliveryDetails/DeliveryDetails.config'
-import { scriptBlock } from './Script/Script.config'
-import { addressFormBlock } from './AddressForm/AddressForm.config'
-import { breadcrumbBlock } from './BreadCrumb/BreadCrumb.config'
-import { personalInformationFormBlock } from './PersonalInfo/PersonalInfo.config'
-import { featuresBlock } from './Features/Features.config'
-import { planCardBlock } from './PlanCard/PlanCard.config'
-import { ctaBlock } from './CTA/CTA.config'
-import { navbarBlock } from './Navbar/Navbar.config'
-import { checkoutStepsBlock } from './CheckoutSteps/CheckoutSteps.config'
-import { creditCardFormBlock } from './CreditCardForm/CreditCardForm.config'
-import { esimOfferBlock } from './ESIMOffer/ESIMOffer.config'
-import { applicationConfirmationBlock } from './ApplicationConfirmation/ApplicationConfirmation.config'
-import { paymentBlock } from './Payment/Payment.config'
-import { footballFeaturesBlock } from './FootballFeatures/FootballFeatures.config'
-import { merchandiseCardBlock } from './MerchandiseCard/MerchandiseCard.config'
+'use server'
 
-export const customBlocks: BlockProperties[] = [
-  headingBannerBlock,
-  heroBlock,
-  breadcrumbBlock,
-  addressFormBlock,
-  personalInformationFormBlock,
-  serviceCardBlock,
-  signinCardBlock,
-  momentsHeaderBlock,
-  carouselBlock,
-  footerBlock,
-  footerBannerBlock,
-  personalizedOfferBlock,
-  technicalSpecsCardBlock,
-  WhyBuyFromStcBlock,
-  addonsCardBlock,
-  productCardBlock,
-  subscriptionBlock,
-  statisticsBlock,
-  cardBlock,
-  cardRightBlock,
-  DeliveryDetailsCardBlock,
-  scriptBlock,
-  featuresBlock,
-  planCardBlock,
-  ctaBlock,
-  navbarBlock,
-  checkoutStepsBlock,
-  creditCardFormBlock,
-  esimOfferBlock,
-  applicationConfirmationBlock,
-  paymentBlock,
-  footballFeaturesBlock,
-  merchandiseCardBlock,
-]
+import { BlockProperties } from 'grapesjs'
+import { getHeroBlock } from './Hero/Hero.config'
+import { getServiceCardBlock } from './ServiceCard/ServiceCard.config'
+import { getSigninCardBlock } from './SigninCard/SigninCard.config'
+import { getCarouselBlock } from './Carousel/Carousel.config'
+import { getFooterBlock } from './Footer/Footer.config'
+import { getPersonalizedOfferBlock } from './PersonalizedOffer/PersonalizedOffer.config'
+import { getTechnicalSpecsCardBlock } from './TechnicalSpecsCard/TechnicalSpecsCard.config'
+import { getAddonsCardBlock } from './AddonsCard/AddonsCard.config'
+import { getSubscriptionBlock } from './Subscription/Subscription.config'
+import { getCardBlock, getCardRightBlock } from './Card/Card.config'
+import { getDeliveryDetailsCardBlock } from './DeliveryDetails/DeliveryDetails.config'
+import { scriptBlock } from './Script/Script.config'
+import { getAddressFormBlock } from './AddressForm/AddressForm.config'
+import { getPersonalInformationFormBlock } from './PersonalInfo/PersonalInfo.config'
+import { getFeaturesBlock } from './Features/Features.config'
+import { getPlanCardBlock } from './PlanCard/PlanCard.config'
+import { getCtaBlock } from './CTA/CTA.config'
+import { getNavbarBlock } from './Navbar/Navbar.config'
+import { getCheckoutStepsBlock } from './CheckoutSteps/CheckoutSteps.config'
+import { getCreditCardFormBlock } from './CreditCardForm/CreditCardForm.config'
+import { getEsimOfferBlock } from './ESIMOffer/ESIMOffer.config'
+import { getApplicationConfirmationBlock } from './ApplicationConfirmation/ApplicationConfirmation.config'
+import { getPaymentBlock } from './Payment/Payment.config'
+import { getFootballFeaturesBlock } from './FootballFeatures/FootballFeatures.config'
+import { getMerchandiseCardBlock } from './MerchandiseCard/MerchandiseCard.config'
+
+// Create a function to get all blocks
+export async function getCustomBlocks(): Promise<BlockProperties[]> {
+  const blocks = await Promise.all([
+    getHeroBlock(),
+    getAddressFormBlock(),
+    getPersonalInformationFormBlock(),
+    getServiceCardBlock(),
+    getSigninCardBlock(),
+    getCarouselBlock(),
+    getFooterBlock(),
+    getPersonalizedOfferBlock(),
+    getTechnicalSpecsCardBlock(),
+    getAddonsCardBlock(),
+    getSubscriptionBlock(),
+    getCardBlock(),
+    getCardRightBlock(),
+    getDeliveryDetailsCardBlock(),
+    // scriptBlock,
+    getFeaturesBlock(),
+    getPlanCardBlock(),
+    getCtaBlock(),
+    getNavbarBlock(),
+    getCheckoutStepsBlock(),
+    getCreditCardFormBlock(),
+    getEsimOfferBlock(),
+    getApplicationConfirmationBlock(),
+    getPaymentBlock(),
+    getFootballFeaturesBlock(),
+    getMerchandiseCardBlock(),
+  ])
+
+  return blocks
+}

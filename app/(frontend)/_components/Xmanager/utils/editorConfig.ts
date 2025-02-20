@@ -1,12 +1,16 @@
+'use client'
+
 import webpage from 'grapesjs-preset-webpage'
 import basicBlocks from 'grapesjs-blocks-basic'
 import flexbox from 'grapesjs-blocks-flexbox'
 import forms from 'grapesjs-plugin-forms'
 import styleFilter from 'grapesjs-style-filter'
-import { Editor, Editor as GrapesEditor, ProjectData } from 'grapesjs'
+import { Editor, Editor as GrapesEditor, ProjectData, BlockProperties } from 'grapesjs'
 import { updateTemplate } from '@/app/(frontend)/_actions/templates'
 import { getAssetManagerConfig } from './assetConfig'
 import { PayloadImage } from '@/app/(frontend)/_actions/images'
+import { EditorConfig } from 'grapesjs'
+import { processBlockContent } from './clientUtils'
 
 export const getEditorConfig = (
   container: HTMLElement,
@@ -17,7 +21,8 @@ export const getEditorConfig = (
   onSave: (hasChanges: boolean) => void,
   onTemplateCreated: (newTemplateId: string) => void,
   images: PayloadImage[] = [],
-) => ({
+  blocks: BlockProperties[] = [],
+): EditorConfig => ({
   container,
   fromElement: true,
   height: '89vh',
@@ -255,5 +260,8 @@ export const getEditorConfig = (
   scriptManager: {
     enable: true,
     allowInlineEvents: true,
+  },
+  blockManager: {
+    blocks: blocks.map((block) => processBlockContent(block)),
   },
 })

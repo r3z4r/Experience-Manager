@@ -1,6 +1,7 @@
-import { BlockProperties } from 'grapesjs'
+'use server'
+
+import { createBlockConfig } from '../../utils/serverUtils'
 import { Hero } from './Hero'
-import { renderToString } from 'react-dom/server'
 
 const defaultHeroData = {
   title: 'Stay Connected Worldwide',
@@ -18,12 +19,14 @@ const footballHeroData = {
   ctaUrl: '/plans',
 }
 
-export const heroBlock: BlockProperties = {
-  id: 'hero-banner',
-  label: 'Hero Banner',
-  category: 'Sections',
-  content: renderToString(<Hero {...footballHeroData} />),
-  attributes: {
-    class: 'fa fa-star',
-  },
+export async function getHeroBlock() {
+  return await createBlockConfig({
+    id: 'hero',
+    label: 'Hero Section',
+    category: 'Sections',
+    component: <Hero {...footballHeroData} />,
+    attributes: {
+      class: 'fa fa-header',
+    },
+  })
 }

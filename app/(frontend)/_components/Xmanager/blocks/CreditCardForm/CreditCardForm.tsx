@@ -1,11 +1,7 @@
 import React from 'react'
 import { creditCardFormStyles } from './CreditCardForm.styles'
 
-interface CreditCardFormProps {
-  onSubmit: (data: any) => void
-}
-
-export function CreditCardForm({ onSubmit }: CreditCardFormProps) {
+export function CreditCardForm() {
   return (
     <>
       <style>{creditCardFormStyles}</style>

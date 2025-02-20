@@ -1,13 +1,16 @@
-import { BlockProperties } from 'grapesjs'
-import { TechnicalSpecsCard } from './TechnicalSpecsCard'
-import { renderToString } from 'react-dom/server'
+'use server'
 
-export const technicalSpecsCardBlock: BlockProperties = {
-  id: 'technical-specs-card',
-  label: 'Technical Specs Card',
-  category: 'Components',
-  content: renderToString(<TechnicalSpecsCard />),
-  attributes: {
-    class: 'technicalSpecs-card',
-  },
+import { createBlockConfig } from '../../utils/serverUtils'
+import { TechnicalSpecsCard } from './TechnicalSpecsCard'
+
+export async function getTechnicalSpecsCardBlock() {
+  return await createBlockConfig({
+    id: 'technical-specs-card',
+    label: 'Technical Specs Card',
+    category: 'Components',
+    component: <TechnicalSpecsCard />,
+    attributes: {
+      class: 'fa fa-cogs',
+    },
+  })
 }

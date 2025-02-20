@@ -1,13 +1,16 @@
-import { BlockProperties } from 'grapesjs'
-import { renderToString } from 'react-dom/server'
+'use server'
+
+import { createBlockConfig } from '../../utils/serverUtils'
 import { CreditCardForm } from './CreditCardForm'
 
-export const creditCardFormBlock: BlockProperties = {
-  id: 'credit-card-form',
-  label: 'Credit Card Form',
-  category: 'Sections',
-  content: renderToString(<CreditCardForm onSubmit={() => {}} />),
-  attributes: {
-    class: 'fa fa-credit-card',
-  },
+export async function getCreditCardFormBlock() {
+  return await createBlockConfig({
+    id: 'credit-card-form',
+    label: 'Credit Card Form',
+    category: 'Sections',
+    component: <CreditCardForm />,
+    attributes: {
+      class: 'fa fa-credit-card',
+    },
+  })
 }

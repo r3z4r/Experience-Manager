@@ -1,5 +1,4 @@
 import type { User, Page } from '@/payload-types'
-import { BlockProperties } from 'grapesjs'
 
 export interface BaseBlockProps {
   className?: string

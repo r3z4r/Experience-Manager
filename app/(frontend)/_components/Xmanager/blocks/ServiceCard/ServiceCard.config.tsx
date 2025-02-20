@@ -1,13 +1,16 @@
-import { BlockProperties } from 'grapesjs'
-import { ServiceCard } from './ServiceCard'
-import { renderToString } from 'react-dom/server'
+'use server'
 
-export const serviceCardBlock: BlockProperties = {
-  id: 'service-card',
-  label: 'Service Card',
-  category: 'Components',
-  content: renderToString(<ServiceCard />),
-  attributes: {
-    class: 'service-card',
-  },
+import { createBlockConfig } from '../../utils/serverUtils'
+import { ServiceCard } from './ServiceCard'
+
+export async function getServiceCardBlock() {
+  return await createBlockConfig({
+    id: 'service-card',
+    label: 'Service Card',
+    category: 'Components',
+    component: <ServiceCard />,
+    attributes: {
+      class: 'fa fa-cube',
+    },
+  })
 }
