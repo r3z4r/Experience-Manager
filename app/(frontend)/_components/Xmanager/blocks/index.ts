@@ -27,7 +27,6 @@ import { getPaymentBlock } from './Payment/Payment.config'
 import { getFootballFeaturesBlock } from './FootballFeatures/FootballFeatures.config'
 import { getMerchandiseCardBlock } from './MerchandiseCard/MerchandiseCard.config'
 
-// Create a function to get all blocks
 export async function getCustomBlocks(): Promise<BlockProperties[]> {
   const blocks = await Promise.all([
     getHeroBlock(),
