@@ -299,7 +299,7 @@ const Editor = ({ templateId, mode = 'edit' }: EditorProps) => {
 
     // Use the imported blocks
     blocks.forEach((block) => {
-      editor.Blocks.add(block)
+      editor.Blocks.add(block?.id || '', block)
     })
 
     return () => {
