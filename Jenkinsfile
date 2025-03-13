@@ -28,6 +28,17 @@ pipeline {
 	options {
 		timeout(time: 1, unit: 'HOURS')
 	}
+	environment {
+		DATABASE_URI = 'mongodb://127.0.0.1/payloadcms'
+		PAYLOAD_SECRET = '5fd2f2f287cf55f22bfb71e3'
+		REACT_EDITOR = 'code'
+		NEXT_PUBLIC_APP_URL = 'http://localhost:3000'
+		NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY = 'pk_test_51OgPHqSCeWXqwRwV9tXjKxGZvkNwvBQkWXhxJCjVEVqkzuHHNkTe8f1vH8zKdGQjJ9qXZKmqWZq4ZKmqWZq4Z'
+		STRIPE_SECRET_KEY = 'sk_test_51OgPHqSCeWXqwRwV9tXjKxGZvkNwvBQkWXhxJCjVEVqkzuHHNkTe8f1vH8zKdGQjJ9qXZKmqWZq4ZKmqWZq4Z'
+		ALLOWED_ORIGINS = 'http://localhost:3000,https://moments-fit.pe-lab14.bdc-rancher.tecnotree.com,https://moments-dev.pe-lab14.bdc-rancher.tecnotree.com,https://pit.tecnotree.com/,demo.tecnotree.com,localhost:5200'
+		NEXT_PUBLIC_BASE_PATH = '/xpm'
+		RENDER_PATH = '/pages'
+	}
 	stages {
 		stage('Init') {
 			steps {
