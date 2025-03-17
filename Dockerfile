@@ -31,9 +31,19 @@ ENV NEXT_PUBLIC_BASE_PATH=$NEXT_PUBLIC_BASE_PATH
 ENV NEXT_PUBLIC_SITE_URL=$NEXT_PUBLIC_SITE_URL
 ENV NEXT_TELEMETRY_DISABLED=1
 
+# Add environment variables
+ENV DATABASE_URI=mongodb://127.0.0.1/payloadcms
+ENV PAYLOAD_SECRET=5fd2f2f287cf55f22bfb71e3
+ENV REACT_EDITOR=code
+ENV NEXT_PUBLIC_APP_URL=http://localhost:3000
+ENV NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_51OgPHqSCeWXqwRwV9tXjKxGZvkNwvBQkWXhxJCjVEVqkzuHHNkTe8f1vH8zKdGQjJ9qXZKmqWZq4ZKmqWZq4Z
+ENV STRIPE_SECRET_KEY=sk_test_51OgPHqSCeWXqwRwV9tXjKxGZvkNwvBQkWXhxJCjVEVqkzuHHNkTe8f1vH8zKdGQjJ9qXZKmqWZq4ZKmqWZq4Z
+ENV ALLOWED_ORIGINS=http://localhost:3000,https://moments-fit.pe-lab14.bdc-rancher.tecnotree.com,https://moments-dev.pe-lab14.bdc-rancher.tecnotree.com,https://pit.tecnotree.com/,demo.tecnotree.com,localhost:5200
+ENV RENDER_PATH=/pages
+
 RUN \
   if [ -f yarn.lock ]; then yarn run build; \
-  elif [ -f package-lock.json ]; then npm run build --legacy-peer-deps; \
+  elif [ -f package-lock.json ]; then npm run build; \
   elif [ -f pnpm-lock.yaml ]; then corepack enable pnpm && pnpm run build; \
   else echo "Lockfile not found." && exit 1; \
   fi
