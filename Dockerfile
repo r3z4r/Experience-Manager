@@ -32,7 +32,7 @@ ENV NEXT_PUBLIC_SITE_URL=$NEXT_PUBLIC_SITE_URL
 ENV NEXT_TELEMETRY_DISABLED=1
 
 # Add environment variables
-ENV DATABASE_URI=mongodb://127.0.0.1/payloadcms
+ENV DATABASE_URI=mongodb:// username:password@172.20.21.200:27017/payloadcms_dev?authSource=payloadcms_dev 
 ENV PAYLOAD_SECRET=5fd2f2f287cf55f22bfb71e3
 ENV REACT_EDITOR=code
 ENV NEXT_PUBLIC_APP_URL=http://localhost:3000
