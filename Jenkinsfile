@@ -29,7 +29,7 @@ pipeline {
 		timeout(time: 1, unit: 'HOURS')
 	}
 	environment {
-		DATABASE_URI = 'mongodb:// username:password@172.20.21.200:27017/payloadcms_dev?authSource=payloadcms_dev'
+		DATABASE_URI = 'mongodb://username:password@172.20.21.200:27017/payloadcms_dev?authSource=payloadcms_dev'
 		PAYLOAD_SECRET = '5fd2f2f287cf55f22bfb71e3'
 		REACT_EDITOR = 'code'
 		NEXT_PUBLIC_APP_URL = 'http://localhost:3000'
