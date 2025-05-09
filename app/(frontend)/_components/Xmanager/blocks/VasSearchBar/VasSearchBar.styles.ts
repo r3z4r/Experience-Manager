@@ -10,7 +10,7 @@ export const vasSearchStyles = `
 }
 
 .vasLabel {
-  background-color: #007bff; /* blue shade */
+  background-color: #007bff;
   color: white;
   font-weight: bold;
   padding: 0.5rem 1rem;

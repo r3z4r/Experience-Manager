@@ -29,6 +29,7 @@ import { getMerchandiseCardBlock } from './MerchandiseCard/MerchandiseCard.confi
 import { getVasSearchBarBlock } from './VasSearchBar/VasSearchBar.config'
 import { getVASCardBlock } from './VasCard/VasCard.config'
 import { getVASDetailsCardBlock } from './VASDetailsCard/VASDetailsCard.config'
+import { getOrderSuccessModalBlock } from './OrderSuccessModal/OrderSuccessModal.config'
 
 export async function getCustomBlocks(): Promise<BlockProperties[]> {
   const blocks = await Promise.all([
@@ -61,6 +62,7 @@ export async function getCustomBlocks(): Promise<BlockProperties[]> {
     getVasSearchBarBlock(),
     getVASCardBlock(),
     getVASDetailsCardBlock(),
+    getOrderSuccessModalBlock(),
   ])
 
   return blocks
