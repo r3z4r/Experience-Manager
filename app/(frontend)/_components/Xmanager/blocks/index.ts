@@ -26,6 +26,10 @@ import { getApplicationConfirmationBlock } from './ApplicationConfirmation/Appli
 import { getPaymentBlock } from './Payment/Payment.config'
 import { getFootballFeaturesBlock } from './FootballFeatures/FootballFeatures.config'
 import { getMerchandiseCardBlock } from './MerchandiseCard/MerchandiseCard.config'
+import { getVasSearchBarBlock } from './VasSearchBar/VasSearchBar.config'
+import { getVASCardBlock } from './VasCard/VasCard.config'
+import { getVASDetailsCardBlock } from './VASDetailsCard/VASDetailsCard.config'
+import { getOrderSuccessModalBlock } from './OrderSuccessModal/OrderSuccessModal.config'
 
 export async function getCustomBlocks(): Promise<BlockProperties[]> {
   const blocks = await Promise.all([
@@ -55,6 +59,10 @@ export async function getCustomBlocks(): Promise<BlockProperties[]> {
     getPaymentBlock(),
     getFootballFeaturesBlock(),
     getMerchandiseCardBlock(),
+    getVasSearchBarBlock(),
+    getVASCardBlock(),
+    getVASDetailsCardBlock(),
+    getOrderSuccessModalBlock(),
   ])
 
   return blocks
