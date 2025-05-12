@@ -15,6 +15,7 @@ export interface Config {
     media: Media;
     pages: Page;
     images: Image;
+    journeys: Journey;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
@@ -25,6 +26,7 @@ export interface Config {
     media: MediaSelect<false> | MediaSelect<true>;
     pages: PagesSelect<false> | PagesSelect<true>;
     images: ImagesSelect<false> | ImagesSelect<true>;
+    journeys: JourneysSelect<false> | JourneysSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
     'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
@@ -224,6 +226,24 @@ export interface Image {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "journeys".
+ */
+export interface Journey {
+  id: string;
+  label: string;
+  slug?: string | null;
+  description?: string | null;
+  steps: {
+    id: string | null;
+    type: 'predefined' | 'template';
+    label: string;
+    ref: string;
+  }[];
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-locked-documents".
  */
 export interface PayloadLockedDocument {
@@ -244,6 +264,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'images';
         value: string | Image;
+      } | null)
+    | ({
+        relationTo: 'journeys';
+        value: string | Journey;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -426,6 +450,25 @@ export interface ImagesSelect<T extends boolean = true> {
               filename?: T;
             };
       };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "journeys_select".
+ */
+export interface JourneysSelect<T extends boolean = true> {
+  label?: T;
+  slug?: T;
+  description?: T;
+  steps?:
+    | T
+    | {
+        id?: T;
+        type?: T;
+        label?: T;
+        ref?: T;
+      };
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
