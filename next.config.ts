@@ -18,9 +18,6 @@ const nextConfig: NextConfig = {
   images: {
     domains: ['localhost', 'demo.tecnotree.com'],
   },
-  images: {
-    domains: ['localhost', 'demo.tecnotree.com'],
-  },
   env: {
     NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL || 'https://demo.tecnotree.com',
     NEXT_PUBLIC_APP_URL: process.env.NEXT_PUBLIC_APP_URL,
