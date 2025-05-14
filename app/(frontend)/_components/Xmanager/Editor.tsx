@@ -313,20 +313,20 @@ const Editor = ({ templateId, mode = 'edit' }: EditorProps) => {
         },
       })
 
-      // Add JavaScript editor button to the panel
-      editorInstance.Panels.addButton('options', {
-        id: 'js-editor',
-        className: 'fa fa-file-code-o',
-        command: 'open-js-manager',
-        attributes: { title: 'JavaScript Manager' },
-      })
-
       // Additional editor customizations
       editorInstance.Panels.addButton('options', {
         id: 'save-db',
         className: 'fa fa-floppy-o ',
         command: 'save-template',
         attributes: { title: 'Save Template' },
+      })
+
+      // Add JavaScript editor button to the panel
+      editorInstance.Panels.addButton('options', {
+        id: 'js-editor',
+        className: 'fa fa-code',
+        command: 'open-js-manager',
+        attributes: { title: 'JavaScript Manager' },
       })
 
       // Add a custom command to refresh the script list
@@ -346,7 +346,6 @@ const Editor = ({ templateId, mode = 'edit' }: EditorProps) => {
           }, 100)
         }
       })
-
       // Ensure script components are properly handled during save/load
       editorInstance.on('storage:start:store', (data) => {
         try {
@@ -431,6 +430,20 @@ const Editor = ({ templateId, mode = 'edit' }: EditorProps) => {
       if (component.get('type') === 'script') {
         // Handle script updates
         console.log('Script updated:', component.get('content'))
+      }
+    })
+
+    // Add double-click handler for script components
+    editor.on('component:selected', (component) => {
+      if (component.get('type') === 'script') {
+        // Add double-click event to open script editor
+        const el = component.view.el
+        if (el && !el.dataset.scriptEditorInitialized) {
+          el.dataset.scriptEditorInitialized = 'true'
+          el.addEventListener('dblclick', () => {
+            editor.Commands.run('open-script-editor', { component })
+          })
+        }
       }
     })
 
