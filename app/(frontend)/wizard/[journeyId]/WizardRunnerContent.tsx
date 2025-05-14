@@ -1,8 +1,8 @@
 'use client'
 
 import React from 'react'
-import { WizardEngine } from '@/app/(frontend)/_components/Wizard/WizardEngine'
 import { WizardJourney } from '@/lib/types/wizard'
+import { WizardEngine } from '@/app/(frontend)/_components/Wizard/WizardEngine'
 
 interface WizardRunnerContentProps {
   journey: WizardJourney
@@ -25,6 +25,7 @@ export function WizardRunnerContent({ journey }: WizardRunnerContentProps) {
       
       {/* Main content - Takes remaining height */}
       <main className="flex-1 w-full overflow-auto p-6">
+        {/* Use the WizardEngine component with our journey */}
         <WizardEngine journey={journey} />
       </main>
     </div>

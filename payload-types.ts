@@ -239,6 +239,27 @@ export interface Journey {
     label: string;
     ref: string;
   }[];
+  localization?: {
+    showLanguageSelector?: boolean | null;
+    showCurrencySelector?: boolean | null;
+    languages?:
+      | {
+          code: string;
+          name: string;
+          default?: boolean | null;
+          id?: string | null;
+        }[]
+      | null;
+    currencies?:
+      | {
+          code: string;
+          symbol: string;
+          name: string;
+          default?: boolean | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
   updatedAt: string;
   createdAt: string;
 }
@@ -466,6 +487,29 @@ export interface JourneysSelect<T extends boolean = true> {
         type?: T;
         label?: T;
         ref?: T;
+      };
+  localization?:
+    | T
+    | {
+        showLanguageSelector?: T;
+        showCurrencySelector?: T;
+        languages?:
+          | T
+          | {
+              code?: T;
+              name?: T;
+              default?: T;
+              id?: T;
+            };
+        currencies?:
+          | T
+          | {
+              code?: T;
+              symbol?: T;
+              name?: T;
+              default?: T;
+              id?: T;
+            };
       };
   updatedAt?: T;
   createdAt?: T;

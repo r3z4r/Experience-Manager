@@ -49,6 +49,7 @@ import { StatusChip } from './StatusChip'
 import { SaveModal } from './SaveModal'
 import { getAssetManagerConfig } from './utils/assetConfig'
 import { getCustomBlocks } from './blocks'
+import { ScriptEditor } from './panels/ScriptEditor'
 
 type TemplateError = PayloadValidationError | ServerError | NetworkError
 
@@ -137,23 +138,43 @@ const Editor = ({ templateId, mode = 'edit' }: EditorProps) => {
       editorInstance.loadProjectData(initialData.gjsData as ProjectData)
     }
 
+    // Register script component type
     editorInstance.Components.addType('script', {
       view: {
         onRender({ el, model }) {
           // Get the actual script content
           const scriptContent = model.components().models[0]?.get('content') || ''
+          const truncatedContent =
+            scriptContent.length > 150 ? scriptContent.substring(0, 150) + '...' : scriptContent
+
+          // Extract first line as title (if it's a comment)
+          const firstLine = scriptContent.split('\n')[0]
+          const title = firstLine.startsWith('//') ? firstLine.substring(2).trim() : 'JavaScript'
 
           // Update the content display
           el.innerHTML = `
             <div class="script-block">
               <div class="script-block__header">
-                <i class="fa fa-code"></i> Script
+                <svg viewBox="0 0 24 24" width="16" height="16" style="margin-right: 4px;">
+                  <path fill="currentColor" d="M3 3h18v18H3V3zm16.525 13.707c-.131-.821-.666-1.511-2.252-2.155-.552-.259-1.165-.438-1.349-.854-.068-.248-.078-.382-.034-.529.113-.484.687-.629 1.137-.495.293.09.563.315.732.676.775-.507.775-.507 1.316-.844-.203-.314-.304-.451-.439-.586-.473-.528-1.103-.798-2.126-.775l-.528.067c-.507.124-.991.395-1.283.754-.855.968-.608 2.655.427 3.354 1.023.765 2.521.933 2.712 1.653.18.878-.652 1.159-1.475 1.058-.607-.136-.945-.439-1.316-1.002l-1.372.788c.157.359.337.517.607.832 1.305 1.316 4.568 1.249 5.153-.754.021-.067.18-.528.056-1.237l.034.049zm-6.737-5.434h-1.686c0 1.453-.007 2.898-.007 4.354 0 .924.047 1.772-.104 2.033-.247.517-.886.451-1.175.359-.297-.146-.448-.349-.623-.641-.047-.078-.082-.146-.095-.146l-1.368.844c.229.473.563.879.994 1.137.641.383 1.502.507 2.404.305.588-.17 1.095-.519 1.358-1.059.384-.697.302-1.553.299-2.509.008-1.541 0-3.083 0-4.635l.003-.042z"/>
+                </svg>
+                ${title}
               </div>
               <div class="script-block__content">
-                <pre>${scriptContent}</pre>
+                <pre>${truncatedContent}</pre>
+              </div>
+              <div style="position: absolute; bottom: 4px; right: 4px; font-size: 10px; color: #666;">
+                Double-click to edit
               </div>
             </div>
           `
+
+          // Add double-click handler for opening the script editor
+          el.addEventListener('dblclick', (e) => {
+            e.preventDefault()
+            e.stopPropagation()
+            editorInstance.Commands.run('open-script-editor', { component: model })
+          })
         },
       },
       model: {
@@ -168,7 +189,8 @@ const Editor = ({ templateId, mode = 'edit' }: EditorProps) => {
           components: [
             {
               type: 'textnode',
-              content: '// Your JavaScript code here',
+              content:
+                '// Your JavaScript code here\n// This code will run when the page loads\n\nconsole.log("Script initialized");',
             },
           ],
           traits: [
@@ -182,6 +204,42 @@ const Editor = ({ templateId, mode = 'edit' }: EditorProps) => {
                 if (textNode) {
                   textNode.set('content', value)
                   component.view?.render()
+                }
+              },
+            },
+            {
+              type: 'button',
+              text: 'Edit Script',
+              full: true,
+              command: (editor) => {
+                const selectedComponent = editor.getSelected()
+                if (selectedComponent && selectedComponent.get('type') === 'script') {
+                  editor.Commands.run('open-script-editor', { component: selectedComponent })
+                }
+              },
+            },
+            {
+              type: 'button',
+              text: 'Test Run',
+              full: true,
+              command: (editor) => {
+                const selectedComponent = editor.getSelected()
+                if (selectedComponent && selectedComponent.get('type') === 'script') {
+                  try {
+                    const content = selectedComponent.components().models[0]?.get('content') || ''
+                    const func = new Function(content)
+                    func()
+                    editor.Modal.open({
+                      title: 'Script Executed',
+                      content: 'Script executed successfully!',
+                    })
+                  } catch (error) {
+                    console.error('Script execution error:', error)
+                    editor.Modal.open({
+                      title: 'Script Error',
+                      content: `Error: ${error instanceof Error ? error.message : 'Unknown error'}`,
+                    })
+                  }
                 }
               },
             },
@@ -238,12 +296,89 @@ const Editor = ({ templateId, mode = 'edit' }: EditorProps) => {
       editorInstance.Commands.add('save-template', {
         run: () => setShowSaveDialog(true),
       })
+
+      // Add command to open JavaScript manager dialog
+      editorInstance.Commands.add('open-js-manager', {
+        run: () => {
+          // Find any script component to use as a starting point
+          const scripts = editorInstance.Components.getWrapper()?.find('[type=script]') || []
+          const scriptComponent = Array.isArray(scripts) && scripts.length > 0 ? scripts[0] : null
+
+          // Open the script editor dialog with the found component or null to create new
+          window.dispatchEvent(
+            new CustomEvent('open-script-editor-dialog', {
+              detail: { component: scriptComponent, editor: editorInstance },
+            }),
+          )
+        },
+      })
+
+      // Add JavaScript editor button to the panel
+      editorInstance.Panels.addButton('options', {
+        id: 'js-editor',
+        className: 'fa fa-file-code-o',
+        command: 'open-js-manager',
+        attributes: { title: 'JavaScript Manager' },
+      })
+
       // Additional editor customizations
       editorInstance.Panels.addButton('options', {
         id: 'save-db',
         className: 'fa fa-floppy-o ',
         command: 'save-template',
         attributes: { title: 'Save Template' },
+      })
+
+      // Add a custom command to refresh the script list
+      editorInstance.Commands.add('refresh-script-list', {
+        run: () => {
+          // Force refresh script components
+          window.dispatchEvent(new CustomEvent('refresh-script-list'))
+        },
+      })
+
+      // Add an event listener for script-related operations
+      editorInstance.on('component:add', (component) => {
+        if (component.get('type') === 'script') {
+          // Trigger script list refresh when a script is added
+          setTimeout(() => {
+            editorInstance.Commands.run('refresh-script-list')
+          }, 100)
+        }
+      })
+
+      // Ensure script components are properly handled during save/load
+      editorInstance.on('storage:start:store', (data) => {
+        try {
+          // Handle script components specially to avoid circular references
+          if (data && data.components) {
+            const processComponents = (components: any[]): any[] => {
+              if (!Array.isArray(components)) return components
+
+              return components.map((comp) => {
+                // Create a clean copy of the component
+                const cleanComp = { ...comp }
+
+                // Handle script components specially
+                if (cleanComp.type === 'script') {
+                  // Ensure script content is preserved but other circular references are removed
+                  const scriptContent = cleanComp.components?.[0]?.content || ''
+                  cleanComp.components = [{ type: 'textnode', content: scriptContent }]
+                } else if (cleanComp.components) {
+                  // Process nested components recursively
+                  cleanComp.components = processComponents(cleanComp.components)
+                }
+
+                return cleanComp
+              })
+            }
+
+            // Process top-level components
+            data.components = processComponents(data.components)
+          }
+        } catch (error) {
+          console.error('Error processing components for storage:', error)
+        }
       })
     })
 
@@ -287,6 +422,8 @@ const Editor = ({ templateId, mode = 'edit' }: EditorProps) => {
       if (component.get('type') === 'script') {
         // Handle script addition
         console.log('Script added:', component.get('content'))
+        // Open script editor when a new script is added
+        editor.Commands.run('open-script-editor', { component })
       }
     })
 
@@ -294,6 +431,20 @@ const Editor = ({ templateId, mode = 'edit' }: EditorProps) => {
       if (component.get('type') === 'script') {
         // Handle script updates
         console.log('Script updated:', component.get('content'))
+      }
+    })
+
+    // Add double-click handler for script components
+    editor.on('component:selected', (component) => {
+      if (component.get('type') === 'script') {
+        // Add double-click event to open script editor
+        const el = component.view.el
+        if (el && !el.dataset.scriptEditorInitialized) {
+          el.dataset.scriptEditorInitialized = 'true'
+          el.addEventListener('dblclick', () => {
+            editor.Commands.run('open-script-editor', { component })
+          })
+        }
       }
     })
 
@@ -632,6 +783,7 @@ const Editor = ({ templateId, mode = 'edit' }: EditorProps) => {
       </div>
       <div className="editor-content">
         <div ref={editorRef} className="editor-container" />
+        {editor && mode === 'edit' && <ScriptEditor editor={editor} />}
       </div>
       {showSaveDialog && (
         <SaveModal
