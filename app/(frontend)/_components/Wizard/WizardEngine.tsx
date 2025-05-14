@@ -1,194 +1,200 @@
-// WizardEngine: manages steps, navigation, and state
 'use client'
-import React, { useState } from 'react'
-import { WizardJourney, WizardStep, WizardStepProps, WizardStepType } from '@/lib/types/wizard'
-import { CustomerLoginStep } from './steps/CustomerLoginStep'
-import { ProductSelectionStep } from './steps/ProductSelectionStep'
-import { ReviewSubmitStep } from './steps/ReviewSubmitStep'
-import { TemplatePageStep } from './steps/TemplatePageStep'
+
+import React from 'react'
+import { WizardJourney, WizardStepType } from '@/lib/types/wizard'
+import { WizardProvider, useWizard } from '@/lib/contexts/WizardContext'
+import { LocalizationBar } from '@/app/(frontend)/_components/Localization/LocalizationBar'
 import Link from 'next/link'
 
 interface WizardEngineProps {
   journey: WizardJourney
 }
 
+/**
+ * Main WizardEngine component that wraps the wizard content with the WizardProvider
+ */
 export const WizardEngine: React.FC<WizardEngineProps> = ({ journey }) => {
-  const [currentStep, setCurrentStep] = useState(0)
-  const [state, setState] = useState<any>({})
-  const [isSubmitting, setIsSubmitting] = useState(false)
-  const step = journey.steps[currentStep]
-  const isFirstStep = currentStep === 0
-  const isLastStep = currentStep === journey.steps.length - 1
-
-  const goNext = () => {
-    if (!isLastStep) setCurrentStep(currentStep + 1)
-  }
-
-  const goBack = () => {
-    if (!isFirstStep) setCurrentStep(currentStep - 1)
-  }
-
-  const goToStep = (index: number) => {
-    if (index >= 0 && index < journey.steps.length) {
-      setCurrentStep(index)
-    }
-  }
-
-  const handleComplete = async () => {
-    if (isLastStep) {
-      try {
-        setIsSubmitting(true)
-        // Here you would typically submit the collected data
-        // For now, we'll just simulate a submission with a delay
-        await new Promise((resolve) => setTimeout(resolve, 1000))
-        alert('Journey completed successfully!')
-      } catch (error) {
-        console.error('Error completing journey:', error)
-        alert('Failed to complete journey. Please try again.')
-      } finally {
-        setIsSubmitting(false)
-      }
-    }
-  }
-
-  let StepComponent: React.FC<WizardStepProps>
-  switch (step.type) {
-    case WizardStepType.Predefined:
-      if (step.ref === 'CustomerLoginStep') StepComponent = CustomerLoginStep
-      else if (step.ref === 'ProductSelectionStep') StepComponent = ProductSelectionStep
-      else if (step.ref === 'ReviewSubmitStep') StepComponent = ReviewSubmitStep
-      else StepComponent = () => <div>Unknown step</div>
-      break
-    case WizardStepType.Template:
-      StepComponent = TemplatePageStep
-      break
-    default:
-      StepComponent = () => <div>Unknown step</div>
-  }
-
-  // SVG checkmark component with display name for ESLint
-  const CheckmarkIcon: React.FC = () => (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 20 20"
-      fill="currentColor"
-      className="w-3 h-3"
+  return (
+    <WizardProvider 
+      journey={journey} 
+      onSubmit={async (formData) => {
+        // Handle form submission here
+        console.log('Submitting wizard data:', formData)
+        // You can make API calls here to save the data
+        await new Promise(resolve => setTimeout(resolve, 1000)) // Simulate API call
+      }}
     >
-      <path
-        fillRule="evenodd"
-        d="M16.704 4.153a.75.75 0 01.143 1.052l-8 10.5a.75.75 0 01-1.127.075l-4.5-4.5a.75.75 0 011.06-1.06l3.894 3.893 7.48-9.817a.75.75 0 011.05-.143z"
-        clipRule="evenodd"
-      />
-    </svg>
+      <WizardContent />
+    </WizardProvider>
   )
-  CheckmarkIcon.displayName = 'CheckmarkIcon'
+}
 
-  // Step indicator component with display name for ESLint
-  const StepIndicator: React.FC = () => {
-    return (
-      <>
-        {/* <div className="w-full px-6 py-4 border-b border-border bg-card"> */}
-        {/* <div className="max-w-6xl mx-auto"> */}
-        <div className="flex items-center justify-between">
-          {journey.steps.map((s, idx) => {
-            const isActive = idx === currentStep
-            const isPast = idx < currentStep
-            const isFuture = idx > currentStep
+/**
+ * Inner component that uses the wizard context
+ */
+const WizardContent: React.FC = () => {
+  // Use the wizard context
+  const {
+    journey,
+    currentStep,
+    isFirstStep,
+    isLastStep,
+    goToNextStep,
+    goToPreviousStep,
+    goToStep,
+    state,
+    updateFormData,
+    getStepData,
+    validateStep,
+    markStepAsCompleted,
+    submitWizard,
+    localizationConfig
+  } = useWizard()
+  // Render the step content based on type
+  const renderStepContent = () => {
+    if (!currentStep) return null
 
-            return (
-              <div key={s.id} className="flex flex-col items-center relative flex-1">
-                {/* Connector line */}
-                {idx < journey.steps.length - 1 && (
-                  <div
-                    className={`absolute h-0.5 top-3 left-1/2 w-full ${isPast ? 'bg-primary' : 'bg-muted'}`}
-                  />
-                )}
-
-                {/* Step circle */}
-                <button
-                  onClick={() => goToStep(idx)}
-                  disabled={isFuture}
-                  className={`relative z-10 w-6 h-6 rounded-full flex items-center justify-center text-xs font-medium transition-colors ${
-                    isActive
-                      ? 'bg-primary text-primary-foreground ring-2 ring-primary ring-offset-2'
-                      : isPast
-                        ? 'bg-primary text-primary-foreground'
-                        : 'bg-muted text-muted-foreground'
-                  }`}
-                  aria-current={isActive ? 'step' : undefined}
-                >
-                  {isPast ? <CheckmarkIcon /> : idx + 1}
-                </button>
-
-                {/* Step label */}
-                <span
-                  className={`mt-2 text-xs ${isActive ? 'font-medium text-foreground' : 'text-muted-foreground'}`}
-                >
-                  {s.label}
-                </span>
+    // Create a placeholder component for each step type
+    // In a real implementation, you would import and render actual step components
+    switch (currentStep.type) {
+      case WizardStepType.Predefined:
+        return (
+          <div className="bg-white rounded-lg shadow p-6">
+            <h3 className="text-lg font-medium mb-4">{currentStep.label}</h3>
+            <p className="mb-4">This is a predefined step with reference: {currentStep.ref}</p>
+            <p className="text-sm text-gray-500 mb-4">In a real implementation, this would render a specific predefined component.</p>
+            
+            {/* Example form fields */}
+            <div className="space-y-4 mb-6">
+              <div>
+                <label className="block text-sm font-medium mb-1">Sample Field</label>
+                <input 
+                  type="text" 
+                  className="w-full p-2 border rounded"
+                  onChange={(e) => updateFormData(currentStep.id, { 
+                    ...getStepData(currentStep.id),
+                    sampleField: e.target.value 
+                  })}
+                  value={getStepData(currentStep.id).sampleField || ''}
+                />
               </div>
-            )
-          })}
-        </div>
-        {/* </div> */}
-        {/* </div> */}
-      </>
-    )
+            </div>
+          </div>
+        )
+      
+      case WizardStepType.Template:
+        return (
+          <div className="bg-white rounded-lg shadow p-6">
+            <h3 className="text-lg font-medium mb-4">{currentStep.label}</h3>
+            <p className="mb-4">This is a template step with reference: {currentStep.ref}</p>
+            <p className="text-sm text-gray-500 mb-4">In a real implementation, this would render a template from the CMS.</p>
+          </div>
+        )
+      
+      case WizardStepType.PredefinedComponent:
+        return (
+          <div className="bg-white rounded-lg shadow p-6">
+            <h3 className="text-lg font-medium mb-4">{currentStep.label}</h3>
+            <p className="mb-4">This is a predefined component step with reference: {currentStep.ref}</p>
+            <p className="text-sm text-gray-500 mb-4">In a real implementation, this would render a predefined component.</p>
+          </div>
+        )
+
+      default:
+        return <div>Unknown step type: {currentStep.type}</div>
+    }
   }
-  StepIndicator.displayName = 'StepIndicator'
 
   return (
-    <div className="flex flex-col h-full w-full">
-      <StepIndicator />
-
-      {/* Main content - takes remaining space */}
-      {/* <div className="flex-1 overflow-auto p-6"> */}
-      {/* <div className="max-w-6xl mx-auto bg-card border border-border rounded-lg p-6 min-h-[400px]"> */}
-      <StepComponent
-        step={step}
-        state={state}
-        setState={setState}
-        goNext={goNext}
-        goBack={goBack}
-      />
-      {/* </div> */}
-      {/* </div> */}
-
-      {/* Footer navigation - full width and sticky */}
-      <div className="w-full border-t border-border py-4 px-6 flex justify-between items-center sticky bottom-0 bg-background z-10 shadow-sm">
-        <div className="max-w-6xl w-full mx-auto flex justify-between items-center">
-          <div>
-            <button
-              onClick={goBack}
-              disabled={isFirstStep}
-              className={`button-secondary button-md ${isFirstStep ? 'opacity-50 cursor-not-allowed' : ''}`}
-              aria-disabled={isFirstStep}
-            >
-              Back
-            </button>
-          </div>
-
-          <div className="text-sm text-muted-foreground">
-            Step {currentStep + 1} of {journey.steps.length}
-          </div>
-
-          <div>
-            {isLastStep ? (
+    <div className="flex flex-col h-full">
+      {/* Progress bar */}
+      <div className="mb-6">
+        <div className="flex justify-between items-center mb-2">
+          <div className="flex-1 flex space-x-2">
+            {journey.steps.map((s, idx) => (
               <button
-                onClick={handleComplete}
-                disabled={isSubmitting}
-                className="button-primary button-md"
+                key={s.id}
+                onClick={() => goToStep(idx)}
+                className={`w-8 h-8 rounded-full flex items-center justify-center ${idx <= state.currentStepIndex ? 'bg-blue-600 text-white' : 'bg-gray-200'}`}
               >
-                {isSubmitting ? 'Completing...' : 'Complete'}
+                {idx + 1}
               </button>
-            ) : (
-              <button onClick={goNext} className="button-primary button-md">
-                Continue
-              </button>
-            )}
+            ))}
           </div>
+          
+          {/* Localization controls */}
+          {localizationConfig && (
+            <LocalizationBar className="ml-4" />
+          )}
+        </div>
+        <div className="w-full bg-gray-200 h-2 rounded-full">
+          <div
+            className="bg-blue-600 h-2 rounded-full transition-all"
+            style={{ width: `${((state.currentStepIndex + 1) / journey.steps.length) * 100}%` }}
+          ></div>
         </div>
       </div>
+
+      {/* Step content */}
+      <div className="flex-1">
+        <h2 className="text-xl font-semibold mb-4">{currentStep?.label}</h2>
+        {renderStepContent()}
+      </div>
+
+      {/* Navigation buttons */}
+      <div className="flex justify-between mt-6 pt-4 border-t">
+        <button
+          onClick={goToPreviousStep}
+          disabled={isFirstStep}
+          className={`px-4 py-2 rounded ${isFirstStep ? 'bg-gray-200 text-gray-400 cursor-not-allowed' : 'bg-gray-200 hover:bg-gray-300 text-gray-700'}`}
+        >
+          Back
+        </button>
+        
+        {isLastStep ? (
+          <button
+            onClick={async () => {
+              try {
+                await submitWizard()
+              } catch (error) {
+                console.error('Error submitting wizard:', error)
+              }
+            }}
+            disabled={state.isSubmitting}
+            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 disabled:bg-blue-300"
+          >
+            {state.isSubmitting ? 'Submitting...' : 'Submit'}
+          </button>
+        ) : (
+          <button
+            onClick={() => {
+              // Validate current step before proceeding
+              if (currentStep && validateStep(currentStep.id)) {
+                markStepAsCompleted(currentStep.id)
+                goToNextStep()
+              }
+            }}
+            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+          >
+            Next
+          </button>
+        )}
+      </div>
+
+      {/* Submission confirmation - shown when submitted successfully */}
+      {state.isSubmitted && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg max-w-md w-full">
+            <h3 className="text-xl font-semibold mb-4">Submission Complete</h3>
+            <p className="mb-6">Your journey has been submitted successfully!</p>
+            <div className="flex justify-end">
+              <Link href="/wizard" className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
+                Back to Journeys
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

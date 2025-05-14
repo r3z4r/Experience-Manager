@@ -47,7 +47,7 @@ export async function getCustomBlocks(): Promise<BlockProperties[]> {
     getCardBlock(),
     getCardRightBlock(),
     getDeliveryDetailsCardBlock(),
-    // scriptBlock,
+    scriptBlock,
     getFeaturesBlock(),
     getPlanCardBlock(),
     getCtaBlock(),
