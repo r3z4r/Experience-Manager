@@ -419,6 +419,47 @@
   @apply bg-card rounded-lg overflow-hidden transition-all duration-200 hover:shadow-md;
 }
 
+/* JavaScript Script Blocks Styling */
+.gjs-block-script {
+  background-color: #f7df1e !important; /* JavaScript yellow */
+  color: #000 !important;
+  position: relative;
+}
+
+/* Script Component Styling in Canvas */
+.script-block {
+  padding: 12px;
+  background-color: #f7df1e22;
+  border: 1px solid #f7df1e;
+  border-radius: 4px;
+  font-family: monospace;
+  position: relative;
+  min-height: 60px;
+}
+
+.script-block__header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #f7df1e;
+  font-weight: bold;
+  color: #333;
+}
+
+.script-block__content {
+  padding-top: 8px;
+  max-height: 150px;
+  overflow: auto;
+  font-size: 12px;
+  white-space: pre-wrap;
+}
+
+/* Script Editor Panel */
+.script-editor-panel {
+  border-top: 2px solid #f7df1e;
+}
+
 /* Add group class directly without @apply */
 .am-asset {
   position: relative;
