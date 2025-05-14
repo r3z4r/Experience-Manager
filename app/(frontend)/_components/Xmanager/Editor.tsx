@@ -144,15 +144,12 @@ const Editor = ({ templateId, mode = 'edit' }: EditorProps) => {
         onRender({ el, model }) {
           // Get the actual script content
           const scriptContent = model.components().models[0]?.get('content') || ''
-          const truncatedContent = scriptContent.length > 150 
-            ? scriptContent.substring(0, 150) + '...' 
-            : scriptContent
+          const truncatedContent =
+            scriptContent.length > 150 ? scriptContent.substring(0, 150) + '...' : scriptContent
 
           // Extract first line as title (if it's a comment)
           const firstLine = scriptContent.split('\n')[0]
-          const title = firstLine.startsWith('//') 
-            ? firstLine.substring(2).trim() 
-            : 'JavaScript'
+          const title = firstLine.startsWith('//') ? firstLine.substring(2).trim() : 'JavaScript'
 
           // Update the content display
           el.innerHTML = `
@@ -192,7 +189,8 @@ const Editor = ({ templateId, mode = 'edit' }: EditorProps) => {
           components: [
             {
               type: 'textnode',
-              content: '// Your JavaScript code here\n// This code will run when the page loads\n\nconsole.log("Script initialized");',
+              content:
+                '// Your JavaScript code here\n// This code will run when the page loads\n\nconsole.log("Script initialized");',
             },
           ],
           traits: [
@@ -298,21 +296,31 @@ const Editor = ({ templateId, mode = 'edit' }: EditorProps) => {
       editorInstance.Commands.add('save-template', {
         run: () => setShowSaveDialog(true),
       })
-      
+
       // Add command to open JavaScript manager dialog
       editorInstance.Commands.add('open-js-manager', {
         run: () => {
           // Find any script component to use as a starting point
           const scripts = editorInstance.Components.getWrapper()?.find('[type=script]') || []
           const scriptComponent = Array.isArray(scripts) && scripts.length > 0 ? scripts[0] : null
-          
+
           // Open the script editor dialog with the found component or null to create new
-          window.dispatchEvent(new CustomEvent('open-script-editor-dialog', { 
-            detail: { component: scriptComponent, editor: editorInstance } 
-          }))
-        }
+          window.dispatchEvent(
+            new CustomEvent('open-script-editor-dialog', {
+              detail: { component: scriptComponent, editor: editorInstance },
+            }),
+          )
+        },
       })
-      
+
+      // Add JavaScript editor button to the panel
+      editorInstance.Panels.addButton('options', {
+        id: 'js-editor',
+        className: 'fa fa-file-code-o',
+        command: 'open-js-manager',
+        attributes: { title: 'JavaScript Manager' },
+      })
+
       // Additional editor customizations
       editorInstance.Panels.addButton('options', {
         id: 'save-db',
@@ -320,23 +328,15 @@ const Editor = ({ templateId, mode = 'edit' }: EditorProps) => {
         command: 'save-template',
         attributes: { title: 'Save Template' },
       })
-      
-      // Add JavaScript editor button to the panel
-      editorInstance.Panels.addButton('options', {
-        id: 'js-editor',
-        className: 'fa fa-code',
-        command: 'open-js-manager',
-        attributes: { title: 'JavaScript Manager' },
-      })
-      
+
       // Add a custom command to refresh the script list
       editorInstance.Commands.add('refresh-script-list', {
         run: () => {
           // Force refresh script components
           window.dispatchEvent(new CustomEvent('refresh-script-list'))
-        }
+        },
       })
-      
+
       // Add an event listener for script-related operations
       editorInstance.on('component:add', (component) => {
         if (component.get('type') === 'script') {
@@ -346,7 +346,7 @@ const Editor = ({ templateId, mode = 'edit' }: EditorProps) => {
           }, 100)
         }
       })
-      
+
       // Ensure script components are properly handled during save/load
       editorInstance.on('storage:start:store', (data) => {
         try {
@@ -354,11 +354,11 @@ const Editor = ({ templateId, mode = 'edit' }: EditorProps) => {
           if (data && data.components) {
             const processComponents = (components: any[]): any[] => {
               if (!Array.isArray(components)) return components
-              
-              return components.map(comp => {
+
+              return components.map((comp) => {
                 // Create a clean copy of the component
                 const cleanComp = { ...comp }
-                
+
                 // Handle script components specially
                 if (cleanComp.type === 'script') {
                   // Ensure script content is preserved but other circular references are removed
@@ -368,11 +368,11 @@ const Editor = ({ templateId, mode = 'edit' }: EditorProps) => {
                   // Process nested components recursively
                   cleanComp.components = processComponents(cleanComp.components)
                 }
-                
+
                 return cleanComp
               })
             }
-            
+
             // Process top-level components
             data.components = processComponents(data.components)
           }
@@ -433,7 +433,7 @@ const Editor = ({ templateId, mode = 'edit' }: EditorProps) => {
         console.log('Script updated:', component.get('content'))
       }
     })
-    
+
     // Add double-click handler for script components
     editor.on('component:selected', (component) => {
       if (component.get('type') === 'script') {
