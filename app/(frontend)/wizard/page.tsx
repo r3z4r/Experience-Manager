@@ -80,10 +80,11 @@ export default function JourneysListPage() {
                   <div className="flex items-center gap-2 bg-gray-50 p-2 rounded border border-gray-200 text-sm">
                     <LinkIcon className="w-4 h-4 text-gray-500 flex-shrink-0" />
                     <div className="font-mono text-gray-600 truncate flex-grow">
-                      {window.location.origin}/wizard/{journey.slug}
+                      {window.location.origin}
+                      {process.env.NEXT_PUBLIC_BASE_PATH || '/xpm'}/wizard/{journey.slug}
                     </div>
                     <CopyToClipboard
-                      text={`${window.location.origin}/wizard/${journey.slug}`}
+                      text={`${window.location.origin}${process.env.NEXT_PUBLIC_BASE_PATH || '/xpm'}/wizard/${journey.slug}`}
                       buttonClassName="bg-white hover:bg-gray-100 border border-gray-200 rounded px-2 py-1 text-gray-700 text-xs flex items-center gap-1 transition-colors"
                       iconClassName="w-3.5 h-3.5"
                       successMessage="Copied!"

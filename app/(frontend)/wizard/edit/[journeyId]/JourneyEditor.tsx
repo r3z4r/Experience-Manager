@@ -38,7 +38,7 @@ export function JourneyEditor({ journeyId, initialJourney }: JourneyEditorProps)
                     setIsDeleting(false)
                   }
                 }}
-                className="button-danger button-md"
+                className="button-destructive button-md"
               >
                 Confirm Delete
               </button>
