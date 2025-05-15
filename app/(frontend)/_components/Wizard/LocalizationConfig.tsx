@@ -1,54 +1,73 @@
-'use client';
+'use client'
 
-import React, { useState } from 'react';
-import { LocalizationConfig } from '@/lib/types/wizard';
-import { AlertTriangleIcon, PlusIcon, XIcon, ChevronDownIcon } from 'lucide-react';
-import { COMMON_LANGUAGES, COMMON_CURRENCIES } from '@/lib/constants/localization';
+import React, { useState } from 'react'
+import { LocalizationConfig } from '@/lib/types/wizard'
+import { AlertTriangleIcon, PlusIcon, XIcon, ChevronDownIcon } from 'lucide-react'
+import { COMMON_LANGUAGES, COMMON_CURRENCIES } from '@/lib/constants/localization'
 
 interface LocalizationConfigProps {
-  value: LocalizationConfig | undefined;
-  onChange: (config: LocalizationConfig) => void;
+  value: LocalizationConfig | undefined
+  onChange: (config: LocalizationConfig) => void
 }
 
 export function LocalizationConfigEditor({ value, onChange }: LocalizationConfigProps) {
-  const [newLanguage, setNewLanguage] = useState('');
-  const [newCurrency, setNewCurrency] = useState('');
-  const [showLanguageDropdown, setShowLanguageDropdown] = useState(false);
-  const [showCurrencyDropdown, setShowCurrencyDropdown] = useState(false);
-  const [languageSearch, setLanguageSearch] = useState('');
-  const [currencySearch, setCurrencySearch] = useState('');
-  
-  // Handle keyboard events for adding languages and currencies
-  const handleLanguageKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && newLanguage) {
-      e.preventDefault();
-      addLanguage();
-    }
-  };
-  
-  const handleCurrencyKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && newCurrency) {
-      e.preventDefault();
-      addCurrency();
-    }
-  };
+  const [newLanguage, setNewLanguage] = useState('')
+  const [newCurrency, setNewCurrency] = useState('')
+  const [showLanguageDropdown, setShowLanguageDropdown] = useState(false)
+  const [showCurrencyDropdown, setShowCurrencyDropdown] = useState(false)
+  const [languageSearch, setLanguageSearch] = useState('')
+  const [currencySearch, setCurrencySearch] = useState('')
   
   // Initialize with default values if not provided
   const config: LocalizationConfig = value || {
     languages: [],
-    currencies: []
-  };
+    currencies: [],
+    showLanguageSelector: false,
+    showCurrencySelector: false
+  }
+  
+  // Handle keyboard events for adding languages and currencies
+  const handleLanguageKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && newLanguage) {
+      e.preventDefault()
+      addLanguage()
+    }
+  }
+  
+  const handleCurrencyKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && newCurrency) {
+      e.preventDefault()
+      addCurrency()
+    }
+  }
+  
+  // Toggle selectors visibility
+  const toggleLanguageSelector = () => {
+    const updatedConfig = {
+      ...config,
+      showLanguageSelector: !config.showLanguageSelector
+    }
+    onChange(updatedConfig)
+  }
+
+  const toggleCurrencySelector = () => {
+    const updatedConfig = {
+      ...config,
+      showCurrencySelector: !config.showCurrencySelector
+    }
+    onChange(updatedConfig)
+  }
   
   const addLanguage = () => {
-    if (!newLanguage.trim()) return;
+    if (!newLanguage.trim()) return
     
     // Don't add duplicates
     if (config.languages?.some(l => l.code === newLanguage)) {
-      return;
+      return
     }
     
     // Get language name from browser's Intl API
-    const languageName = new Intl.DisplayNames(['en'], { type: 'language' }).of(newLanguage);
+    const languageName = new Intl.DisplayNames(['en'], { type: 'language' }).of(newLanguage)
     
     const updatedConfig = {
       ...config,
@@ -56,41 +75,42 @@ export function LocalizationConfigEditor({ value, onChange }: LocalizationConfig
         ...(config.languages || []),
         { code: newLanguage, name: languageName || newLanguage }
       ]
-    };
+    }
     
-    onChange(updatedConfig);
-    setNewLanguage('');
-  };
+    onChange(updatedConfig)
+    setNewLanguage('')
+    setLanguageSearch('')
+  }
   
   const removeLanguage = (code: string) => {
     const updatedConfig = {
       ...config,
       languages: config.languages?.filter(l => l.code !== code) || []
-    };
+    }
     
-    onChange(updatedConfig);
-  };
+    onChange(updatedConfig)
+  }
   
   const addCurrency = () => {
-    if (!newCurrency.trim()) return;
+    if (!newCurrency.trim()) return
     
     // Don't add duplicates
     if (config.currencies?.some(c => c.code === newCurrency)) {
-      return;
+      return
     }
     
     // Get currency name and symbol from browser's Intl API
-    let currencyName = '';
-    let currencySymbol = '';
+    let currencyName = ''
+    let currencySymbol = ''
     
     try {
-      currencyName = new Intl.DisplayNames(['en'], { type: 'currency' }).of(newCurrency) || newCurrency;
+      currencyName = new Intl.DisplayNames(['en'], { type: 'currency' }).of(newCurrency) || newCurrency
       currencySymbol = new Intl.NumberFormat('en', { style: 'currency', currency: newCurrency }).formatToParts(1)
-        .find(part => part.type === 'currency')?.value || newCurrency;
+        .find(part => part.type === 'currency')?.value || newCurrency
     } catch (error) {
-      console.warn(`Invalid currency code: ${newCurrency}`);
-      currencyName = newCurrency;
-      currencySymbol = newCurrency;
+      console.warn(`Invalid currency code: ${newCurrency}`)
+      currencyName = newCurrency
+      currencySymbol = newCurrency
     }
     
     const updatedConfig = {
@@ -99,26 +119,48 @@ export function LocalizationConfigEditor({ value, onChange }: LocalizationConfig
         ...(config.currencies || []),
         { code: newCurrency, name: currencyName, symbol: currencySymbol }
       ]
-    };
+    }
     
-    onChange(updatedConfig);
-    setNewCurrency('');
-  };
+    onChange(updatedConfig)
+    setNewCurrency('')
+    setCurrencySearch('')
+  }
   
   const removeCurrency = (code: string) => {
     const updatedConfig = {
       ...config,
       currencies: config.currencies?.filter(c => c.code !== code) || []
-    };
+    }
     
-    onChange(updatedConfig);
-  };
-  
+    onChange(updatedConfig)
+  }
+
   return (
     <div className="space-y-6">
+      {/* Languages Section */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <h3 className="text-lg font-medium">Languages</h3>
+          <div className="flex items-center gap-3">
+            <h3 className="text-lg font-medium">Languages</h3>
+            {/* Language toggle switch */}
+            <label className="flex items-center gap-2 cursor-pointer">
+              <div className="relative h-6 flex items-center">
+                <input
+                  type="checkbox"
+                  className="sr-only"
+                  checked={config.showLanguageSelector || false}
+                  onChange={toggleLanguageSelector}
+                />
+                <div
+                  className={`block w-10 h-5 rounded-full transition-colors ${config.showLanguageSelector ? 'bg-blue-600' : 'bg-gray-300'}`}
+                ></div>
+                <div
+                  className={`absolute left-0.5 top-0.5 bg-white w-4 h-4 rounded-full transition-transform ${config.showLanguageSelector ? 'transform translate-x-5' : ''}`}
+                ></div>
+              </div>
+              <span className="text-xs text-gray-600">{config.showLanguageSelector ? 'Visible' : 'Hidden'}</span>
+            </label>
+          </div>
           <div className="text-sm text-gray-500">Add languages that will be available in this journey</div>
         </div>
         
@@ -129,8 +171,8 @@ export function LocalizationConfigEditor({ value, onChange }: LocalizationConfig
               type="text"
               value={languageSearch}
               onChange={(e) => {
-                setLanguageSearch(e.target.value);
-                setShowLanguageDropdown(true);
+                setLanguageSearch(e.target.value)
+                setShowLanguageDropdown(true)
               }}
               onFocus={() => setShowLanguageDropdown(true)}
               onKeyDown={handleLanguageKeyDown}
@@ -147,72 +189,83 @@ export function LocalizationConfigEditor({ value, onChange }: LocalizationConfig
             </button>
           </div>
             
-            {showLanguageDropdown && (
-              <div 
-                className="absolute z-10 mt-1 w-full bg-white border border-gray-200 rounded-md shadow-lg max-h-60 overflow-auto"
-                onBlur={() => setShowLanguageDropdown(false)}
-              >
-                <div className="p-2 space-y-1 max-h-60 overflow-y-auto">
-                  {/* Search heading if there are results */}
-                  {COMMON_LANGUAGES.filter(lang => 
+          {showLanguageDropdown && (
+            <div 
+              className="absolute z-10 mt-1 w-full bg-white border border-gray-200 rounded-md shadow-lg max-h-60 overflow-auto"
+              onBlur={() => setShowLanguageDropdown(false)}
+            >
+              <div className="p-2 space-y-1 max-h-60 overflow-y-auto">
+                {/* Search heading if there are results */}
+                {COMMON_LANGUAGES.filter(lang => 
+                  !config.languages?.some(l => l.code === lang.code) &&
+                  (lang.name.toLowerCase().includes(languageSearch.toLowerCase()) ||
+                   lang.code.toLowerCase().includes(languageSearch.toLowerCase()))
+                ).length > 0 && (
+                  <div className="px-3 py-1 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Available Languages
+                  </div>
+                )}
+                
+                {COMMON_LANGUAGES
+                  .filter(lang => 
                     !config.languages?.some(l => l.code === lang.code) &&
                     (lang.name.toLowerCase().includes(languageSearch.toLowerCase()) ||
                      lang.code.toLowerCase().includes(languageSearch.toLowerCase()))
-                  ).length > 0 && (
-                    <div className="px-3 py-1 text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Available Languages
-                    </div>
-                  )}
-                  
-                  {COMMON_LANGUAGES
-                    .filter(lang => 
-                      !config.languages?.some(l => l.code === lang.code) &&
-                      (lang.name.toLowerCase().includes(languageSearch.toLowerCase()) ||
-                       lang.code.toLowerCase().includes(languageSearch.toLowerCase()))
-                    )
-                    .map(lang => (
-                      <button
-                        key={lang.code}
-                        type="button"
-                        className="w-full text-left px-3 py-2 hover:bg-gray-100 rounded-md flex items-center justify-between"
-                        onClick={() => {
-                          setNewLanguage(lang.code);
-                          setLanguageSearch('');
-                          setShowLanguageDropdown(false);
-                          // Auto-add the language
-                          const updatedConfig = {
-                            ...config,
-                            languages: [
-                              ...(config.languages || []),
-                              { code: lang.code, name: lang.name }
-                            ]
-                          };
-                          onChange(updatedConfig);
-                        }}
-                      >
-                        <span>{lang.name}</span>
-                        <span className="text-xs text-gray-500">{lang.code}</span>
-                      </button>
-                    ))
-                  }
-                  {languageSearch && !COMMON_LANGUAGES.some(l => l.code === languageSearch) && (
+                  )
+                  .map(lang => (
                     <button
+                      key={lang.code}
                       type="button"
-                      className="w-full text-left px-3 py-2 hover:bg-gray-100 rounded-md flex items-center justify-between bg-blue-50"
+                      className="w-full text-left px-3 py-2 hover:bg-gray-100 rounded-md flex items-center justify-between"
                       onClick={() => {
-                        setNewLanguage(languageSearch);
-                        setShowLanguageDropdown(false);
+                        setNewLanguage(lang.code)
+                        setLanguageSearch('')
+                        setShowLanguageDropdown(false)
+                        // Auto-add the language
+                        const updatedConfig = {
+                          ...config,
+                          languages: [
+                            ...(config.languages || []),
+                            { code: lang.code, name: lang.name }
+                          ]
+                        }
+                        onChange(updatedConfig)
                       }}
                     >
-                      <span>Use custom code: {languageSearch}</span>
+                      <span>{lang.name}</span>
+                      <span className="text-xs text-gray-500">{lang.code}</span>
                     </button>
-                  )}
-                </div>
+                  ))
+                }
+                {languageSearch && !COMMON_LANGUAGES.some(l => l.code === languageSearch) && (
+                  <button
+                    type="button"
+                    className="w-full text-left px-3 py-2 hover:bg-gray-100 rounded-md flex items-center justify-between bg-blue-50"
+                    onClick={() => {
+                      setNewLanguage(languageSearch)
+                      setShowLanguageDropdown(false)
+                    }}
+                  >
+                    <span>Use custom code: {languageSearch}</span>
+                  </button>
+                )}
               </div>
-            )}
-            
-            <p className="text-xs text-gray-500 mt-1">Select from common languages or type a custom ISO code</p>
+            </div>
+          )}
         </div>
+        
+        {newLanguage && (
+          <div className="mt-2 flex items-center">
+            <span className="text-sm">Press Enter to add <strong>{newLanguage}</strong></span>
+            <button
+              type="button"
+              onClick={addLanguage}
+              className="ml-2 text-blue-600 hover:text-blue-800 text-sm font-medium"
+            >
+              Add now
+            </button>
+          </div>
+        )}
         
         {(config.languages?.length || 0) === 0 ? (
           <div className="bg-amber-50 border border-amber-200 rounded-md p-3 flex items-start gap-2">
@@ -240,22 +293,43 @@ export function LocalizationConfigEditor({ value, onChange }: LocalizationConfig
           </div>
         )}
       </div>
-      
+
+      {/* Currencies Section */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <h3 className="text-lg font-medium">Currencies</h3>
+          <div className="flex items-center gap-3">
+            <h3 className="text-lg font-medium">Currencies</h3>
+            {/* Currency toggle switch */}
+            <label className="flex items-center gap-2 cursor-pointer">
+              <div className="relative h-6 flex items-center">
+                <input
+                  type="checkbox"
+                  className="sr-only"
+                  checked={config.showCurrencySelector || false}
+                  onChange={toggleCurrencySelector}
+                />
+                <div
+                  className={`block w-10 h-5 rounded-full transition-colors ${config.showCurrencySelector ? 'bg-blue-600' : 'bg-gray-300'}`}
+                ></div>
+                <div
+                  className={`absolute left-0.5 top-0.5 bg-white w-4 h-4 rounded-full transition-transform ${config.showCurrencySelector ? 'transform translate-x-5' : ''}`}
+                ></div>
+              </div>
+              <span className="text-xs text-gray-600">{config.showCurrencySelector ? 'Visible' : 'Hidden'}</span>
+            </label>
+          </div>
           <div className="text-sm text-gray-500">Add currencies that will be available in this journey</div>
         </div>
         
-        <div className="relative mt-6">
+        <div className="relative">
           <label className="block text-sm font-medium mb-1">Currency</label>
           <div className="relative">
             <input
               type="text"
               value={currencySearch}
               onChange={(e) => {
-                setCurrencySearch(e.target.value);
-                setShowCurrencyDropdown(true);
+                setCurrencySearch(e.target.value)
+                setShowCurrencyDropdown(true)
               }}
               onFocus={() => setShowCurrencyDropdown(true)}
               onKeyDown={handleCurrencyKeyDown}
@@ -272,85 +346,83 @@ export function LocalizationConfigEditor({ value, onChange }: LocalizationConfig
             </button>
           </div>
             
-            {showCurrencyDropdown && (
-              <div 
-                className="absolute z-10 mt-1 w-full bg-white border border-gray-200 rounded-md shadow-lg max-h-60 overflow-auto"
-                onBlur={() => setShowCurrencyDropdown(false)}
-              >
-                <div className="p-2 space-y-1 max-h-60 overflow-y-auto">
-                  {/* Search heading if there are results */}
-                  {COMMON_CURRENCIES.filter(currency => 
+          {showCurrencyDropdown && (
+            <div 
+              className="absolute z-10 mt-1 w-full bg-white border border-gray-200 rounded-md shadow-lg max-h-60 overflow-auto"
+              onBlur={() => setShowCurrencyDropdown(false)}
+            >
+              <div className="p-2 space-y-1 max-h-60 overflow-y-auto">
+                {/* Search heading if there are results */}
+                {COMMON_CURRENCIES.filter(currency => 
+                  !config.currencies?.some(c => c.code === currency.code) &&
+                  (currency.name.toLowerCase().includes(currencySearch.toLowerCase()) ||
+                   currency.code.toLowerCase().includes(currencySearch.toLowerCase()))
+                ).length > 0 && (
+                  <div className="px-3 py-1 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Available Currencies
+                  </div>
+                )}
+                
+                {COMMON_CURRENCIES
+                  .filter(currency => 
                     !config.currencies?.some(c => c.code === currency.code) &&
                     (currency.name.toLowerCase().includes(currencySearch.toLowerCase()) ||
                      currency.code.toLowerCase().includes(currencySearch.toLowerCase()))
-                  ).length > 0 && (
-                    <div className="px-3 py-1 text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Available Currencies
-                    </div>
-                  )}
-                  
-                  {COMMON_CURRENCIES
-                    .filter(currency => 
-                      !config.currencies?.some(c => c.code === currency.code) &&
-                      (currency.name.toLowerCase().includes(currencySearch.toLowerCase()) ||
-                       currency.code.toLowerCase().includes(currencySearch.toLowerCase()))
-                    )
-                    .map(currency => (
-                      <button
-                        key={currency.code}
-                        type="button"
-                        className="w-full text-left px-3 py-2 hover:bg-gray-100 rounded-md flex items-center justify-between"
-                        onClick={() => {
-                          setNewCurrency(currency.code);
-                          setCurrencySearch('');
-                          setShowCurrencyDropdown(false);
-                          // Auto-add the currency
-                          const updatedConfig = {
-                            ...config,
-                            currencies: [
-                              ...(config.currencies || []),
-                              { code: currency.code, name: currency.name, symbol: currency.symbol }
-                            ]
-                          };
-                          onChange(updatedConfig);
-                        }}
-                      >
-                        <span>{currency.name}</span>
-                        <span className="text-xs text-gray-500">{currency.symbol} ({currency.code})</span>
-                      </button>
-                    ))
-                  }
-                  {currencySearch && !COMMON_CURRENCIES.some(c => c.code === currencySearch) && (
+                  )
+                  .map(currency => (
                     <button
+                      key={currency.code}
                       type="button"
-                      className="w-full text-left px-3 py-2 hover:bg-gray-100 rounded-md flex items-center justify-between bg-blue-50"
+                      className="w-full text-left px-3 py-2 hover:bg-gray-100 rounded-md flex items-center justify-between"
                       onClick={() => {
-                        setNewCurrency(currencySearch);
-                        setShowCurrencyDropdown(false);
+                        setNewCurrency(currency.code)
+                        setCurrencySearch('')
+                        setShowCurrencyDropdown(false)
+                        // Auto-add the currency
+                        const updatedConfig = {
+                          ...config,
+                          currencies: [
+                            ...(config.currencies || []),
+                            { code: currency.code, name: currency.name, symbol: currency.symbol }
+                          ]
+                        }
+                        onChange(updatedConfig)
                       }}
                     >
-                      <span>Use custom code: {currencySearch}</span>
+                      <span>{currency.name}</span>
+                      <span className="text-xs text-gray-500">{currency.symbol} ({currency.code})</span>
                     </button>
-                  )}
-                </div>
+                  ))
+                }
+                {currencySearch && !COMMON_CURRENCIES.some(c => c.code === currencySearch) && (
+                  <button
+                    type="button"
+                    className="w-full text-left px-3 py-2 hover:bg-gray-100 rounded-md flex items-center justify-between bg-blue-50"
+                    onClick={() => {
+                      setNewCurrency(currencySearch)
+                      setShowCurrencyDropdown(false)
+                    }}
+                  >
+                    <span>Use custom code: {currencySearch}</span>
+                  </button>
+                )}
               </div>
-            )}
-            
-            <p className="text-xs text-gray-500 mt-1">Select from common currencies or type a custom ISO code</p>
-          
-          {newCurrency && (
-            <div className="mt-2 flex items-center">
-              <span className="text-sm">Press Enter to add <strong>{newCurrency}</strong></span>
-              <button
-                type="button"
-                onClick={addCurrency}
-                className="ml-2 text-blue-600 hover:text-blue-800 text-sm font-medium"
-              >
-                Add now
-              </button>
             </div>
           )}
         </div>
+        
+        {newCurrency && (
+          <div className="mt-2 flex items-center">
+            <span className="text-sm">Press Enter to add <strong>{newCurrency}</strong></span>
+            <button
+              type="button"
+              onClick={addCurrency}
+              className="ml-2 text-blue-600 hover:text-blue-800 text-sm font-medium"
+            >
+              Add now
+            </button>
+          </div>
+        )}
         
         {(config.currencies?.length || 0) === 0 ? (
           <div className="bg-amber-50 border border-amber-200 rounded-md p-3 flex items-start gap-2">
@@ -380,5 +452,5 @@ export function LocalizationConfigEditor({ value, onChange }: LocalizationConfig
         )}
       </div>
     </div>
-  );
+  )
 }

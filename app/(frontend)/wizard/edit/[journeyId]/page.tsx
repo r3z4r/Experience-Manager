@@ -1,6 +1,6 @@
 import React from 'react'
 import { fetchJourneyByIdAction } from '@/app/(frontend)/_actions/fetchJourneyById'
-import { JourneyEditor } from './JourneyEditor'
+import { JourneyFormContainer } from '@/app/(frontend)/wizard/_components/JourneyFormContainer'
 import { notFound } from 'next/navigation'
 
 interface EditJourneyPageProps {
@@ -9,6 +9,7 @@ interface EditJourneyPageProps {
 
 /**
  * Server component that fetches the journey data and passes it to the client component
+ * Uses the shared JourneyFormContainer to maintain consistency with the create page
  */
 export default async function EditJourneyPage({ params }: EditJourneyPageProps) {
   const resolvedParams = await params
@@ -22,6 +23,13 @@ export default async function EditJourneyPage({ params }: EditJourneyPageProps) 
     notFound()
   }
 
-  // Pass the journey data to the client component
-  return <JourneyEditor journeyId={journeyId} initialJourney={journey} />
+  // Pass the journey data to the shared component
+  return (
+    <JourneyFormContainer 
+      journeyId={journeyId} 
+      initialJourney={journey} 
+      isEdit={true}
+      description="Edit your journey by modifying its name, slug, steps, or localization settings."
+    />
+  )
 }

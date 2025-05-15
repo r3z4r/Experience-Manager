@@ -69,3 +69,21 @@ export const DEFAULT_LANGUAGE = 'en';
  * Default currency code
  */
 export const DEFAULT_CURRENCY = 'USD';
+
+/**
+ * Default localization configuration for new journeys
+ */
+export const DEFAULT_LOCALIZATION_CONFIG = {
+  showLanguageSelector: false,
+  showCurrencySelector: false,
+  languages: [
+    { code: 'en', name: 'English', default: true },
+    { code: 'es', name: 'Spanish' },
+    { code: 'fr', name: 'French' }
+  ],
+  currencies: [
+    { code: 'USD', name: 'US Dollar', symbol: '$', default: true },
+    { code: 'EUR', name: 'Euro', symbol: '€' },
+    { code: 'GBP', name: 'British Pound', symbol: '£' }
+  ]
+};

@@ -17,11 +17,11 @@ interface WizardEngineProps {
  */
 export const WizardEngine: React.FC<WizardEngineProps> = ({ journey }) => {
   return (
-    <WizardProvider 
-      journey={journey} 
+    <WizardProvider
+      journey={journey}
       onSubmit={async (formData) => {
         console.log('Submitting wizard data:', formData)
-        await new Promise(resolve => setTimeout(resolve, 1000)) // Simulate API call
+        await new Promise((resolve) => setTimeout(resolve, 1000)) // Simulate API call
       }}
     >
       <LocalizationProvider config={journey.localization}>
@@ -50,56 +50,73 @@ const WizardContent: React.FC = () => {
     validateStep,
     markStepAsCompleted,
     submitWizard,
-    localizationConfig
+    localizationConfig,
   } = useWizard()
+  // Helper function to determine step status
+  const getStepStatus = (stepIndex: number, stepId: string) => {
+    const isActive = stepIndex === state.currentStepIndex
+    const isCompleted = stepIndex < state.currentStepIndex || state.completedSteps[stepId]
+    const isPending = stepIndex > state.currentStepIndex && !state.completedSteps[stepId]
+
+    return { isActive, isCompleted, isPending }
+  }
+
   // Render the step content based on type
   const renderStepContent = () => {
     if (!currentStep) return null
+
+    // Helper function to render the common step container
+    const renderStepContainer = (
+      title: string,
+      description: string,
+      helpText: string,
+      children?: React.ReactNode,
+    ) => (
+      <div className="bg-white rounded-lg p-4">
+        <p className="mb-4">{description}</p>
+        <p className="text-sm text-gray-500 mb-4">{helpText}</p>
+        {children}
+      </div>
+    )
 
     // Create a placeholder component for each step type
     // In a real implementation, you would import and render actual step components
     switch (currentStep.type) {
       case WizardStepType.Predefined:
-        return (
-          <div className="bg-white rounded-lg shadow p-6">
-            <h3 className="text-lg font-medium mb-4">{currentStep.label}</h3>
-            <p className="mb-4">This is a predefined step with reference: {currentStep.ref}</p>
-            <p className="text-sm text-gray-500 mb-4">In a real implementation, this would render a specific predefined component.</p>
-            
-            {/* Example form fields */}
-            <div className="space-y-4 mb-6">
-              <div>
-                <label className="block text-sm font-medium mb-1">Sample Field</label>
-                <input 
-                  type="text" 
-                  className="w-full p-2 border rounded"
-                  onChange={(e) => updateFormData(currentStep.id, { 
+        return renderStepContainer(
+          currentStep.label,
+          `This is a predefined step with reference: ${currentStep.ref}`,
+          'In a real implementation, this would render a specific predefined component.',
+          <div className="space-y-4 mb-6">
+            <div>
+              <label className="block text-sm font-medium mb-1">Sample Field</label>
+              <input
+                type="text"
+                className="w-full p-2 border rounded"
+                onChange={(e) =>
+                  updateFormData(currentStep.id, {
                     ...getStepData(currentStep.id),
-                    sampleField: e.target.value 
-                  })}
-                  value={getStepData(currentStep.id).sampleField || ''}
-                />
-              </div>
+                    sampleField: e.target.value,
+                  })
+                }
+                value={getStepData(currentStep.id).sampleField || ''}
+              />
             </div>
-          </div>
+          </div>,
         )
-      
+
       case WizardStepType.Template:
-        return (
-          <div className="bg-white rounded-lg shadow p-6">
-            <h3 className="text-lg font-medium mb-4">{currentStep.label}</h3>
-            <p className="mb-4">This is a template step with reference: {currentStep.ref}</p>
-            <p className="text-sm text-gray-500 mb-4">In a real implementation, this would render a template from the CMS.</p>
-          </div>
+        return renderStepContainer(
+          currentStep.label,
+          `This is a template step with reference: ${currentStep.ref}`,
+          'In a real implementation, this would render a template from the CMS.',
         )
-      
+
       case WizardStepType.PredefinedComponent:
-        return (
-          <div className="bg-white rounded-lg shadow p-6">
-            <h3 className="text-lg font-medium mb-4">{currentStep.label}</h3>
-            <p className="mb-4">This is a predefined component step with reference: {currentStep.ref}</p>
-            <p className="text-sm text-gray-500 mb-4">In a real implementation, this would render a predefined component.</p>
-          </div>
+        return renderStepContainer(
+          currentStep.label,
+          `This is a predefined component step with reference: ${currentStep.ref}`,
+          'In a real implementation, this would render a predefined component.',
         )
 
       default:
@@ -109,65 +126,56 @@ const WizardContent: React.FC = () => {
 
   return (
     <div className="flex flex-col h-full">
-      {/* Header with journey title and localization */}
-      <div className="mb-8">
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-semibold">{journey.label}</h2>
-          
+      {/* Header with localization */}
+      <div className="mb-6">
+        <div className="flex justify-between items-center">
           {/* Localization controls */}
           <LocalizationBar className="ml-4" />
         </div>
-        
+
         {/* Modern stepper */}
         <div className="mb-6">
           <div className="relative">
             {/* Progress bar */}
             <div className="w-full bg-gray-100 h-1 absolute top-4 left-0 right-0 -z-10"></div>
-            
+
             {/* Steps */}
             <div className="flex justify-between relative z-10">
               {journey.steps.map((s, idx) => {
-                const isActive = idx === state.currentStepIndex;
-                const isCompleted = idx < state.currentStepIndex || state.completedSteps[s.id];
-                const isPending = idx > state.currentStepIndex && !state.completedSteps[s.id];
-                
+                const { isActive, isCompleted, isPending } = getStepStatus(idx, s.id)
+
                 return (
                   <div key={s.id} className="flex flex-col items-center">
                     <button
                       onClick={() => isCompleted && goToStep(idx)}
                       disabled={!isCompleted && !isActive}
                       className={`w-8 h-8 rounded-full flex items-center justify-center transition-all ${
-                        isActive ? 'bg-blue-600 text-white ring-4 ring-blue-100' : 
-                        isCompleted ? 'bg-green-500 text-white hover:ring-2 hover:ring-green-100' : 
-                        'bg-gray-200 text-gray-400 cursor-default'
+                        isActive
+                          ? 'bg-blue-600 text-white ring-4 ring-blue-100'
+                          : isCompleted
+                            ? 'bg-green-500 text-white hover:ring-2 hover:ring-green-100'
+                            : 'bg-gray-200 text-gray-400 cursor-default'
                       }`}
                       aria-label={`Go to step ${idx + 1}: ${s.label}`}
                     >
                       {isCompleted ? <CheckIcon className="w-4 h-4" /> : idx + 1}
                     </button>
-                    <span className={`mt-2 text-xs font-medium ${isActive ? 'text-blue-600' : isCompleted ? 'text-green-600' : 'text-gray-400'}`}>
+                    <span
+                      className={`mt-2 text-xs font-medium ${isActive ? 'text-blue-600' : isCompleted ? 'text-green-600' : 'text-gray-400'}`}
+                    >
                       {s.label}
                     </span>
                   </div>
-                );
+                )
               })}
-            </div>
-          </div>
-          
-          {/* Step counter */}
-          <div className="flex justify-end mt-2">
-            <div className="text-sm font-medium text-gray-500">
-              Step {state.currentStepIndex + 1} of {journey.steps.length}
             </div>
           </div>
         </div>
       </div>
 
       {/* Step content */}
-      <div className="flex-1 bg-white rounded-lg border border-gray-200 p-6 shadow-sm">
-        <div className="max-w-3xl mx-auto">
-          {renderStepContent()}
-        </div>
+      <div className="flex-1">
+        <div className="max-w-3xl mx-auto">{renderStepContent()}</div>
       </div>
 
       {/* Navigation buttons */}
@@ -180,7 +188,7 @@ const WizardContent: React.FC = () => {
         >
           Back
         </button>
-        
+
         {isLastStep ? (
           <button
             onClick={async () => {
@@ -195,13 +203,31 @@ const WizardContent: React.FC = () => {
           >
             {state.isSubmitting ? (
               <>
-                <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                <svg
+                  className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  />
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                  />
                 </svg>
                 Submitting...
               </>
-            ) : 'Submit'}
+            ) : (
+              'Submit'
+            )}
           </button>
         ) : (
           <button
@@ -227,13 +253,15 @@ const WizardContent: React.FC = () => {
               <CheckIcon className="w-8 h-8 text-green-500" />
             </div>
             <h3 className="text-xl font-semibold mb-2 text-center">Submission Complete</h3>
-            <p className="mb-8 text-center text-gray-600">Your journey has been submitted successfully!</p>
+            <p className="mb-8 text-center text-gray-600">
+              Your journey has been submitted successfully!
+            </p>
             <div className="flex justify-center">
-              <Link 
-                href="/wizard" 
+              <Link
+                href="/wizard"
                 className="px-6 py-3 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors"
               >
-                Back to Journeys
+                Back to Main Page
               </Link>
             </div>
           </div>
