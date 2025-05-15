@@ -49,6 +49,7 @@ export async function fetchJourneyByIdAction(journeyIdOrSlug: string): Promise<W
       slug: doc.slug,
       steps: doc.steps,
       description: doc.description,
+      localization: doc.localization,
     };
   } catch (error) {
     console.error(`Error fetching journey with ID/slug ${journeyIdOrSlug}:`, error);

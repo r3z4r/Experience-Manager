@@ -17,6 +17,7 @@ export default function WizardCreatePage() {
         id: '',
         label: '',
         slug: '',
+        description: '',
         steps: [],
         localization: DEFAULT_LOCALIZATION_CONFIG
       }}

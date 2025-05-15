@@ -307,19 +307,17 @@ export function JourneyForm({
           {!label && <span className="text-xs text-red-500">Required</span>}
         </div>
 
-        {isEdit && (
-          <div className="space-y-2">
-            <label className="block font-medium">Description</label>
-            <textarea
-              className="w-full max-w-full border border-border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary/20 transition placeholder-gray-400 bg-background"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="Brief description of this journey"
-              aria-label="Journey Description"
-              rows={3}
-            />
-          </div>
-        )}
+        <div className="space-y-2">
+          <label className="block font-medium">Description</label>
+          <textarea
+            className="w-full max-w-full border border-border rounded px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary/20 transition placeholder-gray-400 bg-background"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            placeholder="Brief description of this journey"
+            aria-label="Journey Description"
+            rows={3}
+          />
+        </div>
 
         <div className="space-y-2">
           <label className="block font-medium">URL Slug</label>

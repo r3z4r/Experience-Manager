@@ -22,6 +22,7 @@ export async function fetchJourneysAction(): Promise<WizardJourney[]> {
       slug: doc.slug,
       steps: doc.steps,
       description: doc.description,
+      localization: doc.localization,
     }));
   } catch (error) {
     console.error('Error fetching journeys:', error);

@@ -5,7 +5,11 @@ import { useRouter } from 'next/navigation'
 import { JourneyForm } from '@/app/(frontend)/_components/Wizard/JourneyForm'
 import { WizardJourney } from '@/lib/types/wizard'
 import { WizardHeader } from '@/app/(frontend)/_components/Wizard/WizardHeader'
-import { createJourneyAction, updateJourneyAction, deleteJourneyAction } from '@/app/(frontend)/_actions/journeys'
+import {
+  createJourneyAction,
+  updateJourneyAction,
+  deleteJourneyAction,
+} from '@/app/(frontend)/_actions/journeys'
 
 interface JourneyFormContainerProps {
   initialJourney: WizardJourney
@@ -22,14 +26,14 @@ export function JourneyFormContainer({
   initialJourney,
   journeyId,
   isEdit = false,
-  description
+  description,
 }: JourneyFormContainerProps) {
   const router = useRouter()
   const [isDeleting, setIsDeleting] = useState(false)
   const [journeyCreated, setJourneyCreated] = useState<{ id: string; slug: string } | null>(null)
-  
+
   const title = isEdit ? 'Edit Journey' : 'Create Journey'
-  
+
   // Show success message after journey creation (only for create flow)
   if (!isEdit && journeyCreated) {
     return (
@@ -45,11 +49,7 @@ export function JourneyFormContainer({
             <div className="mt-5">
               <button
                 type="button"
-                onClick={() =>
-                  router.push(
-                    `${process.env.NEXT_PUBLIC_BASE_PATH || '/xpm'}/wizard/edit/${journeyCreated.id}`,
-                  )
-                }
+                onClick={() => router.push(`/wizard/edit/${journeyCreated.id}`)}
                 className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
               >
                 Edit Journey
@@ -125,10 +125,12 @@ export function JourneyFormContainer({
                 if (isEdit && journeyId) {
                   // Update existing journey
                   await updateJourneyAction(journeyId, journeyData)
-                  router.refresh()
+                  router.push('/wizard')
                 } else {
                   // Create new journey
-                  const journey = await createJourneyAction(journeyData as Omit<WizardJourney, 'id'>)
+                  const journey = await createJourneyAction(
+                    journeyData as Omit<WizardJourney, 'id'>,
+                  )
                   setJourneyCreated({ id: journey.id, slug: journey.slug })
                 }
               } catch (error) {
@@ -136,10 +138,14 @@ export function JourneyFormContainer({
                 throw error
               }
             }}
-            onDelete={isEdit ? async () => {
-              setIsDeleting(true)
-              return Promise.resolve()
-            } : undefined}
+            onDelete={
+              isEdit
+                ? async () => {
+                    setIsDeleting(true)
+                    return Promise.resolve()
+                  }
+                : undefined
+            }
             onCancel={() => router.push('/wizard')}
           />
         </div>
