@@ -1,5 +1,3 @@
-'use client'
-
 import React from 'react'
 import { UaeLandingScreenStyles } from './LandingPage.styles'
 
@@ -31,10 +29,17 @@ export default function UaeLandingScreen() {
           <div className="uaeCountryLabel">United Arab Emirates</div>
         </header>
 
-        <section className="uaeHeroSection">
-          <h1>Connect Across UAE</h1>
-          <p>Affordable data, call, and text plans for all Emirates.</p>
-          <button className="uaeSimButton">Get Your SIM Now →</button>
+        <section className="uaeHeroImageWrapper">
+          <img
+            src="https://www.pexels.com/photo/aerial-view-of-city-lit-up-at-night-325193/"
+            alt="UAE City View"
+            className="uaeHeroImage"
+          />
+          <div className="uaeHeroTextOverlay">
+            <h1>Connect Across UAE</h1>
+            <p>Affordable data, call, and text plans for all Emirates.</p>
+            <button className="uaeSimButton">Get Your SIM Now →</button>
+          </div>
         </section>
 
         <section className="uaeFeatures">

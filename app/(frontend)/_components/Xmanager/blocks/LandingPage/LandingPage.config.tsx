@@ -1,5 +1,3 @@
-'use server'
-
 import { createBlockConfig } from '../../utils/serverUtils'
 import UaeLandingScreen from './LandingPage'
 
