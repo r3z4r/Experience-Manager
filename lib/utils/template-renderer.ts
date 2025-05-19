@@ -22,13 +22,21 @@ export function hasAccess(template: TemplateData, user: User | null): boolean {
 }
 
 export async function renderTemplate(template: Page, user: User | null = null) {
-  if (!hasAccess(template as TemplateData, user)) {
+  // Convert Page to TemplateData to access all fields including jsContent
+  const templateData = template as unknown as TemplateData
+  if (!hasAccess(templateData, user)) {
     throw new Error('Access denied')
   }
 
-  let html = template.htmlContent ?? ''
+  let html = templateData.htmlContent ?? ''
   const scripts: string[] = []
 
+  // Add stored JavaScript content if available
+  if (templateData.jsContent) {
+    scripts.push(templateData.jsContent)
+  }
+
+  // Process dynamic components that might have scripts
   if (template.components) {
     for (const component of template.components) {
       const handler = componentHandlers[component.type ?? '']

@@ -137,6 +137,50 @@ const Editor = ({ templateId, mode = 'edit' }: EditorProps) => {
     if (initialData?.gjsData) {
       editorInstance.loadProjectData(initialData.gjsData as ProjectData)
     }
+    
+    // Import stored JavaScript content if available
+    // Cast initialData to access potential jsContent property
+    const extendedInitialData = initialData as typeof initialData & { jsContent?: string }
+    
+    if (extendedInitialData?.jsContent && extendedInitialData.jsContent.trim() !== '') {
+      // Parse the jsContent into individual scripts
+      const scriptBlocks = extendedInitialData.jsContent
+        .split(/\/\* Script \d+ \*\//)
+        .filter((script: string) => script.trim() !== '')
+      
+      console.log('Restoring', scriptBlocks.length, 'script blocks from stored jsContent')
+      
+      if (scriptBlocks.length > 0) {
+        // Create a script component for each block
+        scriptBlocks.forEach((scriptContent: string, index: number) => {
+          const trimmedContent = scriptContent.trim()
+          if (trimmedContent) {
+            const wrapper = editorInstance.Components.getWrapper()
+            if (wrapper) {
+              // Create a new script component with the stored content
+              wrapper.append({
+                type: 'script',
+                tagName: 'script',
+                draggable: true,
+                droppable: false,
+                layerable: true,
+                selectable: true,
+                hoverable: true,
+                attributes: { type: 'text/javascript' },
+                components: [
+                  {
+                    type: 'textnode',
+                    content: trimmedContent,
+                  },
+                ],
+              })
+              
+              console.log(`Restored script ${index + 1}`)
+            }
+          }
+        })
+      }
+    }
 
     // Register script component type
     editorInstance.Components.addType('script', {
@@ -489,14 +533,43 @@ const Editor = ({ templateId, mode = 'edit' }: EditorProps) => {
     }
 
     setSaveStatus('saving')
-
+    
     try {
+      // Extract JavaScript content from script components
+      const extractJavaScriptContent = () => {
+        const scripts: string[] = []
+        
+        // Get all script components
+        const wrapper = editor.Components.getWrapper()
+        if (wrapper) {
+          const scriptComponents = wrapper.find('[type=script]')
+          
+          // Extract content from each script component
+          if (Array.isArray(scriptComponents) && scriptComponents.length > 0) {
+            scriptComponents.forEach(script => {
+              // Get the text content of the script
+              const textNode = script.components().models[0]
+              const content = textNode?.get('content')
+              if (content) {
+                scripts.push(`/* Script ${scripts.length + 1} */\n${content}`)
+              }
+            })
+          }
+        }
+        
+        return scripts.join('\n\n')
+      }
+      
+      const jsContent = extractJavaScriptContent()
+      console.log('Extracted JavaScript content:', jsContent)
+      
       const pageData: TemplateData = {
         title: templateName.trim(),
         description: templateDescription,
         slug: slugTempValue || templateId || '',
         htmlContent: editor.getHtml(),
         cssContent: editor.getCss(),
+        jsContent, // Store JavaScript content separately
         gjsData: editor.getProjectData(),
         status: currentStatus,
         access: {

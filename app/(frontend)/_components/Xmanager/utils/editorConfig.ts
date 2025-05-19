@@ -41,6 +41,9 @@ export const getEditorConfig = (
     stepsBeforeSave: 1,
     options: {
       remote: {
+        headers: {
+          'Content-Type': 'application/json',
+        },
         onStore: async (data: ProjectData) => {
           try {
             if (!templateId) {
@@ -50,7 +53,6 @@ export const getEditorConfig = (
             await updateTemplate(templateId, {
               gjsData: data as ProjectData,
             })
-            console.log('Template updated successfully')
             onSave(false)
             return true
           } catch (error) {
@@ -254,10 +256,7 @@ export const getEditorConfig = (
       },
     ],
   },
-  // scriptManager: {
-  //   enable: true,
-  //   allowInlineEvents: true,
-  // },
+
   blockManager: {
     blocks: blocks.map((block) => processBlockContent(block)),
   },
