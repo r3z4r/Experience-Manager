@@ -168,6 +168,14 @@ export const Pages: CollectionConfig = {
       },
     },
     {
+      name: 'jsContent',
+      type: 'textarea',
+      admin: {
+        readOnly: true,
+        description: 'JavaScript code for the template',
+      },
+    },
+    {
       name: 'gjsData',
       type: 'json',
       admin: {

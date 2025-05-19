@@ -3,15 +3,12 @@
 import React, { useEffect, useState } from 'react'
 import { fetchTemplates } from '@/app/(frontend)/_actions/templates'
 import { TemplatePreview } from '@/app/(frontend)/_components/Xmanager/TemplatePreview'
-import type {
-  TemplateData,
-  PaginatedTemplatesResponse,
-} from '@/app/(frontend)/_types/template-data'
+import { Page } from '@/payload-types'
 
 interface TemplateSelectorModalProps {
   open: boolean
   onClose: () => void
-  onSelect: (template: TemplateData) => void
+  onSelect: (template: Page) => void
 }
 
 export const TemplateSelectorModal: React.FC<TemplateSelectorModalProps> = ({
@@ -19,7 +16,7 @@ export const TemplateSelectorModal: React.FC<TemplateSelectorModalProps> = ({
   onClose,
   onSelect,
 }) => {
-  const [templates, setTemplates] = useState<TemplateData[]>([])
+  const [templates, setTemplates] = useState<Page[]>([])
   const [loading, setLoading] = useState(true)
   const [currentPage, setCurrentPage] = useState(1)
   const [totalPages, setTotalPages] = useState(1)

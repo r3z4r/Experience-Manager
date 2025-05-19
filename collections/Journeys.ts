@@ -22,17 +22,19 @@ const Journeys: CollectionConfig = {
         position: 'sidebar',
       },
       hooks: {
-        beforeValidate: [({ data }) => {
-          if (data && data.label && !data.slug) {
-            return data.label
-              .toLowerCase()
-              .replace(/[^\w\s-]/g, '')
-              .replace(/\s+/g, '-')
-              .replace(/-+/g, '-')
-              .replace(/^-+|-+$/g, '')
-          }
-          return data?.slug || ''
-        }],
+        beforeValidate: [
+          ({ data }) => {
+            if (data && data.label && !data.slug) {
+              return data.label
+                .toLowerCase()
+                .replace(/[^\w\s-]/g, '')
+                .replace(/\s+/g, '-')
+                .replace(/-+/g, '-')
+                .replace(/^-+|-+$/g, '')
+            }
+            return data?.slug || ''
+          },
+        ],
       },
     },
     {
