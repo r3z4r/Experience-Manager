@@ -172,6 +172,7 @@ export interface Page {
     | null;
   htmlContent?: string | null;
   cssContent?: string | null;
+  jsContent?: string | null;
   gjsData?:
     | {
         [k: string]: unknown;
@@ -423,6 +424,7 @@ export interface PagesSelect<T extends boolean = true> {
       };
   htmlContent?: T;
   cssContent?: T;
+  jsContent?: T;
   gjsData?: T;
   updatedAt?: T;
   createdAt?: T;

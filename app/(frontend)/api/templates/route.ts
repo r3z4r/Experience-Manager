@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server'
 import { fetchTemplates, createTemplate } from '@/app/(frontend)/_actions/templates'
-import type { TemplateData } from '@/app/(frontend)/_types/template-data'
+import type { Page } from '@/payload-types'
 
 interface QueryParams {
   page?: string
@@ -61,15 +61,16 @@ export async function GET(request: Request) {
 export async function POST(request: Request) {
   try {
     const body = await request.json()
-    const templateData: TemplateData = {
+    const templateData = {
       title: body.name || 'New Template',
       description: body.description,
       htmlContent: body.html || '',
       cssContent: body.css || '',
+      jsContent: body.js || '',
       gjsData: body.gjsData,
-      status: 'draft',
+      status: 'draft' as const,
       access: {
-        visibility: 'public',
+        visibility: 'public' as const,
       },
       slug: body.slug,
     }

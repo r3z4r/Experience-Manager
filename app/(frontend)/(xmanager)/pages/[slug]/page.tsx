@@ -25,7 +25,24 @@ export default async function TemplatePage({ params }: PageProps) {
       <div className="template-page">
         <style dangerouslySetInnerHTML={{ __html: css }} />
         <div dangerouslySetInnerHTML={{ __html: html }} />
-        {scripts && <script dangerouslySetInnerHTML={{ __html: scripts }} />}
+        {scripts && (
+          // Use key={Date.now()} to ensure script re-execution when navigating between pages
+          <script 
+            key={Date.now()}
+            dangerouslySetInnerHTML={{ 
+              __html: `
+                // Execute scripts in a safe, isolated context
+                (function() {
+                  try {
+                    ${scripts}
+                  } catch (error) {
+                    console.error('Error executing template scripts:', error);
+                  }
+                })();
+              ` 
+            }} 
+          />
+        )}
       </div>
     )
   } catch (error) {

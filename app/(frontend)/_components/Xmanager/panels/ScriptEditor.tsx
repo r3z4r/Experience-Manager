@@ -3,7 +3,12 @@
 import { useEffect, useState } from 'react'
 import { Editor as GrapesEditor, Component as GrapesComponent } from 'grapesjs'
 import { Button } from '@/app/(frontend)/_components/ui/button'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/app/(frontend)/_components/ui/dialog'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/app/(frontend)/_components/ui/dialog'
 import { toast } from 'sonner'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/app/(frontend)/_components/ui/tabs'
 import { Play, Save, X, Code, Plus } from 'lucide-react'
@@ -44,7 +49,7 @@ export const ScriptEditor = ({ editor }: ScriptEditorProps) => {
     editor.on('component:update', updateScriptList)
     editor.on('component:update:components', updateScriptList)
     editor.on('canvas:drop', updateScriptList)
-    
+
     // Also listen for dialog open/close to refresh the list
     const handleOpenChange = (open: boolean) => {
       if (open) {
@@ -63,18 +68,18 @@ export const ScriptEditor = ({ editor }: ScriptEditorProps) => {
           setScriptContent(content)
           setOpen(true)
         }
-      }
+      },
     })
-    
+
     // Listen for custom event to open script editor dialog
     const handleOpenScriptEditorDialog = (event: CustomEvent) => {
       const { component, editor: eventEditor } = event.detail
-      
+
       // Force a complete refresh of the script list
       setTimeout(() => {
         // This ensures we get the latest state after any pending operations
         updateScriptList()
-        
+
         if (component) {
           // Open with specific component
           setActiveComponent(component)
@@ -85,15 +90,18 @@ export const ScriptEditor = ({ editor }: ScriptEditorProps) => {
           setActiveComponent(null)
           setScriptContent('// New JavaScript code\nconsole.log("New script added");')
         }
-        
+
         // Open the dialog
         setOpen(true)
       }, 50) // Small timeout to ensure DOM is updated
     }
 
     // Add event listener for custom events
-    window.addEventListener('open-script-editor-dialog', handleOpenScriptEditorDialog as EventListener)
-    
+    window.addEventListener(
+      'open-script-editor-dialog',
+      handleOpenScriptEditorDialog as EventListener,
+    )
+
     // Add listener for script list refresh
     const handleRefreshScriptList = () => {
       console.log('Refresh script list event received')
@@ -107,7 +115,10 @@ export const ScriptEditor = ({ editor }: ScriptEditorProps) => {
       editor.off('component:update', updateScriptList)
       editor.off('component:update:components', updateScriptList)
       editor.off('canvas:drop', updateScriptList)
-      window.removeEventListener('open-script-editor-dialog', handleOpenScriptEditorDialog as EventListener)
+      window.removeEventListener(
+        'open-script-editor-dialog',
+        handleOpenScriptEditorDialog as EventListener,
+      )
       window.removeEventListener('refresh-script-list', handleRefreshScriptList as EventListener)
     }
   }, [editor])
@@ -131,12 +142,12 @@ export const ScriptEditor = ({ editor }: ScriptEditorProps) => {
     try {
       // Find the text node within the script component
       const textNode = activeComponent.components().models[0]
-      
+
       if (textNode) {
         // Update the content
         textNode.set('content', scriptContent)
         activeComponent.set('scriptContent', scriptContent)
-        
+
         // Force re-render
         if (activeComponent.view) {
           activeComponent.view.render()
@@ -148,30 +159,32 @@ export const ScriptEditor = ({ editor }: ScriptEditorProps) => {
             selected.view.render()
           }
         }
-        
+
         // Show success message
         toast.success('Script updated successfully')
-        
+
         // Go back to scripts list
         setActiveTab('scripts')
       } else {
         // If no text node found, recreate the component structure
-        activeComponent.components([{
-          type: 'textnode',
-          content: scriptContent
-        }])
-        
+        activeComponent.components([
+          {
+            type: 'textnode',
+            content: scriptContent,
+          },
+        ])
+
         // Force re-render
         editor.select(activeComponent)
         const selected = editor.getSelected()
         if (selected && selected.view) {
           selected.view.render()
         }
-        
+
         toast.success('Script updated successfully')
         setActiveTab('scripts')
       }
-      
+
       // Update script list
       const wrapper = editor.Components.getWrapper()
       if (wrapper) {
@@ -193,7 +206,9 @@ export const ScriptEditor = ({ editor }: ScriptEditorProps) => {
       toast.success('Script executed successfully')
     } catch (error) {
       console.error('Script execution error:', error)
-      toast.error(`Script execution failed: ${error instanceof Error ? error.message : 'Unknown error'}`)
+      toast.error(
+        `Script execution failed: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      )
     }
   }
 
@@ -203,7 +218,7 @@ export const ScriptEditor = ({ editor }: ScriptEditorProps) => {
 
     // Create default script content
     const defaultContent = '// New JavaScript code\nconsole.log("New script added");'
-    
+
     try {
       // Get the wrapper to add the script to
       const wrapper = editor.Components.getWrapper()
@@ -211,7 +226,7 @@ export const ScriptEditor = ({ editor }: ScriptEditorProps) => {
         toast.error('Cannot add script: editor wrapper not found')
         return
       }
-      
+
       // Create the script component with proper structure
       const scriptComponent = {
         type: 'script',
@@ -229,14 +244,15 @@ export const ScriptEditor = ({ editor }: ScriptEditorProps) => {
           },
         ],
       }
-      
+
       // Add the component to the wrapper
       const addedComponents = wrapper.append(scriptComponent)
-      const component = Array.isArray(addedComponents) && addedComponents.length > 0 ? addedComponents[0] : null
-      
+      const component =
+        Array.isArray(addedComponents) && addedComponents.length > 0 ? addedComponents[0] : null
+
       if (component) {
         console.log('Script component added successfully')
-        
+
         // Force the editor to update
         if (component) {
           editor.select(component)
@@ -245,12 +261,12 @@ export const ScriptEditor = ({ editor }: ScriptEditorProps) => {
             selected.view.render()
           }
         }
-        
+
         // Set as active component and prepare editor
         setActiveComponent(component)
         setScriptContent(defaultContent)
         setActiveTab('editor')
-        
+
         // Force a complete refresh of the script list
         setTimeout(() => {
           // Manually find all script components
@@ -259,18 +275,18 @@ export const ScriptEditor = ({ editor }: ScriptEditorProps) => {
             console.error('Cannot find editor wrapper')
             return
           }
-          
+
           // Get all components and filter for scripts
           const scripts = wrapper.find('[type=script]')
           const scriptComponents = Array.isArray(scripts) ? scripts : []
           console.log('Found script components:', scriptComponents.length)
-          
+
           // Update the script list
           setScriptList(scriptComponents)
-          
+
           // Open the dialog
           setOpen(true)
-          
+
           // Trigger a global refresh event
           window.dispatchEvent(new CustomEvent('refresh-script-list'))
         }, 200) // Longer delay to ensure everything is updated
@@ -279,7 +295,9 @@ export const ScriptEditor = ({ editor }: ScriptEditorProps) => {
       }
     } catch (error) {
       console.error('Error creating script:', error)
-      toast.error(`Failed to create script: ${error instanceof Error ? error.message : 'Unknown error'}`)
+      toast.error(
+        `Failed to create script: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      )
     }
   }
 
@@ -296,39 +314,47 @@ export const ScriptEditor = ({ editor }: ScriptEditorProps) => {
       }
     }
   }, [open, editor])
-  
+
   return (
-    <Dialog open={open} onOpenChange={(newOpen) => {
-      // When opening, make sure we have the latest script list
-      if (newOpen && !open) {
-        // Force update script list before opening
-        if (editor) {
-          const wrapper = editor.Components.getWrapper()
-          if (wrapper) {
-            const scripts = wrapper.find('[type=script]')
-            setScriptList(Array.isArray(scripts) ? scripts : [])
+    <Dialog
+      open={open}
+      onOpenChange={(newOpen) => {
+        // When opening, make sure we have the latest script list
+        if (newOpen && !open) {
+          // Force update script list before opening
+          if (editor) {
+            const wrapper = editor.Components.getWrapper()
+            if (wrapper) {
+              const scripts = wrapper.find('[type=script]')
+              setScriptList(Array.isArray(scripts) ? scripts : [])
+            }
           }
         }
-      }
-      setOpen(newOpen)
-    }}>
-      <DialogContent className="sm:max-w-[800px] max-h-[90vh] flex flex-col">
+        setOpen(newOpen)
+      }}
+    >
+      <DialogContent className="sm:max-w-[800px]  max-h-[90vh] flex flex-col overflow-hidden">
         <DialogHeader>
           <DialogTitle>JavaScript Manager</DialogTitle>
         </DialogHeader>
-        
-        <Tabs defaultValue="scripts" className="flex-1 flex flex-col" value={activeTab} onValueChange={setActiveTab}>
+
+        <Tabs
+          defaultValue="scripts"
+          className="flex-1 flex flex-col"
+          value={activeTab}
+          onValueChange={setActiveTab}
+        >
           <TabsList>
             <TabsTrigger value="scripts">Scripts</TabsTrigger>
             <TabsTrigger value="editor">Editor</TabsTrigger>
             <TabsTrigger value="help">Help</TabsTrigger>
           </TabsList>
-          
+
           {/* Scripts List Tab */}
           <TabsContent value="scripts" className="flex-1 flex flex-col">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-base font-medium">JavaScript Scripts</h3>
-              <Button 
+              <Button
                 onClick={handleCreateScript}
                 size="sm"
                 variant="outline"
@@ -343,11 +369,7 @@ export const ScriptEditor = ({ editor }: ScriptEditorProps) => {
               <div className="text-center py-12 px-4 border-2 border-dashed rounded-md bg-gray-50">
                 <Code className="h-10 w-10 mx-auto text-gray-400 mb-2" />
                 <p className="text-gray-500 mb-4">No scripts added yet</p>
-                <Button 
-                  onClick={handleCreateScript}
-                  variant="outline"
-                  className="mx-auto"
-                >
+                <Button onClick={handleCreateScript} variant="outline" className="mx-auto">
                   <Plus className="h-4 w-4 mr-1" />
                   Add Your First Script
                 </Button>
@@ -356,20 +378,21 @@ export const ScriptEditor = ({ editor }: ScriptEditorProps) => {
               <div className="space-y-2 overflow-y-auto max-h-[400px] border rounded-md p-2">
                 {scriptList.map((script, index) => {
                   const content = script.components().models[0]?.get('content') || ''
-                  
+
                   // Extract first line as title (if it's a comment)
                   const firstLine = content.split('\n')[0]
-                  const title = firstLine.startsWith('//') 
-                    ? firstLine.substring(2).trim() 
+                  const title = firstLine.startsWith('//')
+                    ? firstLine.substring(2).trim()
                     : 'JavaScript Script ' + (index + 1)
-                  
+
                   // Get a preview of the content
                   const previewContent = content.replace(firstLine, '').trim()
-                  const preview = previewContent.substring(0, 50) + (previewContent.length > 50 ? '...' : '')
-                  
+                  const preview =
+                    previewContent.substring(0, 50) + (previewContent.length > 50 ? '...' : '')
+
                   return (
-                    <div 
-                      key={index} 
+                    <div
+                      key={index}
                       className="p-3 border rounded-md cursor-pointer hover:bg-gray-50 transition-colors"
                       onClick={() => handleScriptSelect(script)}
                     >
@@ -381,9 +404,9 @@ export const ScriptEditor = ({ editor }: ScriptEditorProps) => {
                           <span className="font-medium">{title}</span>
                         </div>
                         <div className="flex space-x-1">
-                          <Button 
-                            size="icon" 
-                            variant="ghost" 
+                          <Button
+                            size="icon"
+                            variant="ghost"
                             className="h-6 w-6"
                             onClick={(e) => {
                               e.stopPropagation()
@@ -395,9 +418,9 @@ export const ScriptEditor = ({ editor }: ScriptEditorProps) => {
                           >
                             <Play className="h-3 w-3" />
                           </Button>
-                          <Button 
-                            size="icon" 
-                            variant="ghost" 
+                          <Button
+                            size="icon"
+                            variant="ghost"
                             className="h-6 w-6"
                             onClick={(e) => {
                               e.stopPropagation()
@@ -419,18 +442,22 @@ export const ScriptEditor = ({ editor }: ScriptEditorProps) => {
               </div>
             )}
           </TabsContent>
-          
+
           {/* Editor Tab */}
-          <TabsContent value="editor" className="flex-1 flex flex-col">
-            <div className="flex-1 min-h-[400px] border rounded-md p-1">
+          <TabsContent value="editor" className="flex-1 flex flex-col h-full overflow-hidden">
+            <div
+              className="flex-1 flex flex-col border rounded-md p-1 overflow-hidden"
+              style={{ minHeight: 'calc(100% - 60px)' }}
+            >
               <textarea
-                className="w-full h-full font-mono text-sm p-2 focus:outline-none resize-none"
+                className="w-full h-full flex-1 font-mono text-sm p-2 focus:outline-none resize-none"
                 value={scriptContent}
                 onChange={(e) => setScriptContent(e.target.value)}
                 placeholder="// Write your JavaScript code here"
+                style={{ minHeight: '300px' }}
               />
             </div>
-            
+
             <div className="flex justify-between mt-4">
               <Button variant="outline" onClick={() => setActiveTab('scripts')}>
                 <X className="h-4 w-4 mr-2" />
@@ -448,28 +475,31 @@ export const ScriptEditor = ({ editor }: ScriptEditorProps) => {
               </div>
             </div>
           </TabsContent>
-          
+
           {/* Help Tab */}
           <TabsContent value="help" className="flex-1 overflow-auto">
             <div className="space-y-4 p-4">
               <h3 className="text-lg font-medium">JavaScript in Page Editor</h3>
               <p>
-                You can add JavaScript code to enhance your page with dynamic functionality.
-                The script will be executed when the page loads.
+                You can add JavaScript code to enhance your page with dynamic functionality. The
+                script will be executed when the page loads.
               </p>
-              
+
               <h4 className="font-medium mt-4">Tips:</h4>
               <ul className="list-disc pl-5 space-y-2">
                 <li>Scripts are executed in the browser when the page loads</li>
-                <li>You can access DOM elements using standard methods like <code className="bg-gray-100 px-1 rounded">document.getElementById()</code></li>
+                <li>
+                  You can access DOM elements using standard methods like{' '}
+                  <code className="bg-gray-100 px-1 rounded">document.getElementById()</code>
+                </li>
                 <li>Add event listeners to make your page interactive</li>
                 <li>Use the "Test Run" button to check your script before saving</li>
                 <li>Be careful with external API calls and ensure proper error handling</li>
               </ul>
-              
+
               <h4 className="font-medium mt-4">Example:</h4>
               <pre className="bg-gray-100 p-3 rounded-md overflow-x-auto">
-{`// Wait for DOM to be fully loaded
+                {`// Wait for DOM to be fully loaded
 document.addEventListener('DOMContentLoaded', () => {
   // Get reference to an element with id "myButton"
   const button = document.getElementById('myButton');

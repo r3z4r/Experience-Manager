@@ -6,9 +6,13 @@ import React from 'react';
 
 interface WizardHeaderProps {
   title?: string;
+  description?: string;
 }
 
-export const WizardHeader: React.FC<WizardHeaderProps> = ({ title = 'Wizard Journeys' }) => (
+export const WizardHeader: React.FC<WizardHeaderProps> = ({ 
+  title = 'Wizard Journeys',
+  description 
+}) => (
   <header className="template-header">
     <div className="header-logo">
       <Image
@@ -18,11 +22,16 @@ export const WizardHeader: React.FC<WizardHeaderProps> = ({ title = 'Wizard Jour
         height={120}
         className="object-contain"
       />
-      <span className="header-title">{title}</span>
+      <div className="flex flex-col">
+        <span className="header-title">{title}</span>
+        {description && (
+          <span className="text-sm text-gray-500 mt-1">{description}</span>
+        )}
+      </div>
     </div>
 
-    <Link href="/wizard" className="button-primary-outline button-md">
-      Journeys List
+    <Link href="/template-list" className="button-primary-outline button-lg">
+      Template List
     </Link>
   </header>
 );

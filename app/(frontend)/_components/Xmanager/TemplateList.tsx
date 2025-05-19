@@ -23,15 +23,16 @@ import Image from 'next/image'
 import { TemplatePreview } from './TemplatePreview'
 import { LoadingSpinner } from '@/app/(frontend)/_components/ui/loading-spinner'
 import { StatusChip } from './StatusChip'
-import { PaginatedTemplatesResponse, TemplateData } from '@/app/(frontend)/_types/template-data'
+import { PaginatedTemplatesResponse } from '@/app/(frontend)/_types/template-data'
 import { SaveModal } from './SaveModal'
 import { DeleteModal } from './DeleteModal'
+import type { Page } from '@/payload-types'
 
 const ITEMS_PER_PAGE = 4
 
 export function TemplateList() {
   const router = useRouter()
-  const [templates, setTemplates] = useState<TemplateData[]>([])
+  const [templates, setTemplates] = useState<Page[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [pagination, setPagination] = useState<Omit<PaginatedTemplatesResponse, 'docs'>>({
     totalDocs: 0,
@@ -45,12 +46,12 @@ export function TemplateList() {
     nextPage: null,
   })
   const [showDeleteModal, setShowDeleteModal] = useState(false)
-  const [templateToDelete, setTemplateToDelete] = useState<TemplateData | null>(null)
+  const [templateToDelete, setTemplateToDelete] = useState<Page | null>(null)
   const [deleteStatus, setDeleteStatus] = useState<'idle' | 'deleting' | 'deleted' | 'error'>(
     'idle',
   )
   const [showDuplicateModal, setShowDuplicateModal] = useState(false)
-  const [templateToDuplicate, setTemplateToDuplicate] = useState<TemplateData | null>(null)
+  const [templateToDuplicate, setTemplateToDuplicate] = useState<Page | null>(null)
   const [duplicateStatus, setDuplicateStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>(
     'idle',
   )
@@ -82,12 +83,13 @@ export function TemplateList() {
         description: 'Start with a blank template',
         htmlContent: '',
         cssContent: '',
+        jsContent: '', // Adding the jsContent field
         gjsData: {},
         status: 'draft',
         access: {
           visibility: 'public',
         },
-        slug: 'temp-slug', // Temporary slug that will be updated with id
+        slug: 'temp-slug' // Temporary slug that will be updated with id
       })
 
       if (response?.id) {
@@ -100,7 +102,7 @@ export function TemplateList() {
     }
   }
 
-  const handleDeleteClick = (template: TemplateData) => {
+  const handleDeleteClick = (template: Page) => {
     setTemplateToDelete(template)
     setShowDeleteModal(true)
   }
@@ -123,7 +125,7 @@ export function TemplateList() {
     }
   }
 
-  const handleDuplicateClick = (template: TemplateData) => {
+  const handleDuplicateClick = (template: Page) => {
     setTemplateToDuplicate(template)
     const initialSlug = `${template.slug}-copy`
     setSlugValue(initialSlug)
