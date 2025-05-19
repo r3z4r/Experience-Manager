@@ -1,4 +1,3 @@
-'use server'
 
 import { createBlockConfig } from '../../utils/serverUtils'
 import { CountrySelector } from './CountrySelector'

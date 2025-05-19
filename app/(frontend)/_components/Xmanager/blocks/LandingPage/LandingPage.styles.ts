@@ -1,12 +1,14 @@
 export const UaeLandingScreenStyles = `
 .uaeScreenContainer {
   font-family: sans-serif;
+  margin: 0;
+  padding: 0;
 }
 
 .uaeHeader {
-  background: linear-gradient(to right, orange, green);
+  background: linear-gradient(to right, #00732f 25%, #ffffff 25%, #ffffff 50%, #000000 75%, #ef3340 75%);
   color: white;
-  padding: 1rem;
+  padding: 1rem 2rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -21,22 +23,37 @@ export const UaeLandingScreenStyles = `
   font-weight: 500;
 }
 
-.uaeHeroSection {
-  background-image: url('/xpm/images/LandingPageUAE.png');
-  background-size: cover;
-  background-position: center;
-  color: white;
-  padding: 5rem 2rem;
+.uaeHeroImageWrapper {
+  position: relative;
   text-align: center;
 }
 
-.uaeHeroSection h1 {
-  font-size: 2rem;
-  font-weight: bold;
+.uaeHeroImage {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  max-height: 500px;
+  display: block;
 }
 
-.uaeHeroSection p {
-  margin: 1rem 0;
+.uaeHeroTextOverlay {
+  position: absolute;
+  top: 30%;
+  left: 50%;
+  transform: translateX(-50%);
+  color: white;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.8);
+  padding: 1rem;
+}
+
+.uaeHeroTextOverlay h1 {
+  font-size: 2rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+}
+
+.uaeHeroTextOverlay p {
+  margin-bottom: 1.5rem;
 }
 
 .uaeSimButton {
@@ -65,13 +82,19 @@ export const UaeLandingScreenStyles = `
 
 .uaeFeatureCard {
   width: 200px;
+  background: white;
+  padding: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
 }
 
 .uaeFeatureIcon {
   font-size: 2rem;
+  margin-bottom: 0.5rem;
 }
 
 .uaeFeatureCard h3 {
   color: orange;
+  margin-bottom: 0.5rem;
 }
 `
