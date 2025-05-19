@@ -4,11 +4,11 @@ import { revalidatePath } from 'next/cache'
 import { getPayload, WhereField } from 'payload'
 import configPromise from '@payload-config'
 import type {
-  TemplateData,
   PaginatedTemplatesResponse,
   FetchTemplatesOptions,
 } from '@/app/(frontend)/_types/template-data'
 import { TemplateStatus } from '@/app/(frontend)/_types/template'
+import type { Page } from '@/payload-types'
 
 export async function fetchTemplates(
   options: FetchTemplatesOptions = {},
@@ -53,7 +53,20 @@ export async function fetchTemplateById(id: string) {
   })
 }
 
-export async function createTemplate(templateData: TemplateData) {
+export async function createTemplate(templateData: {
+  title: string
+  description?: string
+  htmlContent?: string
+  cssContent?: string
+  jsContent?: string
+  gjsData?: any
+  status: 'draft' | 'published' | 'archived'
+  access: {
+    visibility: 'public' | 'private' | 'restricted'
+    allowedUsers?: string[]
+  }
+  slug?: string
+}) {
   const payload = await getPayload({
     config: configPromise,
   })
@@ -64,14 +77,14 @@ export async function createTemplate(templateData: TemplateData) {
     data: {
       ...templateData,
       // Set a temporary slug that will be updated after creation
-      slug: 'temp-slug',
+      slug: templateData.slug || 'temp-slug',
     },
   })
 
   return template
 }
 
-export async function updateTemplate(id: string, data: Partial<TemplateData>) {
+export async function updateTemplate(id: string, data: Partial<Page>) {
   const payload = await getPayload({
     config: configPromise,
   })
@@ -94,10 +107,7 @@ export async function deleteTemplate(id: string) {
   })
 }
 
-export async function updateTemplateStatus(
-  id: string,
-  status: TemplateStatus,
-): Promise<TemplateData> {
+export async function updateTemplateStatus(id: string, status: TemplateStatus): Promise<Page> {
   try {
     const payload = await getPayload({
       config: configPromise,
@@ -109,7 +119,7 @@ export async function updateTemplateStatus(
         status,
       },
     })
-    return template as TemplateData
+    return template as Page
   } catch (error) {
     console.error('Error updating template status:', error)
     throw error
@@ -142,7 +152,7 @@ export async function duplicateTemplate(
   newName: string,
   newDescription: string,
   newSlug: string,
-): Promise<TemplateData> {
+): Promise<Page> {
   const payload = await getPayload({
     config: configPromise,
   })
@@ -164,7 +174,7 @@ export async function duplicateTemplate(
       },
     })
     revalidatePath('/xmanager')
-    return duplicatedTemplate as TemplateData
+    return duplicatedTemplate as Page
   } catch (error) {
     console.error('Error duplicating template:', error)
     throw error

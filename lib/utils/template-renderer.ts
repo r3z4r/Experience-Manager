@@ -1,9 +1,8 @@
-import { TemplateData } from '@/app/(frontend)/_types/template-data'
 import { componentHandlers } from './component-handlers'
 import { User } from '@/payload-types'
 import { Page } from '@/payload-types'
 
-export function hasAccess(template: TemplateData, user: User | null): boolean {
+export function hasAccess(template: Page, user: User | null): boolean {
   // Published templates only
   if (template.status !== 'published') {
     return false
@@ -23,7 +22,7 @@ export function hasAccess(template: TemplateData, user: User | null): boolean {
 
 export async function renderTemplate(template: Page, user: User | null = null) {
   // Convert Page to TemplateData to access all fields including jsContent
-  const templateData = template as unknown as TemplateData
+  const templateData = template as unknown as Page
   if (!hasAccess(templateData, user)) {
     throw new Error('Access denied')
   }

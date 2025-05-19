@@ -2,7 +2,6 @@
 
 import React, { useState, useTransition, useEffect, useCallback } from 'react'
 import { WizardStepType, WizardStep, WizardJourney, LocalizationConfig } from '@/lib/types/wizard'
-import type { TemplateData } from '@/app/(frontend)/_types/template-data'
 import { TemplateSelectorModal } from '@/app/(frontend)/wizard/create/TemplateSelectorModal'
 import Link from 'next/link'
 import { WizardToast } from '@/app/(frontend)/_components/Wizard/WizardToast'
@@ -13,6 +12,7 @@ import { AlertTriangleIcon, TrashIcon, ChevronDownIcon, ChevronUpIcon } from 'lu
 import { PredefinedStepSelector } from '@/app/(frontend)/_components/Wizard/PredefinedStepSelector'
 import { PredefinedStep } from '@/app/(frontend)/_components/Wizard/predefined'
 import { LocalizationConfigEditor } from '@/app/(frontend)/_components/Wizard/LocalizationConfig'
+import type { Page } from '@/payload-types'
 
 interface JourneyFormProps {
   initialJourney?: WizardJourney | null
@@ -53,12 +53,12 @@ export function JourneyForm({
   const [stepRef, setStepRef] = useState('')
   const [templateModalOpen, setTemplateModalOpen] = useState(false)
   const [predefinedModalOpen, setPredefinedModalOpen] = useState(false)
-  const [selectedTemplate, setSelectedTemplate] = useState<TemplateData | null>(null)
+  const [selectedTemplate, setSelectedTemplate] = useState<Page | null>(null)
   const [selectedPredefined, setSelectedPredefined] = useState<PredefinedStep | null>(null)
 
   // State for UI
   const [isPending, startTransition] = useTransition()
-  const [templateCache, setTemplateCache] = useState<Record<string, TemplateData>>({})
+  const [templateCache, setTemplateCache] = useState<Record<string, Page>>({})
   const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false)
 
   // Fetch and cache templates for previews
@@ -66,7 +66,7 @@ export function JourneyForm({
     const loadTemplates = async () => {
       try {
         const result = await fetchTemplates({ limit: 50, filter: { status: 'published' } })
-        const cache: Record<string, TemplateData> = {}
+        const cache: Record<string, Page> = {}
         result.docs.forEach((template) => {
           if (template.id) {
             cache[template.id] = template
