@@ -7,6 +7,16 @@ export const Users: CollectionConfig = {
   },
   auth: true,
   fields: [
-    // Email added by default
+    {
+      name: 'username',
+      label: 'User Name',
+      type: 'text',
+      required: true,
+      unique: true,
+      admin: {
+        placeholder: 'Enter user name',
+      },
+    },
+    // Email field is added by default by Payload when auth: true
   ],
 }
