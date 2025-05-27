@@ -7,6 +7,10 @@ import {
 } from '@/app/(frontend)/_types/template'
 import { generateSlug } from '@/lib/utils/slug-generator'
 
+import type { User } from '@/payload-types'
+
+import type { User } from '@/payload-types'
+
 export const Pages: CollectionConfig = {
   slug: 'pages',
   admin: {
@@ -22,6 +26,42 @@ export const Pages: CollectionConfig = {
         return data
       },
     ],
+  },
+  access: {
+    read: ({ req }) => {
+      const user = req.user as User | undefined
+      if (!user) return false
+      if (user.role === 'admin') return true
+      return {
+        'access.allowedUsers': {
+          contains: user.id,
+        },
+      }
+    },
+    update: ({ req }) => {
+      const user = req.user as User | undefined
+      if (!user) return false
+      if (user.role === 'admin') return true
+      return {
+        'access.allowedUsers': {
+          contains: user.id,
+        },
+      }
+    },
+    delete: ({ req }) => {
+      const user = req.user as User | undefined
+      if (!user) return false
+      if (user.role === 'admin') return true
+      return {
+        'access.allowedUsers': {
+          contains: user.id,
+        },
+      }
+    },
+    create: ({ req }) => {
+      const user = req.user as User | undefined
+      return !!user
+    },
   },
   fields: [
     {

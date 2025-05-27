@@ -25,7 +25,10 @@ const corsHeaders: CorsHeaders = {
 }
 
 export function middleware(request: NextRequest): NextResponse {
-  if (request.nextUrl.pathname.includes('/api')) {
+  const { pathname } = request.nextUrl
+
+  // --- 1. Handle CORS for API routes ---
+  if (pathname.startsWith('/api')) {
     const origin = request.headers.get('origin') || ''
     const isAllowedOrigin = allowedOrigins.includes(origin) || allowedOrigins.includes('*')
     const finalOrigin = isAllowedOrigin ? origin : allowedOrigins[0]
@@ -42,9 +45,18 @@ export function middleware(request: NextRequest): NextResponse {
     return response
   }
 
+  // --- 2. Auth protection for frontend routes ---
+  const userEmail = request.cookies.get('user-email')?.value
+  if (!userEmail) {
+    const loginUrl = request.nextUrl.clone()
+    loginUrl.pathname = `/login`
+    loginUrl.searchParams.set('next', pathname)
+    return NextResponse.redirect(loginUrl)
+  }
+
   return NextResponse.next()
 }
 
 export const config = {
-  matcher: ['/(frontend)/api/:path*', '/api/:path*'],
+  matcher: ['/api/:path*', '/dashboard/:path*'],
 }
