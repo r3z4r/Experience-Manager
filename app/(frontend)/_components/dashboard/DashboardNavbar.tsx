@@ -8,7 +8,7 @@ interface DashboardNavbarProps {
 export function DashboardNavbar({ userEmail }: DashboardNavbarProps) {
   const initial = userEmail && userEmail.length > 0 ? userEmail[0].toUpperCase() : 'U'
   return (
-    <nav className="w-full h-16 flex items-center justify-between px-8 bg-white border-b border-gray-200 shadow-sm z-20">
+    <nav className="sticky top-0 z-50 w-full h-16 flex items-center justify-between px-8 bg-white border-b border-gray-200 shadow-sm z-20">
       <div className="flex items-center">
         <Image
           src={`${process.env.NEXT_PUBLIC_BASE_PATH}/images/tecnotree_blue.png`}

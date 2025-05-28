@@ -32,7 +32,7 @@ function SidebarItem({ href, icon, children, badge, active }: SidebarItemProps) 
   )
 }
 
-import { LogOut } from 'lucide-react'
+import { LogOut, LayoutGrid, Plus } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useCallback } from 'react'
 
@@ -50,12 +50,21 @@ export default function DashboardSidebar() {
         Pages
       </div>
       <nav className="flex flex-col gap-1 px-2">
-        <SidebarItem href="/dashboard/template-list" icon={<FileText size={20} />} badge={98}>
-          All Pages
-        </SidebarItem>
-        <SidebarItem href="#" icon={<ChevronDown size={20} />}>
-          New Group
-        </SidebarItem>
+        {/* Pages group with sub-items */}
+        <div>
+          <div className="flex items-center px-2 py-1 text-gray-700 font-semibold">
+            <span className="mr-2"><LayoutGrid size={18} className="text-blue-600" /></span>
+            <span>Pages</span>
+          </div>
+          <div className="pl-8 flex flex-col gap-1">
+            <SidebarItem href="/dashboard/template-list" icon={<LayoutGrid size={18} />} badge={98}>
+              All Pages
+            </SidebarItem>
+            <SidebarItem href="#" icon={<Plus size={18} />}>
+              New Group
+            </SidebarItem>
+          </div>
+        </div>
         <SidebarItem href="#" icon={<Folder size={20} />}>
           Popups & Sticky Bars
         </SidebarItem>

@@ -13,14 +13,14 @@
     --card-foreground: 0 0% 3.9%;
     --popover: 0 0% 100%;
     --popover-foreground: 0 0% 3.9%;
-    --primary: 0 0% 9%;
-    --primary-foreground: 0 0% 90%;
-    --secondary: 0 0% 90%;
-    --secondary-foreground: 0 0% 9%;
+    --primary: 224 60% 40%; /* #2242A4 */
+    --primary-foreground: 0 0% 100%;
+    --secondary: 219 64% 31%; /* #1B3E8A */
+    --secondary-foreground: 0 0% 100%;
     --muted: 0 0% 96.1%;
     --muted-foreground: 0 0% 45.1%;
-    --accent: 0 0% 96.1%;
-    --accent-foreground: 0 0% 9%;
+    --accent: 224 60% 40%; /* #2242A4 */
+    --accent-foreground: 0 0% 100%;
 
     /* Status colors */
     --destructive: 0 84.2% 60.2%;
