@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 import AuthBranding from '@/app/(frontend)/_components/auth/AuthBranding'
@@ -16,32 +16,70 @@ export default function SignInForm() {
     password: '',
   })
 
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search)
+      const signupSuccess = urlParams.get('signup')
+
+      if (signupSuccess === 'success') {
+        toast.success('Account created successfully! Please sign in.', {
+          duration: 5000,
+        })
+      }
+    }
+  }, [])
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
 
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_PATH}/api/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
-      })
+      const toastId = toast.loading('Signing in...')
 
-      const data = await response.json()
+      const serverFormData = new FormData()
+      serverFormData.append('email', formData.email)
+      serverFormData.append('password', formData.password)
 
-      if (response.ok && data.success) {
-        toast.success('Signed in successfully')
-        const params = new URLSearchParams(window.location.search)
-        const next = params.get('next')
-        if (next) {
-          router.push(next)
-        } else {
-          router.push('/dashboard/template-list')
+      const { loginUser } = await import('@/app/(frontend)/_actions/auth')
+
+      const result = await loginUser(serverFormData)
+
+      if (result.success) {
+        if (result.user) {
+          localStorage.setItem('user', JSON.stringify(result.user))
+
+          if (result.user.username) {
+            localStorage.setItem('username', result.user.username)
+          }
+
+          if (result.user.roles && Array.isArray(result.user.roles)) {
+            localStorage.setItem('userRoles', JSON.stringify(result.user.roles))
+          }
         }
+
+        toast.success('Signed in successfully', {
+          id: toastId,
+        })
+
+        setTimeout(async () => {
+          const params = new URLSearchParams(window.location.search)
+          const next = params.get('next')
+
+          const { basePath } = await import('@/app/(frontend)/_config/runtime')
+
+          if (next) {
+            window.location.href = basePath + next
+          } else {
+            window.location.href = `${basePath}/dashboard/pages`
+          }
+        }, 1000)
       } else {
-        toast.error('Failed to sign in')
+        toast.error(result.message || 'Failed to sign in', {
+          id: toastId,
+        })
       }
     } catch (error) {
+      console.error('Login error:', error)
       toast.error('Failed to sign in')
     } finally {
       setIsLoading(false)

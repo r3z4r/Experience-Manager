@@ -1,7 +1,7 @@
 'use server'
 
 import { revalidatePath } from 'next/cache'
-import { getPayload, WhereField } from 'payload'
+import { getPayload } from 'payload'
 import configPromise from '@payload-config'
 import type {
   PaginatedTemplatesResponse,
@@ -10,6 +10,35 @@ import type {
 import { TemplateStatus } from '@/app/(frontend)/_types/template'
 import type { Page } from '@/payload-types'
 
+// Define proper types for PayloadCMS queries
+type WhereCondition = {
+  equals?: string | boolean | number
+  not_equals?: string | boolean | number
+  greater_than?: number
+  greater_than_equal?: number
+  less_than?: number
+  less_than_equal?: number
+  like?: string
+  contains?: string
+  in?: (string | number)[]
+  not_in?: (string | number)[]
+  all?: (string | number)[]
+  exists?: boolean
+}
+
+interface WhereField {
+  [key: string]: any
+}
+
+type PayloadWhere = {
+  [key: string]: any
+}
+
+/**
+ * Fetches templates from the Pages collection with filtering, sorting, and pagination
+ * @param options - Options for fetching templates
+ * @returns Paginated templates response
+ */
 export async function fetchTemplates(
   options: FetchTemplatesOptions = {},
 ): Promise<PaginatedTemplatesResponse> {
@@ -17,29 +46,107 @@ export async function fetchTemplates(
     config: configPromise,
   })
 
-  const { page = 1, limit = 10, filter = {} } = options
+  const {
+    page = 1,
+    limit = 10,
+    filter = {},
+    search = '',
+    sortBy = 'created',
+    sortOrder = 'desc',
+    tab = undefined,
+  } = options
 
-  // Construct the where clause
-  const where: { [key: string]: WhereField } = {}
+  // Build query conditions
+  const conditions: PayloadWhere[] = buildQueryConditions(filter, search)
+  
+  // Determine sort order
+  const sort = determineSortOrder(sortBy, sortOrder, tab)
 
-  // Add status filter if provided
-  if (filter.status) {
-    where.status = { equals: filter.status }
-  }
+  // Construct the where clause based on conditions
+  const where = buildWhereClause(conditions)
 
-  // Add visibility filter if provided
-  if (filter.visibility) {
-    where['access.visibility'] = { equals: filter.visibility }
-  }
-
+  // Execute the query
   const response = await payload.find({
     collection: 'pages',
     where,
     limit,
     page,
+    sort,
   })
 
   return response as PaginatedTemplatesResponse
+}
+
+/**
+ * Builds query conditions based on filters and search term
+ */
+function buildQueryConditions(filter: Record<string, any>, search: string): PayloadWhere[] {
+  const conditions: PayloadWhere[] = []
+
+  // Add status filter if provided
+  if (filter.status) {
+    conditions.push({ status: { equals: filter.status } })
+  }
+
+  // Add visibility filter if provided
+  if (filter.visibility) {
+    conditions.push({ 'access.visibility': { equals: filter.visibility } })
+  }
+
+  // Add search condition if provided
+  const trimmedSearch = search.trim()
+  if (trimmedSearch.length > 0) {
+    conditions.push({
+      or: [
+        { title: { like: trimmedSearch } }, 
+        { description: { like: trimmedSearch } }
+      ],
+    })
+  }
+
+  return conditions
+}
+
+/**
+ * Determines the sort order based on sortBy, sortOrder, and tab
+ */
+function determineSortOrder(
+  sortBy: string, 
+  sortOrder: 'asc' | 'desc', 
+  tab?: string
+): string | undefined {
+  // Tab-based sorting override
+  if (tab === 'recent') {
+    return '-createdAt'
+  }
+  
+  // Standard sorting
+  if (sortBy === 'name') {
+    return sortOrder === 'desc' ? '-title' : 'title'
+  } 
+  
+  if (sortBy === 'created') {
+    return sortOrder === 'desc' ? '-createdAt' : 'createdAt'
+  }
+  
+  return undefined
+}
+
+/**
+ * Builds the where clause from conditions
+ */
+function buildWhereClause(conditions: PayloadWhere[]): PayloadWhere {
+  if (conditions.length === 0) {
+    return {}
+  }
+  
+  if (conditions.length === 1) {
+    return conditions[0]
+  }
+  
+  return {
+    and: conditions,
+  }
 }
 
 export async function fetchTemplateById(id: string) {
@@ -76,7 +183,6 @@ export async function createTemplate(templateData: {
     collection: 'pages',
     data: {
       ...templateData,
-      // Set a temporary slug that will be updated after creation
       slug: templateData.slug || 'temp-slug',
     },
   })

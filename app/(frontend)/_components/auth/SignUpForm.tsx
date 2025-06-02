@@ -20,20 +20,53 @@ export default function SignUpForm() {
     e.preventDefault()
     setIsLoading(true)
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_BASE_PATH}/api/auth/signup`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
-      })
-      const data = await response.json()
-      if (response.ok && data.success) {
-        toast.success('Account created successfully')
-        router.push(`/login?signup=success`)
+      // Show a toast indicating signup is in progress
+      const toastId = toast.loading('Creating your account...')
+      
+      // Log for debugging
+      console.log('Submitting signup form...')
+      
+      // Create FormData from the current form state
+      const serverFormData = new FormData()
+      serverFormData.append('email', formData.email)
+      serverFormData.append('username', formData.username)
+      serverFormData.append('password', formData.password)
+      
+      // Import the signupUser Server Action
+      const { signupUser } = await import('@/app/(frontend)/_actions/auth')
+      
+      // Call the Server Action
+      const result = await signupUser(serverFormData)
+      
+      if (result.success) {
+        // Update the loading toast to success
+        toast.success('Account created successfully! Redirecting to login...', {
+          id: toastId,
+          duration: 3000
+        })
+        
+        console.log('Signup successful, redirecting to login page...')
+        
+        // Use a longer delay to ensure toast is visible before redirect
+        setTimeout(async () => {
+          // Import the runtime config dynamically to avoid SSR issues
+          const { basePath } = await import('@/app/(frontend)/_config/runtime')
+          
+          // Navigate to login page with correct basePath
+          console.log('Redirecting to login page...')
+          window.location.href = `${basePath}/login?signup=success`
+        }, 2500)
       } else {
-        toast.error(data.message || 'Failed to sign up')
+        // Update the loading toast to error
+        toast.error(result.message || 'Failed to sign up', {
+          id: toastId,
+          duration: 3000
+        })
+        console.error('Signup failed:', result)
       }
-    } catch {
-      toast.error('Failed to sign up')
+    } catch (error) {
+      console.error('Signup error:', error)
+      toast.error('Failed to sign up. Please try again.')
     } finally {
       setIsLoading(false)
     }
@@ -148,7 +181,7 @@ export default function SignUpForm() {
           <div className="text-center mt-6 text-white/80 text-sm">
             Already have an account?{' '}
             <a
-              href={`${process.env.NEXT_PUBLIC_BASE_PATH}/login`}
+              href="/login"
               className="text-blue-300 hover:underline"
             >
               Login

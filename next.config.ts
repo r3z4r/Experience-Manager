@@ -4,6 +4,8 @@ import { NextConfig } from 'next'
 /** @type {import('next').NextConfig} */
 const nextConfig: NextConfig = {
   basePath: process.env.NEXT_PUBLIC_BASE_PATH || '/xpm',
+  // Ensure assets are served with the correct basePath
+  assetPrefix: process.env.NEXT_PUBLIC_BASE_PATH || '/xpm',
   experimental: {
     serverActions: {
       allowedOrigins: (process.env.ALLOWED_ORIGINS || 'demo.tecnotree.com,localhost:5200').split(

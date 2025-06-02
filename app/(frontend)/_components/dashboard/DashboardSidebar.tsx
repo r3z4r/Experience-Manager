@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { ReactNode } from 'react'
-import { Settings, User, FileText, ChevronDown, Folder } from 'lucide-react'
+import { Settings, User, Folder, Workflow, LayoutTemplate } from 'lucide-react'
 
 interface SidebarItemProps {
   href: string
@@ -53,7 +53,9 @@ export default function DashboardSidebar() {
         {/* Pages group with sub-items */}
         <div>
           <div className="flex items-center px-2 py-1 text-gray-700 font-semibold">
-            <span className="mr-2"><LayoutGrid size={18} className="text-blue-600" /></span>
+            <span className="mr-2">
+              <Folder size={18} className="text-blue-600" />
+            </span>
             <span>Pages</span>
           </div>
           <div className="pl-8 flex flex-col gap-1">
@@ -65,11 +67,11 @@ export default function DashboardSidebar() {
             </SidebarItem>
           </div>
         </div>
-        <SidebarItem href="#" icon={<Folder size={20} />}>
-          Popups & Sticky Bars
+        <SidebarItem href="#" icon={<LayoutTemplate size={20} />}>
+          Templates
         </SidebarItem>
-        <SidebarItem href="#" icon={<Folder size={20} />}>
-          Others
+        <SidebarItem href="/wizard" icon={<Workflow size={20} />}>
+          Journeys
         </SidebarItem>
       </nav>
       <div className="px-6 pt-6 pb-2 mt-4 text-xs text-gray-400 font-semibold tracking-wider uppercase">

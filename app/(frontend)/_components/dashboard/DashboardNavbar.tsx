@@ -1,36 +1,31 @@
+'use client'
+
 import React from 'react'
 import Image from 'next/image'
+import UserProfileDropdown from './UserProfileDropdown'
 
-interface DashboardNavbarProps {
-  userEmail?: string | null
-}
-
-export function DashboardNavbar({ userEmail }: DashboardNavbarProps) {
-  const initial = userEmail && userEmail.length > 0 ? userEmail[0].toUpperCase() : 'U'
+function DashboardNavbar() {
   return (
-    <nav className="sticky top-0 z-50 w-full h-16 flex items-center justify-between px-8 bg-white border-b border-gray-200 shadow-sm z-20">
+    <nav className="sticky top-0 z-50 w-full h-16 flex items-center justify-between px-4 md:px-8 bg-gray-900 border-b border-gray-800 shadow-sm">
       <div className="flex items-center">
         <Image
-          src={`${process.env.NEXT_PUBLIC_BASE_PATH}/images/tecnotree_blue.png`}
+          src="/images/tecnotree_logo.png"
           alt="Tecnotree Logo"
           width={120}
           height={20}
           priority
         />
-      </div>
-      <div className="flex items-center gap-4">
-        <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center border border-gray-300">
-          <span className="text-blue-700 font-bold text-lg select-none">{initial}</span>
+        <div className="ml-4 text-lg font-medium text-white hidden md:block">
+          Experience Manager
         </div>
+      </div>
+      
+      <div className="flex items-center gap-4">
+        {/* Add any additional navbar items here */}
+        <UserProfileDropdown />
       </div>
     </nav>
   )
 }
 
-// Server Component wrapper to read cookie and render DashboardNavbar
-import { cookies } from 'next/headers'
-export default function DashboardNavbarServer() {
-  const cookieStore = cookies()
-  const userEmail = cookieStore.get('user-email')?.value ?? null
-  return <DashboardNavbar userEmail={userEmail} />
-}
+export default DashboardNavbar
