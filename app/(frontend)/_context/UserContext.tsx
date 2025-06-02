@@ -19,10 +19,11 @@ interface UserContextType {
   setUser: (user: User | null) => void
   hasRole: (role: string) => boolean
   logout: () => void
+  userEmail?: string | null
 }
 
 // Create the context with default values
-const UserContext = createContext<UserContextType>({
+export const UserContext = createContext<UserContextType>({
   user: null,
   isLoading: true,
   setUser: () => {},

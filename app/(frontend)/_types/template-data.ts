@@ -25,4 +25,6 @@ export interface FetchTemplatesOptions {
   sortBy?: 'created' | 'name'
   sortOrder?: 'asc' | 'desc'
   tab?: 'all' | 'recent' | 'draft' | 'published' | 'archived'
+  username?: string // Add support for filtering by username
+  enforceUserFiltering?: boolean // Whether to enforce user-based access control filtering
 }

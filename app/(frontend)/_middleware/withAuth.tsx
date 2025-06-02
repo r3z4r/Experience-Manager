@@ -20,29 +20,36 @@ export default function WithAuth({ children, requiredRoles = [] }: WithAuthProps
   const router = useRouter()
   const pathname = usePathname()
 
-  const [basePath, setBasePath] = useState('')
+  // Use a default basePath to avoid waiting for the async import
+  const defaultBasePath = process.env.NEXT_PUBLIC_BASE_PATH || '/xpm'
+  const [basePath, setBasePath] = useState(defaultBasePath)
 
+  // Still load the runtime basePath, but we already have a default to work with
   useEffect(() => {
     const loadBasePath = async () => {
-      const { basePath } = await import('@/app/(frontend)/_config/runtime')
-      setBasePath(basePath)
+      try {
+        const { basePath } = await import('@/app/(frontend)/_config/runtime')
+        setBasePath(basePath)
+      } catch (error) {
+        console.error('Error loading basePath:', error)
+      }
     }
     loadBasePath()
   }, [])
 
   useEffect(() => {
-    if (isLoading || !basePath) return
+    // Only check auth after user loading is complete
+    if (isLoading) return
 
     if (!user) {
       toast.error('Please sign in to access this page')
-
       const returnPath = encodeURIComponent(pathname)
       router.push(`${basePath}/login?next=${returnPath}`)
       return
     }
 
     if (requiredRoles.length > 0) {
-      const hasRequiredRole = requiredRoles.some((role) => user.roles.includes(role))
+      const hasRequiredRole = requiredRoles.some((role) => user.roles?.includes(role))
 
       if (!hasRequiredRole) {
         toast.error('You do not have permission to access this page')
@@ -54,10 +61,10 @@ export default function WithAuth({ children, requiredRoles = [] }: WithAuthProps
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-gray-900">
+      <div className="flex items-center justify-center min-h-screen bg-white">
         <div className="text-center">
-          <div className="w-16 h-16 border-4 border-t-blue-500 border-gray-700 rounded-full animate-spin mx-auto"></div>
-          <p className="mt-4 text-gray-400">Loading...</p>
+          <div className="w-16 h-16 border-4 border-t-blue-500 border-gray-200 rounded-full animate-spin mx-auto"></div>
+          <p className="mt-4 text-gray-600">Loading...</p>
         </div>
       </div>
     )

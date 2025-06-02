@@ -1,7 +1,7 @@
 'use client'
 
 import { LogOut } from 'lucide-react'
-import { useUser } from './UserContext'
+import { useUser } from '@/app/(frontend)/_context/UserContext'
 import { toast } from 'sonner'
 
 interface LogoutButtonProps {
@@ -30,10 +30,10 @@ export default function LogoutButton({
     return (
       <button
         onClick={handleLogout}
-        className={`p-2 rounded-full hover:bg-gray-700/50 transition-colors ${className}`}
+        className={`p-2 rounded-full hover:bg-gray-200 transition-colors ${className}`}
         aria-label="Log out"
       >
-        <LogOut className="h-5 w-5" />
+        <LogOut className="h-5 w-5 text-gray-600" />
       </button>
     )
   }
@@ -42,7 +42,7 @@ export default function LogoutButton({
     return (
       <button
         onClick={handleLogout}
-        className={`text-sm font-medium hover:text-gray-300 transition-colors ${className}`}
+        className={`text-sm font-medium text-gray-700 hover:text-gray-900 transition-colors ${className}`}
       >
         Log out
       </button>
@@ -52,9 +52,9 @@ export default function LogoutButton({
   return (
     <button
       onClick={handleLogout}
-      className={`flex items-center gap-2 px-4 py-2 rounded-md hover:bg-gray-700/50 transition-colors ${className}`}
+      className={`flex items-center gap-2 px-4 py-2 rounded-md hover:bg-gray-100 transition-colors ${className}`}
     >
-      <LogOut className="h-4 w-4" />
+      <LogOut className="h-4 w-4 text-red-500" />
       <span>Log out</span>
     </button>
   )

@@ -125,7 +125,7 @@ const Editor = ({ templateId, mode = 'edit' }: EditorProps) => {
         templateDescription ?? '',
         templateId,
         setHasUnsavedChanges,
-        (newTemplateId) => router.replace(`/editor/${newTemplateId}`),
+        (newTemplateId) => router.replace(`/dashboard/editor/${newTemplateId}`),
         images,
         blocks,
       ),
@@ -663,7 +663,7 @@ const Editor = ({ templateId, mode = 'edit' }: EditorProps) => {
     toast.success(message)
 
     if (newTemplateId) {
-      router.push(`/editor/${newTemplateId}`)
+      router.push(`/dashboard/editor/${newTemplateId}`)
     }
 
     // Reset save status after 2 seconds

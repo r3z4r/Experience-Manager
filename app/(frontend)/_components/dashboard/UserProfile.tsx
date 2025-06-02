@@ -1,6 +1,6 @@
 'use client'
 
-import { useUser } from './UserContext'
+import { useUser } from '@/app/(frontend)/_context/UserContext'
 import { Button } from '@/app/(frontend)/_components/ui/button'
 import { LogOut, User, Shield } from 'lucide-react'
 

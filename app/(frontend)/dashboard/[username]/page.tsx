@@ -3,6 +3,7 @@ import { getPayload } from 'payload'
 import configPromise from '@payload-config'
 import { User } from '@/payload-types'
 import { getCurrentUser } from '@/app/(frontend)/_actions/auth'
+import { fetchTemplates } from '@/app/(frontend)/_actions/templates'
 import Link from 'next/link'
 
 interface PageProps {
@@ -48,15 +49,15 @@ export default async function UserProfilePage({ params }: PageProps) {
     notFound()
   }
   
-  // Fetch user's templates
-  const templatesResult = await payload.find({
-    collection: 'pages',
-    where: {
-      createdBy: {
-        equals: profileUser.id,
-      },
-    },
-    sort: '-updatedAt',
+  // Fetch user's templates using our enhanced fetchTemplates function
+  // This will automatically apply access control rules
+  const templatesResult = await fetchTemplates({
+    username: profileUser.username,
+    sortBy: 'created',
+    sortOrder: 'desc',
+    // If the current user is the profile owner or an admin, we can show all their pages
+    // Otherwise, we'll only show pages the current user has access to (which should be none if properly filtered)
+    enforceUserFiltering: true
   })
   
   return (

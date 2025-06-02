@@ -1,9 +1,10 @@
 'use client'
 
 import { useState, useRef, useEffect } from 'react'
-import { useUser } from './UserContext'
+import { useUser } from '@/app/(frontend)/_context/UserContext'
 import { User, ChevronDown, UserCircle } from 'lucide-react'
 import LogoutButton from './LogoutButton'
+import Link from 'next/link'
 
 export default function UserProfileDropdown() {
   const { user } = useUser()
@@ -49,29 +50,27 @@ export default function UserProfileDropdown() {
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 px-3 py-2 rounded-md hover:bg-gray-800 transition-colors"
+        className="flex items-center gap-2 px-3 py-2 rounded-full bg-gray-100 hover:bg-gray-200 transition-colors"
       >
-        <div className="w-8 h-8 rounded-full bg-gray-700 flex items-center justify-center text-sm font-medium">
+        <div className="w-8 h-8 rounded-full bg-gray-300 flex items-center justify-center text-sm font-medium text-gray-700">
           {initials}
         </div>
-        <div className="hidden md:block text-left">
-          <div className="text-sm font-medium">{user.username}</div>
-          <div className="text-xs text-gray-400">{user.email}</div>
-        </div>
-        <ChevronDown className="h-4 w-4 text-gray-400" />
+        <ChevronDown className="h-4 w-4 text-gray-600" />
       </button>
 
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-64 bg-gray-900 border border-gray-800 rounded-md shadow-lg py-2 z-50">
-          <div className="px-4 py-2 border-b border-gray-800">
-            <div className="font-medium">{user.username}</div>
-            <div className="text-sm text-gray-400">{user.email}</div>
+        <div className="absolute right-0 mt-2 w-64 bg-white border border-gray-200 rounded-md shadow-lg py-2 z-50">
+          <div className="px-4 py-2 border-b border-gray-100">
+            <div className="font-medium text-gray-800">{user.username}</div>
+            <div className="text-sm text-gray-600">{user.email}</div>
             <div className="mt-2 flex flex-wrap gap-1">
               {user.roles.map(role => (
                 <span
                   key={role}
                   className={`text-xs px-2 py-1 rounded-full ${
-                    roleLabels[role]?.className || 'bg-gray-700 text-gray-300'
+                    role === 'admin' ? 'bg-red-100 text-red-600' :
+                    role === 'editor' ? 'bg-blue-100 text-blue-600' :
+                    'bg-green-100 text-green-600'
                   }`}
                 >
                   {roleLabels[role]?.label || role}
@@ -82,13 +81,13 @@ export default function UserProfileDropdown() {
           <div className="px-2 py-2">
             {/* Admin Dashboard Link - Only visible to admin users */}
             {user.roles.includes('admin') && (
-              <a
+              <Link
                 href="/dashboard/admin"
-                className="flex items-center gap-2 px-2 py-2 rounded-md hover:bg-gray-800 transition-colors w-full text-left mb-1"
+                className="flex items-center gap-2 px-2 py-2 rounded-md hover:bg-gray-100 transition-colors w-full text-left mb-1 text-gray-700"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
-                  className="h-4 w-4 text-red-400"
+                  className="h-4 w-4 text-red-500"
                   viewBox="0 0 24 24"
                   fill="none"
                   stroke="currentColor"
@@ -98,22 +97,22 @@ export default function UserProfileDropdown() {
                 >
                   <path d="M12 2a3 3 0 0 0-3 3v1h6V5a3 3 0 0 0-3-3Z" />
                   <path d="M19 5H5a2 2 0 0 0-2 2v1h18V7a2 2 0 0 0-2-2Z" />
-                  <path d="M21 8H3v9a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V8Z" />
-                  <path d="M12 12v4" />
+                  <path d="M2 8v8a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8" />
+                  <path d="M9 14h6" />
                 </svg>
                 <span>Admin Dashboard</span>
-              </a>
+              </Link>
             )}
             
-            <a
+            <Link
               href="/dashboard/profile"
-              className="flex items-center gap-2 px-2 py-2 rounded-md hover:bg-gray-800 transition-colors w-full text-left"
+              className="flex items-center gap-2 px-2 py-2 rounded-md hover:bg-gray-100 transition-colors w-full text-left text-gray-700"
             >
-              <UserCircle className="h-4 w-4" />
+              <UserCircle className="h-4 w-4 text-blue-500" />
               <span>Profile</span>
-            </a>
+            </Link>
             <div className="mt-1">
-              <LogoutButton className="w-full justify-start text-left" />
+              <LogoutButton className="w-full justify-start text-left text-gray-700 hover:bg-gray-100" />
             </div>
           </div>
         </div>

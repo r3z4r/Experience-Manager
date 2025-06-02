@@ -126,6 +126,7 @@ export interface Media {
  */
 export interface Page {
   id: string;
+  user: string | User;
   title: string;
   slug?: string | null;
   description?: string | null;
@@ -400,6 +401,7 @@ export interface MediaSelect<T extends boolean = true> {
  * via the `definition` "pages_select".
  */
 export interface PagesSelect<T extends boolean = true> {
+  user?: T;
   title?: T;
   slug?: T;
   description?: T;

@@ -32,7 +32,7 @@ import { SaveModal } from './SaveModal'
 import { DeleteModal } from './DeleteModal'
 import type { Page } from '@/payload-types'
 import { TEMPLATE_STATUS } from '@/app/(frontend)/_types/template'
-import { useUser } from '@/app/(frontend)/_components/dashboard/UserContext'
+import { useUser } from '@/app/(frontend)/_context/UserContext'
 
 const ITEMS_PER_PAGE = 4
 
@@ -65,7 +65,7 @@ export function TemplateList() {
   const [searchTerm, setSearchTerm] = useState('')
   const [sortBy, setSortBy] = useState<'created' | 'name'>('created')
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
-  const { userEmail } = useUser()
+  const { user } = useUser()
 
   // Debounced search term for server fetch
   const debouncedSearch = useDebounce(searchTerm, 350)
@@ -122,16 +122,21 @@ export function TemplateList() {
   const fetchTemplatesData = async (page: number) => {
     setIsLoading(true)
     try {
+      // Create filter object with status if applicable
+      const baseFilter =
+        debouncedSearch.trim() === '' && selectedTab !== 'recent' && selectedTab !== 'all'
+          ? { status: selectedTab }
+          : {}
+
       const response = await fetchTemplates({
         page,
         limit: ITEMS_PER_PAGE,
         sortBy,
         sortOrder,
         search: debouncedSearch,
-        filter:
-          debouncedSearch.trim() === '' && selectedTab !== 'recent' && selectedTab !== 'all'
-            ? { status: selectedTab }
-            : {},
+        filter: baseFilter,
+        username: user?.username,
+        enforceUserFiltering: true,
       })
       const { docs, ...paginationData } = response
       setTemplates(docs)
@@ -146,23 +151,25 @@ export function TemplateList() {
 
   const handleCreateTemplate = async () => {
     try {
-      const response = await createTemplate({
+      const templateData = {
         title: 'New Template',
         description: 'Start with a blank template',
         htmlContent: '',
         cssContent: '',
-        jsContent: '', // Adding the jsContent field
+        jsContent: '',
         gjsData: {},
-        status: 'draft',
+        status: 'draft' as const,
         access: {
-          visibility: 'public',
+          visibility: 'public' as const,
         },
-        slug: 'temp-slug', // Temporary slug that will be updated with id
-      })
+        slug: 'temp-slug',
+      }
+
+      const response = await createTemplate(templateData)
 
       if (response?.id) {
         toast.success('Template created successfully')
-        router.push(`/editor/${response.id}`)
+        router.push(`/dashboard/editor/${response.id}`)
       }
     } catch (error) {
       console.error('Error creating template:', error)
@@ -233,7 +240,7 @@ export function TemplateList() {
     <>
       <header className="flex items-center justify-between py-6 px-8 border-b bg-white">
         <div className="text-xl font-bold text-[#1B3E8A] font-helvetica">
-          {userEmail}'s Workspace
+          {user?.username || 'My'}'s Workspace
         </div>
         <div className="flex gap-3">
           <button className="border border-[#2242A4] text-[#2242A4] bg-white px-5 py-2 rounded-lg font-medium hover:bg-blue-50 transition-all">
@@ -403,14 +410,14 @@ export function TemplateList() {
                           </div>
                           <div className="template-card-actions">
                             <Link
-                              href={`/editor/${template.id}`}
+                              href={`/dashboard/editor/${template.id}`}
                               className="template-card-edit"
                               aria-label="Edit template"
                             >
                               <EditIcon className="w-5 h-5" />
                             </Link>
                             <Link
-                              href={`/editor/${template.id}`}
+                              href={`/dashboard/editor/${template.id}`}
                               className="template-card-view"
                               aria-label="View template"
                             >
@@ -465,14 +472,14 @@ export function TemplateList() {
                         <CopyIcon className="w-5 h-5" />
                       </button>
                       <Link
-                        href={`/editor/${template.id}`}
+                        href={`/dashboard/editor/${template.id}`}
                         className="template-list-edit"
                         aria-label="Edit template"
                       >
                         <EditIcon className="w-5 h-5" />
                       </Link>
                       <Link
-                        href={`/editor/${template.id}`}
+                        href={`/dashboard/editor/${template.id}`}
                         className="template-list-view"
                         aria-label="View template"
                       >
