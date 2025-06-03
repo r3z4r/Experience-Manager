@@ -7,7 +7,7 @@ interface AuthBrandingProps {
 
 export default function AuthBranding({ children }: AuthBrandingProps) {
   return (
-    <div className="flex-1 flex flex-col justify-center items-start bg-gradient-to-br from-[#5B5BF6] to-[#1B3E8A] relative p-8 overflow-hidden min-h-screen">
+    <div className="flex-1 flex flex-col justify-center items-start bg-gradient-to-br from-[#5B5BF6] to-[#1B3E8A] relative p-8 overflow-hidden max-h-screen">
       <Image
         src={`${process.env.NEXT_PUBLIC_BASE_PATH}/images/dots.png`}
         alt="Decorative Dots"

@@ -45,7 +45,7 @@ export default function DashboardSidebar() {
   }, [router])
 
   return (
-    <aside className="w-64 min-h-screen bg-white border-r border-gray-200 flex flex-col py-6 px-0">
+    <aside className="w-64 bg-white border-r border-gray-200 flex flex-col py-6 px-0">
       <div className="px-6 pb-2 text-xs text-gray-400 font-semibold tracking-wider uppercase">
         Pages
       </div>

@@ -390,7 +390,7 @@
 
   /* Admin Layout Components */
   .admin-layout {
-    @apply min-h-screen bg-background text-foreground flex flex-col h-screen;
+    @apply min-h-screen bg-background text-foreground flex flex-col;
   }
 
   .admin-header {
@@ -411,7 +411,7 @@
 
   /* Editor styles */
   .editor-wrapper {
-    @apply w-full h-screen relative overflow-hidden;
+    @apply w-full relative overflow-hidden;
   }
 
   .editor-topbar {
@@ -419,7 +419,7 @@
   }
 
   .editor-content {
-    @apply flex-1 h-[calc(100vh-4rem)] relative;
+    @apply flex-1 relative;
   }
 
   .editor-back-button {

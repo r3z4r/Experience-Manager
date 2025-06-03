@@ -11,10 +11,7 @@ export default async function DashboardSubpathLayout({ children }: { children: R
   return (
     <UserProvider>
       <WithAuth>
-        <DashboardLayout>
-          <Toaster position="top-right" richColors />
-          {children}
-        </DashboardLayout>
+        <DashboardLayout>{children}</DashboardLayout>
       </WithAuth>
     </UserProvider>
   )

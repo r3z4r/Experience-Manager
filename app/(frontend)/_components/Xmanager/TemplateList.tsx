@@ -67,17 +67,14 @@ export function TemplateList() {
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
   const { user } = useUser()
 
-  // Debounced search term for server fetch
   const debouncedSearch = useDebounce(searchTerm, 350)
 
-  // Server fetch on tab/sort/search/page change
   const [isPending, startTransition] = useTransition()
 
   useEffect(() => {
     setIsLoading(true)
     startTransition(() => {
       const filter: Record<string, unknown> = {}
-      // Only filter by status if not searching and on a specific status tab
       if (debouncedSearch.trim() === '' && selectedTab !== 'recent' && selectedTab !== 'all') {
         filter.status = selectedTab
       }
@@ -91,7 +88,6 @@ export function TemplateList() {
       })
         .then((response) => {
           const { docs, ...paginationData } = response
-          console.log(docs)
           setTemplates(docs)
           setPagination(paginationData)
         })
@@ -255,15 +251,15 @@ export function TemplateList() {
         </div>
       </header>
 
-      <div className="flex flex-wrap items-center justify-between px-8 py-2 gap-4">
+      <div className="flex flex-wrap items-center justify-between px-4 py-2 gap-4">
         {/* Tabs */}
-        <div className="flex gap-2 md:gap-3 items-center flex-shrink-0 w-full md:w-auto overflow-x-auto">
+        <div className="flex gap-1 md:gap-2 items-center flex-shrink-0 w-full md:w-auto overflow-x-auto">
           {statusTabs.map((tab) => (
             <button
               key={tab.key}
               aria-pressed={selectedTab === tab.key}
               type="button"
-              className={`px-4 py-1.5 rounded-full font-medium whitespace-nowrap border transition-colors duration-150
+              className={`m-0.5 px-4 py-1.5 rounded-full font-medium whitespace-nowrap border transition-colors duration-150
                 ${
                   selectedTab === tab.key
                     ? 'bg-[#2242A4] text-white border-[#2242A4]'
@@ -363,7 +359,7 @@ export function TemplateList() {
         </div>
       </div>
 
-      <div className="p-4">
+      <div className="px-4 py-2">
         {isLoading ? (
           <div className="template-loading">
             <LoadingSpinner
@@ -509,7 +505,7 @@ export function TemplateList() {
 
       {/* Pagination Controls */}
       {templates.length > 0 && (
-        <div className="flex justify-center items-center gap-4 mt-6">
+        <div className="flex justify-center items-center gap-4 mt-2">
           <button
             onClick={() => fetchTemplatesData(pagination.prevPage || 1)}
             disabled={!pagination.hasPrevPage}

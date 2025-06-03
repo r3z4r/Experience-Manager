@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import grapesjs, {
   BlockProperties,
   Editor as GrapesEditor,
@@ -105,7 +105,7 @@ const Editor = ({ templateId, mode = 'edit' }: EditorProps) => {
       try {
         const fetchedImages = await fetchImages()
         setImages(fetchedImages ?? [])
-      } catch (error) {
+      } catch (error: unknown) {
         console.error('Error loading images:', error)
       }
     }
@@ -277,7 +277,7 @@ const Editor = ({ templateId, mode = 'edit' }: EditorProps) => {
                       title: 'Script Executed',
                       content: 'Script executed successfully!',
                     })
-                  } catch (error) {
+                  } catch (error: unknown) {
                     console.error('Script execution error:', error)
                     editor.Modal.open({
                       title: 'Script Error',
@@ -329,7 +329,7 @@ const Editor = ({ templateId, mode = 'edit' }: EditorProps) => {
               // Execute script in a safe context
               const func = new Function(content)
               func()
-            } catch (error) {
+            } catch (error: unknown) {
               console.error('Script execution error:', error)
               toast.error('Script execution failed')
             }
@@ -344,16 +344,41 @@ const Editor = ({ templateId, mode = 'edit' }: EditorProps) => {
       // Add command to open JavaScript manager dialog
       editorInstance.Commands.add('open-js-manager', {
         run: () => {
-          // Find any script component to use as a starting point
-          const scripts = editorInstance.Components.getWrapper()?.find('[type=script]') || []
-          const scriptComponent = Array.isArray(scripts) && scripts.length > 0 ? scripts[0] : null
+          try {
+            // Check if Components API is available
+            if (!editorInstance.Components) {
+              console.error('Editor Components API not available')
+              toast.error('JavaScript editor is not available right now')
+              return
+            }
 
-          // Open the script editor dialog with the found component or null to create new
-          window.dispatchEvent(
-            new CustomEvent('open-script-editor-dialog', {
-              detail: { component: scriptComponent, editor: editorInstance },
-            }),
-          )
+            // Get wrapper with safety check
+            const wrapper = editorInstance.Components.getWrapper()
+            if (!wrapper) {
+              console.error('Editor wrapper not available')
+              // Still dispatch event but with null component
+              window.dispatchEvent(
+                new CustomEvent('open-script-editor-dialog', {
+                  detail: { component: null, editor: editorInstance },
+                }),
+              )
+              return
+            }
+
+            // Find any script component to use as a starting point
+            const scripts = wrapper.find('[type=script]') || []
+            const scriptComponent = Array.isArray(scripts) && scripts.length > 0 ? scripts[0] : null
+
+            // Open the script editor dialog with the found component or null to create new
+            window.dispatchEvent(
+              new CustomEvent('open-script-editor-dialog', {
+                detail: { component: scriptComponent, editor: editorInstance },
+              }),
+            )
+          } catch (error: unknown) {
+            console.error('Error opening JavaScript manager:', error)
+            toast.error('Could not open JavaScript editor')
+          }
         },
       })
 
@@ -419,7 +444,7 @@ const Editor = ({ templateId, mode = 'edit' }: EditorProps) => {
             // Process top-level components
             data.components = processComponents(data.components)
           }
-        } catch (error) {
+        } catch (error: unknown) {
           console.error('Error processing components for storage:', error)
         }
       })
@@ -441,9 +466,10 @@ const Editor = ({ templateId, mode = 'edit' }: EditorProps) => {
   // Setup editor configurations and cleanup
   useEditorSetup(editor, mode)
 
-  const handleChange = () => {
+  // Use useCallback to prevent recreating this function on every render
+  const handleChange = useCallback(() => {
     setHasUnsavedChanges(true)
-  }
+  }, [])
 
   useEffect(() => {
     if (!editor) return
@@ -492,21 +518,32 @@ const Editor = ({ templateId, mode = 'edit' }: EditorProps) => {
     })
 
     // Use the imported blocks
-    blocks.forEach((block) => {
-      editor.Blocks.add(block?.id || '', block)
-    })
+    if (editor.Blocks && typeof editor.Blocks.add === 'function') {
+      blocks.forEach((block) => {
+        if (block && block.id) {
+          try {
+            editor.Blocks.add(block.id, block)
+          } catch (error) {
+            console.error(`Error adding block ${block.id}:`, error)
+          }
+        }
+      })
+    } else {
+      console.warn('Editor Blocks API not available')
+    }
 
     return () => {
       editor.off('component:update', handleChange)
       editor.off('style:update', handleChange)
       editor.off('canvas:update', handleChange)
     }
-  }, [editor])
+  }, [editor, blocks, handleChange])
 
   useEffect(() => {
     if (hasUnsavedChanges) {
-      const handleBeforeUnload = () => {
-        return window.confirm('You have unsaved changes. Are you sure you want to leave?')
+      const handleBeforeUnload = (e: BeforeUnloadEvent) => {
+        e.preventDefault()
+        e.returnValue = ''
       }
 
       window.addEventListener('beforeunload', handleBeforeUnload)
@@ -514,163 +551,40 @@ const Editor = ({ templateId, mode = 'edit' }: EditorProps) => {
     }
   }, [hasUnsavedChanges])
 
-  useEffect(() => {
-    if (editor && templateName && templateDescription) {
-      handleSaveTemplate()
-    }
-  }, [templateName, templateDescription])
-
-  const handleSaveTemplate = async (): Promise<void> => {
-    if (!editor) {
-      throw new Error('Editor is not initialized')
-    }
-    // Validation checks
-    const validationError = validateTemplateData()
-    if (validationError) {
-      setSaveStatus('error')
-      toast.error(validationError.message)
-      return
-    }
-
-    setSaveStatus('saving')
-
-    try {
-      // Extract JavaScript content from script components
-      const extractJavaScriptContent = () => {
-        const scripts: string[] = []
-
-        // Get all script components
-        const wrapper = editor.Components.getWrapper()
-        if (wrapper) {
-          const scriptComponents = wrapper.find('[type=script]')
-
-          // Extract content from each script component
-          if (Array.isArray(scriptComponents) && scriptComponents.length > 0) {
-            scriptComponents.forEach((script) => {
-              // Get the text content of the script
-              const textNode = script.components().models[0]
-              const content = textNode?.get('content')
-              if (content) {
-                scripts.push(`/* Script ${scripts.length + 1} */\n${content}`)
-              }
-            })
-          }
-        }
-
-        return scripts.join('\n\n')
-      }
-
-      const jsContent = extractJavaScriptContent()
-
-      // Create template data object with required fields for the API
-      // Using Partial<Page> since server will handle timestamps
-      const pageData: Partial<Page> = {
-        id: templateId || '',
-        title: templateName.trim(),
-        description: templateDescription,
-        slug: slugTempValue || templateId || '',
-        htmlContent: editor.getHtml(),
-        cssContent: editor.getCss(),
-        jsContent,
-        gjsData: editor.getProjectData(),
-        status: currentStatus,
-        access: {
-          visibility: 'public',
-        },
-      }
-
-      if (templateId) {
-        const response = await updateTemplate(templateId, pageData)
-        if (!response) {
-          throw {
-            type: 'server',
-            message: 'Failed to update template - no response received',
-            statusCode: 500,
-          } as ServerError
-        }
-
-        handleSuccessfulSave('Template updated successfully', undefined, slugTempValue)
-      } else {
-        // Ensure we have all required fields for creating a new template
-        const templateData = {
-          title: templateName.trim(),
-          description: templateDescription || '',
-          htmlContent: editor.getHtml(),
-          cssContent: editor.getCss(),
-          jsContent,
-          gjsData: editor.getProjectData(),
-          status: currentStatus as 'draft' | 'published' | 'archived',
-          access: {
-            visibility: 'public' as const,
-          },
-          slug: slugTempValue || 'temp-slug',
-        }
-        const savedTemplate = await createTemplate(templateData)
-        if (!savedTemplate?.id) {
-          throw {
-            type: 'server',
-            message: 'Failed to create template - no ID received',
-            statusCode: 500,
-          } as ServerError
-        }
-        await updateTemplate(savedTemplate.id, { slug: savedTemplate.id })
-        handleSuccessfulSave('New template created successfully', savedTemplate.id, slugTempValue)
-      }
-    } catch (error) {
-      handleSaveError(error)
-    }
+  // Type guard for TemplateError
+  const isTemplateError = (error: unknown): error is TemplateError => {
+    return (
+      typeof error === 'object' &&
+      error !== null &&
+      ('type' in error || 'name' in error) &&
+      'message' in error &&
+      typeof (error as TemplateError).message === 'string'
+    )
   }
 
-  const validateTemplateData = (): PayloadValidationError | null => {
-    if (!templateName.trim()) {
-      return {
-        name: 'validation',
-        message: 'Please enter a template name',
-        data: {
-          errors: [{ message: 'Template name is required', path: 'title' }],
-        },
-        isOperational: true,
-        isPublic: true,
-        status: 400,
+  // Function to handle successful template save
+  const handleSuccessfulSave = useCallback(
+    (message: string, newTemplateId?: string, slugValue: string = newTemplateId || ''): void => {
+      syncSlug(slugValue)
+      setHasUnsavedChanges(false)
+      setSaveStatus('saved')
+      setShowSaveDialog(false)
+
+      // Show success message only once
+      toast.success(message)
+
+      if (newTemplateId) {
+        router.push(`/dashboard/editor/${newTemplateId}`)
       }
-    }
 
-    if (!editor?.getHtml()) {
-      return {
-        name: 'validation',
-        message: 'Template content cannot be empty',
-        data: {
-          errors: [{ message: 'Template content is required', path: 'content' }],
-        },
-        isOperational: true,
-        isPublic: true,
-        status: 400,
-      }
-    }
+      // Reset save status after 2 seconds
+      setTimeout(() => setSaveStatus('idle'), 2000)
+    },
+    [router, syncSlug],
+  )
 
-    return null
-  }
-
-  const handleSuccessfulSave = (
-    message: string,
-    newTemplateId?: string,
-    slugValue: string = newTemplateId || '',
-  ): void => {
-    syncSlug(slugValue)
-    setHasUnsavedChanges(false)
-    setSaveStatus('saved')
-    setShowSaveDialog(false)
-    toast.success(message)
-
-    if (newTemplateId) {
-      router.push(`/dashboard/editor/${newTemplateId}`)
-    }
-
-    // Reset save status after 2 seconds
-    setTimeout(() => setSaveStatus('idle'), 2000)
-  }
-
-  const handleSaveError = (error: unknown): void => {
+  // Function to handle save errors
+  const handleSaveError = useCallback((error: unknown): void => {
     setSaveStatus('error')
     console.error('Error saving template:', error)
 
@@ -690,18 +604,199 @@ const Editor = ({ templateId, mode = 'edit' }: EditorProps) => {
     } else {
       toast.error('An unexpected error occurred while saving')
     }
-  }
+  }, [])
 
-  // Type guard for TemplateError
-  const isTemplateError = (error: unknown): error is TemplateError => {
-    return (
-      typeof error === 'object' &&
-      error !== null &&
-      'type' in error &&
-      'message' in error &&
-      typeof (error as TemplateError).message === 'string'
-    )
-  }
+  // Main function to save the template - wrapped in useCallback to prevent recreation on every render
+  const handleSaveTemplate = useCallback(async (): Promise<void> => {
+    if (!editor) {
+      toast.error('Editor is not fully initialized')
+      setSaveStatus('error')
+      return
+    }
+
+    // Validate template data
+    if (!templateName.trim()) {
+      toast.error('Please enter a template name')
+      setSaveStatus('error')
+      return
+    }
+
+    // Safely check if HTML content exists
+    try {
+      // Verify that getHtml method exists before calling it
+      if (typeof editor.getHtml !== 'function') {
+        console.error('Editor getHtml method is not available')
+        toast.error('Editor is not fully initialized')
+        setSaveStatus('error')
+        return
+      }
+
+      const htmlContent = editor.getHtml()
+      if (!htmlContent) {
+        toast.error('Template content cannot be empty')
+        setSaveStatus('error')
+        return
+      }
+    } catch (error: unknown) {
+      console.error('Error getting HTML content:', error)
+      toast.error('Unable to retrieve template content')
+      setSaveStatus('error')
+      return
+    }
+
+    setSaveStatus('saving')
+
+    try {
+      // Extract JavaScript content from script components safely
+      const extractJavaScriptContent = () => {
+        const scripts: string[] = []
+
+        try {
+          // Check if editor.Components exists before accessing getWrapper
+          if (!editor || !editor.Components) {
+            console.error('Editor or Components API not available')
+            return ''
+          }
+
+          // Extract scripts from components
+          const wrapper = editor.Components.getWrapper()
+          if (!wrapper) return ''
+
+          const scriptComponents = wrapper.find('[data-gjs-type="script"]')
+
+          if (scriptComponents && scriptComponents.length > 0) {
+            for (let i = 0; i < scriptComponents.length; i++) {
+              const script = scriptComponents[i]
+              if (script.components) {
+                const components = script.components()
+                if (components && components.models && components.models.length > 0) {
+                  const textNode = components.models[0]
+                  const content = textNode?.get('content')
+                  if (content) {
+                    scripts.push(`/* Script ${scripts.length + 1} */\n${content}`)
+                  }
+                }
+              }
+            }
+          }
+          return scripts.join('\n\n')
+        } catch (error: unknown) {
+          console.error('Error extracting JavaScript content:', error)
+          return ''
+        }
+      }
+
+      const extractedJsContent = extractJavaScriptContent()
+
+      // Safely get HTML, CSS and project data
+      let htmlContent = ''
+      let cssContent = ''
+      let gjsData = {}
+
+      try {
+        // Verify editor methods exist before calling them
+        if (typeof editor.getHtml === 'function') {
+          htmlContent = editor.getHtml() || ''
+        }
+        if (typeof editor.getCss === 'function') {
+          cssContent = editor.getCss() || ''
+        }
+        if (typeof editor.getProjectData === 'function') {
+          gjsData = editor.getProjectData() || {}
+        }
+      } catch (error: unknown) {
+        console.error('Error getting editor content:', error)
+      }
+
+      // Using Partial<Page> since server will handle timestamps
+      const pageData: Partial<Page> = {
+        id: templateId || '',
+        title: templateName.trim(),
+        description: templateDescription,
+        slug: slugTempValue || templateId || '',
+        htmlContent,
+        cssContent,
+        jsContent: extractedJsContent,
+        gjsData,
+        status: currentStatus,
+        access: {
+          visibility: 'public',
+        },
+      }
+
+      if (templateId) {
+        // Update existing template
+        try {
+          const response = await updateTemplate(templateId, pageData)
+          if (!response) {
+            setSaveStatus('error')
+            toast.error('Failed to update template - no response received')
+            return
+          }
+
+          handleSuccessfulSave('Template updated successfully', undefined, slugTempValue)
+        } catch (updateError) {
+          handleSaveError(updateError)
+          return
+        }
+      } else {
+        // Create new template
+        const templateData = {
+          title: templateName.trim(),
+          description: templateDescription || '',
+          htmlContent,
+          cssContent,
+          jsContent: extractedJsContent,
+          gjsData,
+          status: currentStatus as 'draft' | 'published' | 'archived',
+          access: {
+            visibility: 'public' as const,
+          },
+          slug: slugTempValue || 'temp-slug',
+        }
+
+        try {
+          const savedTemplate = await createTemplate(templateData)
+          if (!savedTemplate?.id) {
+            setSaveStatus('error')
+            toast.error('Failed to create template - no ID received')
+            return
+          }
+
+          try {
+            await updateTemplate(savedTemplate.id, { slug: savedTemplate.id })
+          } catch (slugError: unknown) {
+            console.error('Error updating slug:', slugError)
+          }
+
+          handleSuccessfulSave('New template created successfully', savedTemplate.id, slugTempValue)
+        } catch (createError: unknown) {
+          handleSaveError(createError)
+          return
+        }
+      }
+    } catch (error: unknown) {
+      console.error('Unhandled error in save template flow:', error)
+      handleSaveError(error)
+    } finally {
+      setSaveStatus('idle')
+    }
+  }, [
+    editor,
+    templateName,
+    templateDescription,
+    slugTempValue,
+    currentStatus,
+    handleSuccessfulSave,
+    handleSaveError,
+    templateId,
+  ])
+
+  useEffect(() => {
+    if (editor && templateName && templateDescription) {
+      handleSaveTemplate()
+    }
+  }, [templateName, templateDescription])
 
   const handleStatusChange = async (newStatus: TemplateStatus) => {
     if (!templateId) {
