@@ -1,62 +1,50 @@
 import { notFound } from 'next/navigation'
-import { getPayload } from 'payload'
-import configPromise from '@payload-config'
-import { User } from '@/payload-types'
 import { getCurrentUser, findUserByUsername } from '@/app/(frontend)/_actions/auth'
 import { fetchTemplates } from '@/app/(frontend)/_actions/templates'
 import Link from 'next/link'
 
 interface UserProfilePageProps {
   params: Promise<{
-    username: string;
-  }>;
-  searchParams?: { [key: string]: string | string[] | undefined };
+    username: string
+  }>
 }
 
-export default async function UserProfilePage({ params: paramsPromise }: UserProfilePageProps): Promise<JSX.Element> {
-  const params = await paramsPromise;
+export default async function UserProfilePage({
+  params: paramsPromise,
+}: UserProfilePageProps): Promise<JSX.Element> {
+  const params = await paramsPromise
   const { username } = params
   const currentUser = await getCurrentUser()
   const profileUser = await findUserByUsername(username)
 
-  // If user doesn't exist, show 404
   if (!profileUser) {
     notFound()
   }
-  
-  // Check if current user has access to this profile
-  // Admin can view all profiles, users can only view their own
+
   const isAdmin = currentUser?.roles?.includes('admin')
   const isOwner = currentUser?.id === profileUser.id
-  
+
   if (!isAdmin && !isOwner) {
-    // User doesn't have permission to view this profile
     notFound()
   }
-  
-  // Fetch user's templates using our enhanced fetchTemplates function
-  // This will automatically apply access control rules
+
   const templatesResult = await fetchTemplates({
     username: profileUser.username,
     sortBy: 'created',
     sortOrder: 'desc',
-    // If the current user is the profile owner or an admin, we can show all their pages
-    // Otherwise, we'll only show pages the current user has access to (which should be none if properly filtered)
-    enforceUserFiltering: true
+    enforceUserFiltering: true,
   })
-  
+
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="bg-white rounded-lg shadow-md p-6 mb-8">
-        <h1 className="text-2xl font-bold text-gray-800 mb-2">
-          {profileUser.username}'s Profile
-        </h1>
+        <h1 className="text-2xl font-bold text-gray-800 mb-2">{profileUser.username}'s Profile</h1>
         <p className="text-gray-600 mb-4">@{profileUser.username}</p>
         <div className="text-sm text-gray-500">
           Member since {new Date(profileUser.createdAt).toLocaleDateString()}
         </div>
       </div>
-      
+
       <div className="bg-white rounded-lg shadow-md p-6">
         <div className="flex justify-between items-center mb-6">
           <h2 className="text-xl font-semibold text-gray-800">Pages</h2>
@@ -69,13 +57,13 @@ export default async function UserProfilePage({ params: paramsPromise }: UserPro
             </Link>
           )}
         </div>
-        
+
         {templatesResult.docs.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {templatesResult.docs.map((template) => (
               <Link
                 key={template.id}
-                href={`/dashboard/${username}/${template.slug}`}
+                href={`/${username}/${template.slug}`}
                 className="block bg-gray-50 hover:bg-gray-100 rounded-lg p-4 transition-colors"
               >
                 <h3 className="font-medium text-gray-800 mb-2">{template.title}</h3>

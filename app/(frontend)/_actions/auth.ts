@@ -3,6 +3,7 @@
 import { getPayload } from 'payload'
 import configPromise from '@payload-config'
 import type { User } from '@/payload-types'
+import { headers as getHeaders } from 'next/headers'
 
 /**
  * Type definitions for authentication operations
@@ -34,22 +35,16 @@ export async function getCurrentUser(): Promise<User | null> {
       config: configPromise,
     })
 
-    // Use PayloadCMS's built-in 'me' operation to get the current user
-    // This automatically uses the cookie from the request
-    const result = await payload.find({
-      collection: 'users',
-      depth: 0,
-      limit: 1,
-      where: {
-        id: {
-          equals: 'me',
-        },
-      },
-    })
+    const nextHeaders = await getHeaders() // Re-add await as TS indicates it's a Promise
+    console.log('Raw cookie header from next/headers:', nextHeaders.get('cookie'))
+    // Pass nextHeaders directly to payload.auth.
+    // nextHeaders is ReadonlyHeaders, which should be compatible.
+    const { user } = await payload.auth({ headers: nextHeaders })
 
-    // If user is found, return it
-    if (result.docs && result.docs.length > 0) {
-      return result.docs[0] as User
+    console.log(user)
+
+    if (user) {
+      return user as User
     }
 
     return null
@@ -75,8 +70,6 @@ export async function loginUser(formData: FormData): Promise<LoginResult> {
   }
 
   try {
-    console.log('Attempting to login user with email:', email)
-
     const payload = await getPayload({
       config: configPromise,
     })

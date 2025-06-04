@@ -9,7 +9,6 @@ import Link from 'next/link'
 
 export default function SignInForm() {
   const [showPassword, setShowPassword] = useState<boolean>(false)
-  const router = useRouter()
   const [isLoading, setIsLoading] = useState(false)
   const [formData, setFormData] = useState({
     email: '',
