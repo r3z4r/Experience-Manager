@@ -798,7 +798,8 @@ const Editor = ({ templateId, mode = 'edit' }: EditorProps) => {
     if (editor && templateName && templateDescription) {
       handleSaveTemplate()
     }
-  }, [editor, templateName, templateDescription, handleSaveTemplate])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [templateName, templateDescription])
 
   const handleStatusChange = async (newStatus: TemplateStatus) => {
     if (!templateId) {
