@@ -1,6 +1,6 @@
 'use client'
 
-import { JourneyFormContainer } from '@/app/(frontend)/wizard/_components/JourneyFormContainer'
+import { JourneyFormContainer } from '@/app/(frontend)/dashboard/wizard/_components/JourneyFormContainer'
 import { DEFAULT_LOCALIZATION_CONFIG } from '@/lib/constants/localization'
 
 /**

@@ -28,7 +28,7 @@ export const WizardHeader: React.FC<WizardHeaderProps> = ({
       </div>
     </div>
 
-    <Link href="/template-list" className="button-primary-outline button-lg">
+    <Link href="/dashboard/pages" className="button-primary-outline button-lg">
       Template List
     </Link>
   </header>

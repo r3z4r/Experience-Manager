@@ -2,42 +2,27 @@ import { notFound } from 'next/navigation'
 import { getPayload } from 'payload'
 import configPromise from '@payload-config'
 import { User } from '@/payload-types'
-import { getCurrentUser } from '@/app/(frontend)/_actions/auth'
+import { getCurrentUser, findUserByUsername } from '@/app/(frontend)/_actions/auth'
 import { fetchTemplates } from '@/app/(frontend)/_actions/templates'
 import Link from 'next/link'
 
-interface PageProps {
-  params: {
-    username: string
-  }
+interface UserProfilePageProps {
+  params: Promise<{
+    username: string;
+  }>;
+  searchParams?: { [key: string]: string | string[] | undefined };
 }
 
-export default async function UserProfilePage({ params }: PageProps) {
+export default async function UserProfilePage({ params: paramsPromise }: UserProfilePageProps): Promise<JSX.Element> {
+  const params = await paramsPromise;
   const { username } = params
   const currentUser = await getCurrentUser()
-  
-  // Initialize PayloadCMS
-  const payload = await getPayload({
-    config: configPromise,
-  })
-  
-  // Find the user by username
-  const usersResult = await payload.find({
-    collection: 'users',
-    where: {
-      username: {
-        equals: username,
-      },
-    },
-    limit: 1,
-  })
-  
+  const profileUser = await findUserByUsername(username)
+
   // If user doesn't exist, show 404
-  if (!usersResult.docs || usersResult.docs.length === 0) {
+  if (!profileUser) {
     notFound()
   }
-  
-  const profileUser = usersResult.docs[0] as User
   
   // Check if current user has access to this profile
   // Admin can view all profiles, users can only view their own

@@ -50,6 +50,7 @@ import { getAssetManagerConfig } from './utils/assetConfig'
 import { getCustomBlocks } from './blocks'
 import { ScriptEditor } from './panels/ScriptEditor'
 import type { Page } from '@/payload-types'
+import { useUser } from '@/app/(frontend)/_context/UserContext'
 
 type TemplateError = PayloadValidationError | ServerError | NetworkError
 
@@ -60,6 +61,7 @@ interface CustomTrait extends Partial<TraitProperties> {
 
 const Editor = ({ templateId, mode = 'edit' }: EditorProps) => {
   const router = useRouter()
+  const { user } = useUser()
   const editorRef = useRef<HTMLDivElement>(null)
   const [editor, setEditor] = useState<GrapesEditor | null>(null)
   const [showSaveDialog, setShowSaveDialog] = useState(false)
@@ -796,7 +798,7 @@ const Editor = ({ templateId, mode = 'edit' }: EditorProps) => {
     if (editor && templateName && templateDescription) {
       handleSaveTemplate()
     }
-  }, [templateName, templateDescription])
+  }, [editor, templateName, templateDescription, handleSaveTemplate])
 
   const handleStatusChange = async (newStatus: TemplateStatus) => {
     if (!templateId) {
@@ -836,7 +838,7 @@ const Editor = ({ templateId, mode = 'edit' }: EditorProps) => {
     try {
       const baseUrl = window.location.origin
       const basePath = process.env.NEXT_PUBLIC_BASE_PATH || ''
-      const templateUrl = `${baseUrl}${basePath}/pages/${slugValue}`
+      const templateUrl = `${baseUrl}${basePath}/${user?.username}/${slugValue}`
       await navigator.clipboard.writeText(templateUrl)
       setCopyStatus('copied')
       toast.success('URL copied to clipboard')

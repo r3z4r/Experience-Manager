@@ -15,6 +15,10 @@ import {
   ArrowUpNarrowWideIcon,
   XIcon,
   SearchIcon,
+  GridIcon,
+  ListIcon,
+  MoreHorizontal,
+  ClipboardCopyIcon,
 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
@@ -25,6 +29,14 @@ import {
   duplicateTemplate,
 } from '@/app/(frontend)/_actions/templates'
 import { TemplatePreview } from './TemplatePreview'
+import { Button } from '@/app/(frontend)/_components/ui/button'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/app/(frontend)/_components/ui/dropdown-menu'
 import { LoadingSpinner } from '@/app/(frontend)/_components/ui/loading-spinner'
 import { StatusChip } from './StatusChip'
 import { PaginatedTemplatesResponse } from '@/app/(frontend)/_types/template-data'
@@ -66,10 +78,28 @@ export function TemplateList() {
   const [sortBy, setSortBy] = useState<'created' | 'name'>('created')
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
   const { user } = useUser()
+  const basePath = process.env.NEXT_PUBLIC_BASE_PATH || '/xpm';
 
   const debouncedSearch = useDebounce(searchTerm, 350)
 
   const [isPending, startTransition] = useTransition()
+
+  const handleCopyUrl = async (templateSlug: string | null | undefined, templateUsername?: string | null | undefined) => {
+    if (!templateSlug || !templateUsername) {
+      toast.error('Cannot copy URL: Missing slug or user information.');
+      return;
+    }
+    try {
+      const baseUrl = window.location.origin;
+      // basePath is already defined in the component scope
+      const templateUrl = `${baseUrl}${basePath}/${templateUsername}/${templateSlug}`;
+      await navigator.clipboard.writeText(templateUrl);
+      toast.success('URL copied to clipboard!');
+    } catch (error) {
+      console.error('Failed to copy URL:', error);
+      toast.error('Failed to copy URL.');
+    }
+  };
 
   useEffect(() => {
     setIsLoading(true)
@@ -179,16 +209,20 @@ export function TemplateList() {
   }
 
   const handleDeleteConfirm = async () => {
-    if (!templateToDelete) return
+    if (!templateToDelete) {
+      toast.error('No template selected for deletion')
+      setDeleteStatus('error')
+      return
+    }
 
+    setDeleteStatus('deleting')
     try {
-      setDeleteStatus('deleting')
-      await deleteTemplate(templateToDelete.id as string)
-      await fetchTemplatesData(pagination.page)
-      toast.success('Template deleted successfully')
-      setDeleteStatus('idle')
-      setShowDeleteModal(false)
+      await deleteTemplate(templateToDelete.id)
+      toast.success(`Template "${templateToDelete.title}" deleted successfully`)
       setTemplateToDelete(null)
+      setShowDeleteModal(false)
+      setDeleteStatus('deleted')
+      fetchTemplatesData(pagination.page)
     } catch (error) {
       console.error('Error deleting template:', error)
       toast.error('Failed to delete template')
@@ -210,16 +244,20 @@ export function TemplateList() {
   }
 
   const handleDuplicate = async (name: string, description: string) => {
-    if (!templateToDuplicate) return
+    if (!templateToDuplicate) {
+      toast.error('No template selected for duplication')
+      setDuplicateStatus('error')
+      return
+    }
 
+    setDuplicateStatus('saving')
     try {
-      setDuplicateStatus('saving')
       await duplicateTemplate(templateToDuplicate.id as string, name, description, slugValue)
-      await fetchTemplatesData(pagination.page)
-      toast.success('Template duplicated successfully')
-      setDuplicateStatus('idle')
-      setShowDuplicateModal(false)
+      toast.success(`Template "${name}" created successfully`)
       setTemplateToDuplicate(null)
+      setShowDuplicateModal(false)
+      setDuplicateStatus('saved')
+      fetchTemplatesData(pagination.page)
     } catch (error) {
       console.error('Error duplicating template:', error)
       toast.error('Failed to duplicate template')
@@ -372,7 +410,11 @@ export function TemplateList() {
             {viewMode === 'grid' ? (
               <div className="template-grid">
                 {templates.map((template: Page) => (
-                  <div key={template.id} className="group template-card h-[300px]">
+                  <div
+                    key={template.id}
+                    className="group template-card h-[300px] relative overflow-hidden shadow-sm hover:shadow-md transition-all duration-300"
+                  >
+                    {/* Preview */}
                     <div className="template-card-preview">
                       <TemplatePreview
                         html={template.htmlContent}
@@ -380,62 +422,127 @@ export function TemplateList() {
                         className="w-full h-full"
                       />
                     </div>
+
+                    {/* Status Badge */}
                     <div className="absolute top-2 left-2 z-20">
                       <StatusChip status={template.status} />
                     </div>
-                    <button
-                      onClick={() => handleDeleteClick(template)}
-                      className="template-card-delete"
-                      aria-label="Delete template"
-                    >
-                      <TrashIcon className="w-5 h-5" />
-                    </button>
-                    <button
-                      onClick={() => handleDuplicateClick(template)}
-                      className="template-card-duplicate"
-                      aria-label="Duplicate template"
-                    >
-                      <CopyIcon className="w-5 h-5" />
-                    </button>
-                    <div className="template-card-overlay">
-                      <div className="template-card-content">
-                        <div className="template-card-info">
-                          <div className="flex flex-col min-w-0">
-                            <h3 className="template-card-title">{template.title}</h3>
-                            <p className="template-card-description">{template.description}</p>
-                          </div>
-                          <div className="template-card-actions">
+
+                    {/* Menu Dropdown */}
+                    <div className="template-card-menu">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <button className="template-card-menu-trigger">
+                            <MoreHorizontal className="template-card-menu-icon" />
+                          </button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-48">
+                          <DropdownMenuItem asChild className="group">
                             <Link
                               href={`/dashboard/editor/${template.id}`}
-                              className="template-card-edit"
-                              aria-label="Edit template"
+                              className="flex items-center"
                             >
-                              <EditIcon className="w-5 h-5" />
+                              <EditIcon className="w-4 h-4 mr-2" />
+                              <span>Edit</span>
                             </Link>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem asChild className="group">
                             <Link
-                              href={`/dashboard/editor/${template.id}`}
-                              className="template-card-view"
-                              aria-label="View template"
+                              href={`/dashboard/${template.slug}`}
+                              target="_blank"
+                              className="flex items-center"
                             >
-                              <EyeIcon className="w-5 h-5" />
+                              <EyeIcon className="w-4 h-4 mr-2" />
+                              <span>Preview</span>
                             </Link>
-                          </div>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => handleCopyUrl(template.slug, user?.username)}
+                            className="flex items-center group"
+                            disabled={!template.slug || !user?.username}
+                          >
+                            <ClipboardCopyIcon className="w-4 h-4 mr-2" />
+                            <span>Copy URL</span>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            onClick={() => handleDuplicateClick(template)}
+                            className="flex items-center group"
+                          >
+                            <CopyIcon className="w-4 h-4 mr-2" />
+                            <span>Duplicate</span>
+                          </DropdownMenuItem>
+                          <DropdownMenuSeparator />
+                          <DropdownMenuItem
+                            onClick={() => handleDeleteClick(template)}
+                            className="text-red-600 flex items-center group"
+                          >
+                            <TrashIcon className="w-4 h-4 mr-2" />
+                            <span>Delete</span>
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </div>
+
+                    {/* Card Footer */}
+                    <div className="template-card-footer">
+                      <div className="flex flex-col gap-1">
+                        <h3 className="template-card-title">{template.title}</h3>
+                        {template.slug && (
+                          <p
+                            className="text-xs text-gray-400 truncate mt-1"
+                            title={`${basePath}/${template.slug}`}
+                          >
+                            {`${basePath}/${template.slug}`}
+                          </p>
+                        )}
+                        <div className="template-card-meta">
+                          <p className="template-card-tracking">
+                            Tracking · Edited{' '}
+                            {new Date(
+                              template.updatedAt || template.createdAt,
+                            ).toLocaleDateString()}
+                          </p>
+                          <span className={`template-card-status ${template.status || 'draft'}`}>
+                            {template.status === 'published' ? 'Published' : 'Unpublished'}
+                          </span>
                         </div>
+                      </div>
+                    </div>
+
+                    {/* Hover Overlay with Quick Actions */}
+                    <div className="template-card-hover-overlay">
+                      <div className="template-card-actions">
+                        <Link
+                          href={`/dashboard/editor/${template.id}`}
+                          className="template-card-action-button"
+                        >
+                          <EditIcon className="template-card-action-icon" />
+                        </Link>
+                        <Link
+                          href={`/dashboard/${template.slug}`}
+                          target="_blank"
+                          className="template-card-action-button"
+                        >
+                          <EyeIcon className="template-card-action-icon" />
+                        </Link>
                       </div>
                     </div>
                   </div>
                 ))}
-                <button
-                  onClick={handleCreateTemplate}
-                  className="h-[300px] group relative border-4 border-transparent rounded-lg p-6 flex items-center justify-center transition-all duration-200 bg-[repeating-linear-gradient(45deg,#f8fafc,#f8fafc_10px,#f1f5f9_10px,#f1f5f9_20px)] hover:bg-[repeating-linear-gradient(45deg,#f3f4f6,#f3f4f6_10px,#e5e7eb_10px,#e5e7eb_20px)] hover:shadow-md"
-                >
-                  <div className="relative text-center">
-                    <PlusIcon className="w-8 h-8 mx-auto mb-2 text-gray-400 transition-colors duration-300 group-hover:text-blue-600" />
-                    <span className="text-gray-600 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-blue-600 group-hover:to-purple-600 transition-colors">
-                      Create New Template
-                    </span>
-                  </div>
-                </button>
+                <div className="h-[300px] group relative">
+                  <Button
+                    onClick={handleCreateTemplate}
+                    className="h-full w-full border-4 border-transparent rounded-lg p-6 flex items-center justify-center transition-all duration-200 bg-[repeating-linear-gradient(45deg,#f8fafc,#f8fafc_10px,#f1f5f9_10px,#f1f5f9_20px)] hover:bg-[repeating-linear-gradient(45deg,#f3f4f6,#f3f4f6_10px,#e5e7eb_10px,#e5e7eb_20px)] hover:shadow-md"
+                    variant="ghost"
+                  >
+                    <div className="relative text-center">
+                      <PlusIcon className="w-8 h-8 mx-auto mb-2 text-gray-400 transition-colors duration-300 group-hover:text-blue-600" />
+                      <span className="text-gray-600 group-hover:text-transparent group-hover:bg-clip-text group-hover:bg-gradient-to-r group-hover:from-blue-600 group-hover:to-purple-600 transition-colors">
+                        Create New Template
+                      </span>
+                    </div>
+                  </Button>
+                </div>
               </div>
             ) : (
               <div className="template-list">
@@ -475,7 +582,8 @@ export function TemplateList() {
                         <EditIcon className="w-5 h-5" />
                       </Link>
                       <Link
-                        href={`/dashboard/editor/${template.id}`}
+                        href={`/dashboard/${template.slug}`}
+                        target="_blank"
                         className="template-list-view"
                         aria-label="View template"
                       >

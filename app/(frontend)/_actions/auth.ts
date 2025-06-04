@@ -46,7 +46,7 @@ export async function getCurrentUser(): Promise<User | null> {
         },
       },
     })
-    
+
     // If user is found, return it
     if (result.docs && result.docs.length > 0) {
       return result.docs[0] as User
@@ -68,15 +68,15 @@ export async function loginUser(formData: FormData): Promise<LoginResult> {
   const password = formData.get('password') as string
 
   if (!email || !password) {
-    return { 
-      success: false, 
-      message: 'Email and password are required' 
+    return {
+      success: false,
+      message: 'Email and password are required',
     }
   }
 
   try {
     console.log('Attempting to login user with email:', email)
-    
+
     const payload = await getPayload({
       config: configPromise,
     })
@@ -97,26 +97,24 @@ export async function loginUser(formData: FormData): Promise<LoginResult> {
       createdAt: loginResult.user.createdAt,
     }
 
-    console.log('User logged in successfully:', safeUser.id)
-    
-    return { 
-      success: true, 
-      user: safeUser
+    return {
+      success: true,
+      user: safeUser,
     }
   } catch (error: any) {
     console.error('Login error:', error)
-    
+
     // Handle specific error cases
     if (error.message?.includes('credentials')) {
-      return { 
-        success: false, 
-        message: 'Invalid email or password' 
+      return {
+        success: false,
+        message: 'Invalid email or password',
       }
     }
-    
-    return { 
-      success: false, 
-      message: 'Authentication failed' 
+
+    return {
+      success: false,
+      message: 'Authentication failed',
     }
   }
 }
@@ -131,9 +129,9 @@ export async function signupUser(formData: FormData): Promise<SignupResult> {
   const password = formData.get('password') as string
 
   if (!email || !username || !password) {
-    return { 
-      success: false, 
-      message: 'All fields are required' 
+    return {
+      success: false,
+      message: 'All fields are required',
     }
   }
 
@@ -149,7 +147,7 @@ export async function signupUser(formData: FormData): Promise<SignupResult> {
       email,
       username,
       password,
-      roles: ['user'] as ("user" | "admin" | "editor")[], // Set default role to 'user'
+      roles: ['user'] as ('user' | 'admin' | 'editor')[], // Set default role to 'user'
     }
 
     const result = await payload.create({
@@ -159,14 +157,14 @@ export async function signupUser(formData: FormData): Promise<SignupResult> {
 
     console.log('User created successfully:', result.id)
 
-    return { 
-      success: true, 
+    return {
+      success: true,
       message: 'Account created successfully',
-      userId: result.id
+      userId: result.id,
     }
   } catch (error: any) {
     console.error('Signup error:', error)
-    
+
     // Handle specific error cases for better user feedback
     if (error.errors) {
       // PayloadCMS validation errors
@@ -176,41 +174,76 @@ export async function signupUser(formData: FormData): Promise<SignupResult> {
         }
         return acc
       }, {})
-      
+
       if (fieldErrors.email) {
-        return { 
-          success: false, 
-          message: fieldErrors.email 
+        return {
+          success: false,
+          message: fieldErrors.email,
         }
       }
-      
+
       if (fieldErrors.username) {
-        return { 
-          success: false, 
-          message: fieldErrors.username 
+        return {
+          success: false,
+          message: fieldErrors.username,
         }
       }
     }
-    
+
     // Handle duplicate key errors
     if (error.message?.includes('duplicate key')) {
       if (error.message.includes('email')) {
-        return { 
-          success: false, 
-          message: 'Email address is already in use' 
+        return {
+          success: false,
+          message: 'Email address is already in use',
         }
       } else if (error.message.includes('username')) {
-        return { 
-          success: false, 
-          message: 'Username is already taken' 
+        return {
+          success: false,
+          message: 'Username is already taken',
         }
       }
     }
-    
-    return { 
-      success: false, 
-      message: 'Failed to create account' 
+
+    return {
+      success: false,
+      message: 'Failed to create account',
     }
+  }
+}
+
+/**
+ * Finds a user by their username
+ */
+export async function findUserByUsername(username: string): Promise<User | null> {
+  if (!username) {
+    console.warn('findUserByUsername called with no username')
+    return null
+  }
+
+  try {
+    const payload = await getPayload({
+      config: configPromise,
+    })
+
+    const usersResult = await payload.find({
+      collection: 'users',
+      where: {
+        username: {
+          equals: username,
+        },
+      },
+      limit: 1,
+      depth: 0,
+    })
+
+    if (usersResult.docs && usersResult.docs.length > 0) {
+      return usersResult.docs[0] as User
+    }
+    return null
+  } catch (error) {
+    console.error(`Failed to find user by username "${username}":`, error)
+    return null
   }
 }
 
@@ -220,34 +253,32 @@ export async function signupUser(formData: FormData): Promise<SignupResult> {
  */
 export async function logoutUser(): Promise<LogoutResult> {
   try {
-    console.log('Logging out user...')
-    
     const payload = await getPayload({
       config: configPromise,
     })
 
     // Import the runtime config dynamically to avoid SSR issues
     const { getApiUrl } = await import('@/app/(frontend)/_config/runtime')
-    
+
     // Use PayloadCMS's REST API for logout since the Local API doesn't have a direct logout method
     // We'll make a POST request to the logout endpoint with the correct basePath
     await fetch(getApiUrl('/api/users/logout'), {
       method: 'POST',
       credentials: 'include',
     })
-    
+
     console.log('User logged out successfully')
-    
-    return { 
-      success: true, 
-      message: 'Logged out successfully' 
+
+    return {
+      success: true,
+      message: 'Logged out successfully',
     }
   } catch (error) {
     console.error('Logout error:', error)
-    
-    return { 
-      success: false, 
-      message: 'Failed to log out' 
+
+    return {
+      success: false,
+      message: 'Failed to log out',
     }
   }
 }

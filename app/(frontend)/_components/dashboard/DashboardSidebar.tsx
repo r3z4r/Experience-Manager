@@ -59,7 +59,7 @@ export default function DashboardSidebar() {
             <span>Pages</span>
           </div>
           <div className="pl-8 flex flex-col gap-1">
-            <SidebarItem href="/dashboard/template-list" icon={<LayoutGrid size={18} />} badge={98}>
+            <SidebarItem href="/dashboard/pages" icon={<LayoutGrid size={18} />} badge={98}>
               All Pages
             </SidebarItem>
             <SidebarItem href="#" icon={<Plus size={18} />}>
@@ -70,7 +70,7 @@ export default function DashboardSidebar() {
         <SidebarItem href="#" icon={<LayoutTemplate size={20} />}>
           Templates
         </SidebarItem>
-        <SidebarItem href="/wizard" icon={<Workflow size={20} />}>
+        <SidebarItem href="/dashboard/wizard" icon={<Workflow size={20} />}>
           Journeys
         </SidebarItem>
       </nav>
@@ -81,7 +81,7 @@ export default function DashboardSidebar() {
         <SidebarItem href="#" icon={<Settings size={20} />}>
           Settings
         </SidebarItem>
-        <SidebarItem href="#" icon={<User size={20} />}>
+        <SidebarItem href="/dashboard/profile" icon={<User size={20} />}>
           Account
         </SidebarItem>
         <button

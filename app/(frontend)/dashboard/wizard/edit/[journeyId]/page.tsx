@@ -1,6 +1,6 @@
 import React from 'react'
 import { fetchJourneyByIdAction } from '@/app/(frontend)/_actions/fetchJourneyById'
-import { JourneyFormContainer } from '@/app/(frontend)/wizard/_components/JourneyFormContainer'
+import { JourneyFormContainer } from '@/app/(frontend)/dashboard/wizard/_components/JourneyFormContainer'
 import { notFound } from 'next/navigation'
 
 interface EditJourneyPageProps {
