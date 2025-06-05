@@ -1,5 +1,7 @@
 'use server'
 
+import { getCurrentUser } from '@/app/(frontend)/_actions/auth';
+
 import { revalidatePath } from 'next/cache'
 import { getPayload } from 'payload'
 import configPromise from '@payload-config'
@@ -359,41 +361,6 @@ export async function duplicateTemplate(
   }
 }
 
-/**
- * Fetch the currently authenticated user
- * @returns The current user or null if not authenticated
- */
-export async function getCurrentUser(): Promise<User | null> {
-  try {
-    const payload = await getPayload({
-      config: configPromise,
-    })
-
-    // Use the me endpoint to get the current user
-    const response = await payload.find({
-      collection: 'users',
-      depth: 0,
-      limit: 1,
-      // The 'me: true' query parameter is a special PayloadCMS feature
-      // that returns the currently authenticated user
-      where: {
-        _id: {
-          exists: true,
-        },
-      },
-      user: true,
-    })
-
-    if (response && response.docs && response.docs.length > 0) {
-      return response.docs[0] as User
-    }
-
-    return null
-  } catch (error) {
-    console.error('Error fetching current user:', error)
-    return null
-  }
-}
 
 /**
  * Fetch templates created by the currently authenticated user

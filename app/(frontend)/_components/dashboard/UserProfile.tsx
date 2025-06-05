@@ -5,7 +5,7 @@ import { Button } from '@/app/(frontend)/_components/ui/button'
 import { LogOut, User, Shield } from 'lucide-react'
 
 export default function UserProfile() {
-  const { user, isLoading, hasRole, logout } = useUser()
+  const { user, isLoading, logout } = useUser()
 
   if (isLoading) {
     return (
@@ -34,19 +34,19 @@ export default function UserProfile() {
           <p className="text-sm text-gray-500">{user.email}</p>
         </div>
       </div>
-      
+
       <div className="mb-4">
         <h4 className="text-sm font-medium text-gray-700 mb-2 flex items-center gap-1">
           <Shield size={14} /> Roles
         </h4>
         <div className="flex flex-wrap gap-2">
           {user.roles.map((role) => (
-            <span 
+            <span
               key={role}
               className={`text-xs px-2 py-1 rounded-full ${
-                role === 'admin' 
-                  ? 'bg-red-100 text-red-700' 
-                  : role === 'editor' 
+                role === 'admin'
+                  ? 'bg-red-100 text-red-700'
+                  : role === 'editor'
                     ? 'bg-blue-100 text-blue-700'
                     : 'bg-green-100 text-green-700'
               }`}
@@ -56,10 +56,10 @@ export default function UserProfile() {
           ))}
         </div>
       </div>
-      
+
       <div className="pt-3 border-t border-gray-100">
-        <Button 
-          variant="outline" 
+        <Button
+          variant="outline"
           size="sm"
           className="w-full flex items-center justify-center gap-2 text-gray-700"
           onClick={() => logout()}

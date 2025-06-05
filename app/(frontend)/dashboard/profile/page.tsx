@@ -119,9 +119,10 @@ export default function ProfilePage() {
                   Update Profile
                 </button>
 
-                <div className="pt-4 mt-4 border-t border-gray-700">
-                  <LogoutButton className="w-full py-2.5 px-5 bg-destructive hover:bg-destructive/90 text-destructive-foreground rounded-md transition-colors font-medium text-sm" />
-                </div>
+                <LogoutButton
+                  variant="text"
+                  className="w-full text-center bg-destructive/90 hover:bg-destructive text-primary-foreground rounded-md transition-colors py-2.5 px-5"
+                />
               </div>
             </div>
           </div>

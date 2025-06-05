@@ -1,7 +1,9 @@
 import { fetchTemplateBySlug } from '@/app/(frontend)/_actions/templates'
 import { renderTemplate } from '@/lib/utils/template-renderer'
 import { notFound } from 'next/navigation'
-import { getCurrentUser, findUserByUsername } from '@/app/(frontend)/_actions/auth'
+import { getCurrentUser } from '@/app/(frontend)/_actions/auth';
+import { getPayload } from 'payload';
+import configPromise from '@payload-config';
 import { ACCESS_VISIBILITY } from '@/app/(frontend)/_types/template'
 
 interface PageProps {
@@ -14,8 +16,16 @@ interface PageProps {
 export default async function UserTemplatePage({ params: paramsPromise }: PageProps) {
   const params = await paramsPromise
   const { username, slug } = params
-  const currentUser = await getCurrentUser()
-  const pageOwner = await findUserByUsername(username)
+  const currentUser = await getCurrentUser();
+  const payload = await getPayload({ config: configPromise });
+  const pageOwnerResult = await payload.find({
+    collection: 'users',
+    where: {
+      username: { equals: username },
+    },
+    limit: 1,
+  });
+  const pageOwner = pageOwnerResult.docs.length > 0 ? pageOwnerResult.docs[0] : null;
 
   // If user doesn't exist, show 404
   if (!pageOwner) {

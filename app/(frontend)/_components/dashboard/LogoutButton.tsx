@@ -9,17 +9,13 @@ interface LogoutButtonProps {
   className?: string
 }
 
-export default function LogoutButton({ 
-  variant = 'full', 
-  className = '' 
-}: LogoutButtonProps) {
+export default function LogoutButton({ variant = 'full', className = '' }: LogoutButtonProps) {
   const { logout } = useUser()
 
-  const handleLogout = async () => {
+  const handleLogout = () => {
     toast.loading('Logging out...')
     try {
-      await logout()
-      // The redirect is handled in the logout function
+      logout()
     } catch (error) {
       console.error('Logout error:', error)
       toast.error('Failed to log out')
@@ -42,7 +38,7 @@ export default function LogoutButton({
     return (
       <button
         onClick={handleLogout}
-        className={`text-sm font-medium text-gray-700 hover:text-gray-900 transition-colors ${className}`}
+        className={`text-sm text-center font-medium text-gray-700 hover:text-gray-900 transition-colors ${className}`}
       >
         Log out
       </button>

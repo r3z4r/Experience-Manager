@@ -1,5 +1,7 @@
 import { notFound } from 'next/navigation'
-import { getCurrentUser, findUserByUsername } from '@/app/(frontend)/_actions/auth'
+import { getCurrentUser } from '@/app/(frontend)/_actions/auth';
+import { getPayload } from 'payload';
+import configPromise from '@payload-config';
 import { fetchTemplates } from '@/app/(frontend)/_actions/templates'
 import Link from 'next/link'
 
@@ -14,8 +16,16 @@ export default async function UserProfilePage({
 }: UserProfilePageProps): Promise<JSX.Element> {
   const params = await paramsPromise
   const { username } = params
-  const currentUser = await getCurrentUser()
-  const profileUser = await findUserByUsername(username)
+  const currentUser = await getCurrentUser();
+  const payload = await getPayload({ config: configPromise });
+  const profileUserResult = await payload.find({
+    collection: 'users',
+    where: {
+      username: { equals: username },
+    },
+    limit: 1,
+  });
+  const profileUser = profileUserResult.docs.length > 0 ? profileUserResult.docs[0] : null;
 
   if (!profileUser) {
     notFound()
