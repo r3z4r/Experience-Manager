@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from 'react'
 import { toast } from 'sonner'
+import AuthBranding from '@/app/(frontend)/_components/auth/AuthBranding'
+import Image from 'next/image'
 import Link from 'next/link'
 import { EyeIcon, EyeOffIcon } from 'lucide-react'
 
@@ -33,10 +35,9 @@ export default function SignInForm() {
     const toastId = toast.loading('Signing in...')
 
     try {
-      const { getApiUrl, basePath: runtimeBasePath } = await import(
-        '@/app/(frontend)/_config/runtime'
-      )
-      const apiUrl = getApiUrl('/api/users/login')
+      const runtimeBasePath = process.env.NEXT_PUBLIC_BASE_PATH || '/xpm'
+      const clientBaseUrl = `${window.location.protocol}//${window.location.host}`
+      const apiUrl = `${clientBaseUrl}${runtimeBasePath}/api/users/login`
 
       const response = await fetch(apiUrl, {
         method: 'POST',

@@ -24,18 +24,6 @@ export default function WithAuth({ children, requiredRoles = [] }: WithAuthProps
   const defaultBasePath = process.env.NEXT_PUBLIC_BASE_PATH || '/xpm'
   const [basePath, setBasePath] = useState(defaultBasePath)
 
-  // Still load the runtime basePath, but we already have a default to work with
-  useEffect(() => {
-    const loadBasePath = async () => {
-      try {
-        const { basePath } = await import('@/app/(frontend)/_config/runtime')
-        setBasePath(basePath)
-      } catch (error) {
-        console.error('Error loading basePath:', error)
-      }
-    }
-    loadBasePath()
-  }, [])
 
   useEffect(() => {
     // Only check auth after user loading is complete

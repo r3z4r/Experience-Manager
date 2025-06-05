@@ -3,32 +3,47 @@
  * This file provides runtime configuration values that can be accessed on both client and server
  */
 
+import { headers } from 'next/headers'
+
 // Get the base path from environment or use default
 export const basePath = process.env.NEXT_PUBLIC_BASE_PATH || '/xpm'
 
 // Get the server port - in development it might be different from the default 3000
+// This function is kept for potential other uses; getBaseUrl below now handles port dynamically for server-side.
 export const getServerPort = (): string => {
-  // In client-side code, we can access the current URL
   if (typeof window !== 'undefined') {
     return window.location.port || '3000'
   }
-  
-  // In server-side code, default to 3000 or environment variable
   return process.env.PORT || '3000'
 }
 
-// Get the full base URL including protocol, host, port and basePath
-export const getBaseUrl = (): string => {
+// Get the full base URL including protocol, host, and port
+export const getBaseUrl = async (): Promise<string> => {
   if (typeof window !== 'undefined') {
+    // Client-side
     const { protocol, hostname, port } = window.location
     return `${protocol}//${hostname}${port ? `:${port}` : ''}`
   }
-  
-  // Server-side fallback
-  return process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'
+
+  // Server-side: Use headers to determine the base URL
+  const heads = await headers() // Await the headers() call
+  const protocol = heads.get('x-forwarded-proto') || 'http'
+  // 'x-forwarded-host' is preferred if behind a proxy, as 'host' might be an internal name.
+  const host = heads.get('x-forwarded-host') || heads.get('host')
+
+  if (!host) {
+    // Ultimate fallback if no host header can be determined (should be rare)
+    console.warn(
+      '[runtime.ts] Could not determine host from headers for getBaseUrl, defaulting to http://localhost:3000',
+    )
+    return 'http://localhost:3000'
+  }
+
+  return `${protocol}://${host}`
 }
 
 // Get the full API URL
-export const getApiUrl = (path: string): string => {
-  return `${getBaseUrl()}${basePath}${path}`
+export const getApiUrl = async (path: string): Promise<string> => {
+  const url = await getBaseUrl() // Await the getBaseUrl() call
+  return `${url}${basePath}${path}`
 }

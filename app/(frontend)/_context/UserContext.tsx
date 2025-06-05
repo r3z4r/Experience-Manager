@@ -45,11 +45,12 @@ export function UserProvider({ children }: { children: ReactNode }) {
       try {
         setIsLoading(true)
 
-        // Import the runtime config dynamically to avoid SSR issues
-        const { getApiUrl } = await import('@/app/(frontend)/_config/runtime')
+        const basePath = process.env.NEXT_PUBLIC_BASE_PATH || '/xpm';
+        const clientBaseUrl = `${window.location.protocol}//${window.location.host}`;
+        const apiUrl = `${clientBaseUrl}${basePath}/api/users/me`;
 
         // Call the /me endpoint to check authentication status with the correct basePath
-        const response = await fetch(getApiUrl('/api/users/me'), {
+        const response = await fetch(apiUrl, {
           credentials: 'include', // Important: include cookies in the request
         })
 
@@ -128,9 +129,11 @@ export function UserProvider({ children }: { children: ReactNode }) {
     const toastId = toast.loading('Logging out...')
 
     try {
-      const { getApiUrl, basePath } = await import('@/app/(frontend)/_config/runtime')
+      const basePath = process.env.NEXT_PUBLIC_BASE_PATH || '/xpm';
+      const clientBaseUrl = `${window.location.protocol}//${window.location.host}`;
+      const apiUrl = `${clientBaseUrl}${basePath}/api/users/logout`;
 
-      const response = await fetch(getApiUrl('/api/users/logout'), {
+      const response = await fetch(apiUrl, {
         method: 'POST',
         credentials: 'include',
       })
@@ -178,7 +181,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
       })
 
       setTimeout(async () => {
-        const { basePath } = await import('@/app/(frontend)/_config/runtime')
+        const basePath = process.env.NEXT_PUBLIC_BASE_PATH || '/xpm';
         window.location.href = `${basePath}/login`
       }, 1000)
     }

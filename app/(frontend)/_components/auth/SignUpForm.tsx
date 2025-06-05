@@ -19,10 +19,9 @@ export default function SignUpForm() {
     const toastId = toast.loading('Creating your account...')
 
     try {
-      const { getApiUrl, basePath: runtimeBasePath } = await import(
-        '@/app/(frontend)/_config/runtime'
-      )
-      const apiUrl = getApiUrl('/api/users')
+      const runtimeBasePath = process.env.NEXT_PUBLIC_BASE_PATH || '/xpm'
+      const clientBaseUrl = `${window.location.protocol}//${window.location.host}`
+      const apiUrl = `${clientBaseUrl}${runtimeBasePath}/api/users`
 
       const response = await fetch(apiUrl, {
         method: 'POST',
@@ -164,4 +163,3 @@ export default function SignUpForm() {
     </>
   )
 }
-

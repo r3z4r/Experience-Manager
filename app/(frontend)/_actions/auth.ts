@@ -23,16 +23,19 @@ type LogoutResult = {
  * Gets the current authenticated user by calling Payload's /api/users/me endpoint.
  */
 export async function getCurrentUser(): Promise<User | null> {
-  console.log('[getCurrentUser] Attempting to fetch current user via API...')
   const { getApiUrl } = await import('@/app/(frontend)/_config/runtime')
-  const apiUrl = getApiUrl('/api/users/me')
-  const cookieStore = await cookies() // Await cookies()
+  const apiUrl = await getApiUrl('/api/users/me')
+  const cookieStore = await cookies()
   const token = cookieStore.get('payload-token')?.value
-
+  console.log(token)
   if (!token) {
     console.log('[getCurrentUser] No payload-token found in cookies. User is not authenticated.')
     return null
   }
+
+  console.log(
+    `[getCurrentUser] Attempting fetch. API URL: ${apiUrl}, Token: ${token ? token.substring(0, 10) + '...' : 'N/A'}`,
+  )
 
   try {
     const response = await fetch(apiUrl, {
@@ -41,7 +44,7 @@ export async function getCurrentUser(): Promise<User | null> {
         Cookie: `payload-token=${token}`,
         'Content-Type': 'application/json',
       },
-      cache: 'no-store', // Ensure fresh data for auth status
+      cache: 'no-store',
     })
 
     if (response.ok) {
@@ -84,7 +87,7 @@ export async function loginUser(formData: FormData): Promise<LoginResult> {
 export async function logoutUser(): Promise<LogoutResult> {
   console.log('[logoutUser] Attempting to log out user via API...')
   const { getApiUrl } = await import('@/app/(frontend)/_config/runtime')
-  const apiUrl = getApiUrl('/api/users/logout')
+  const apiUrl = await getApiUrl('/api/users/logout')
   const cookieStore = await cookies()
   const token = cookieStore.get('payload-token')?.value
 
@@ -122,9 +125,9 @@ export async function logoutUser(): Promise<LogoutResult> {
  * Type definition for password reset operation
  */
 type PasswordResetResult = {
-  success: boolean;
-  message: string;
-};
+  success: boolean
+  message: string
+}
 
 /**
  * Server Action for requesting a password reset.
@@ -132,31 +135,31 @@ type PasswordResetResult = {
  */
 export async function requestPasswordResetAction(email: string): Promise<PasswordResetResult> {
   if (!email) {
-    return { success: false, message: 'Email address is required.' };
+    return { success: false, message: 'Email address is required.' }
   }
 
-  console.log(`[requestPasswordResetAction] Attempting password reset for email: ${email}`);
+  console.log(`[requestPasswordResetAction] Attempting password reset for email: ${email}`)
 
   try {
     // Dynamically import getPayload and configPromise
-    const { getPayload } = await import('payload');
-    const configPromise = (await import('@payload-config')).default; 
+    const { getPayload } = await import('payload')
+    const configPromise = (await import('@payload-config')).default
 
-    const payload = await getPayload({ config: configPromise });
+    const payload = await getPayload({ config: configPromise })
 
     await payload.forgotPassword({
-      collection: 'users', 
+      collection: 'users',
       data: { email },
       expiration: 3600, // Token valid for 1 hour
-      disableEmail: false, 
-    });
+      disableEmail: false,
+    })
 
-    const successMessage = 'If an account with that email exists, a password reset link has been sent.';
-    console.log(`[requestPasswordResetAction] ${successMessage}`);
-    return { success: true, message: successMessage };
-
+    const successMessage =
+      'If an account with that email exists, a password reset link has been sent.'
+    console.log(`[requestPasswordResetAction] ${successMessage}`)
+    return { success: true, message: successMessage }
   } catch (error) {
-    console.error('[requestPasswordResetAction] Exception during password reset:', error);
-    return { success: false, message: 'An unexpected error occurred. Please try again.' };
+    console.error('[requestPasswordResetAction] Exception during password reset:', error)
+    return { success: false, message: 'An unexpected error occurred. Please try again.' }
   }
 }
