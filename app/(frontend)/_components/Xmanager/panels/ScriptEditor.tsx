@@ -88,7 +88,7 @@ export const ScriptEditor = ({ editor }: ScriptEditorProps) => {
         } else {
           // Reset for new script creation
           setActiveComponent(null)
-          setScriptContent('// New JavaScript code\nconsole.log("New script added");')
+          setScriptContent('console.log("New script added");')
         }
 
         // Open the dialog
@@ -217,7 +217,7 @@ export const ScriptEditor = ({ editor }: ScriptEditorProps) => {
     if (!editor) return
 
     // Create default script content
-    const defaultContent = '// New JavaScript code\nconsole.log("New script added");'
+    const defaultContent = 'console.log("New script added");'
 
     try {
       // Get the wrapper to add the script to

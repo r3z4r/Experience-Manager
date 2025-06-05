@@ -6,14 +6,23 @@ interface AuthBrandingProps {
 }
 
 export default function AuthBranding({ children }: AuthBrandingProps) {
+  const basePath = process.env.NEXT_PUBLIC_BASE_PATH || ''
   return (
-    <div className="flex-1 flex flex-col justify-center items-start bg-gradient-to-br from-[#5B5BF6] to-[#1B3E8A] relative p-8 overflow-hidden min-h-screen">
+    <div className="flex-1 flex flex-col justify-center items-start relative p-8 overflow-hidden   bg-gradient-to-br from-[#5B5BF6]/30 to-[#1B3E8A]/40 max-h-screen">
+      <Image
+        src={`${basePath}/bg.svg`}
+        alt="Abstract background pattern"
+        layout="fill"
+        objectFit="cover"
+        className="-z-10"
+        priority
+      />
       <Image
         src={`${process.env.NEXT_PUBLIC_BASE_PATH}/images/dots.png`}
         alt="Decorative Dots"
         width={120}
         height={120}
-        className="m-8 animate-pulse"
+        className="m-4 animate-pulse rotate-180"
         priority
       />
       <div className="flex flex-col h-full w-full max-w-md z-10 m-4">
@@ -22,7 +31,7 @@ export default function AuthBranding({ children }: AuthBrandingProps) {
           <br />
           Manager
         </h1>
-        <p className="text-lg text-white/80 mt-2 mb-8 max-w-xs drop-shadow">
+        <p className="text-lg text-white/80 my-2 max-w-xs drop-shadow">
           Effortless content creation and management for your digital experiences.
         </p>
         {children}
@@ -30,9 +39,9 @@ export default function AuthBranding({ children }: AuthBrandingProps) {
       <Image
         src={`${process.env.NEXT_PUBLIC_BASE_PATH}/images/dots.png`}
         alt="Decorative Dots"
-        width={120}
-        height={120}
-        className="absolute bottom-8 right-8 opacity-80 animate-pulse"
+        width={160}
+        height={160}
+        className="absolute bottom-8 right-8 animate-pulse"
         priority
       />
     </div>

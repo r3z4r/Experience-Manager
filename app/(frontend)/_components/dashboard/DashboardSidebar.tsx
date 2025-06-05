@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { ReactNode } from 'react'
-import { Settings, User, FileText, ChevronDown, Folder } from 'lucide-react'
+import { Settings, User, Folder, Workflow, LayoutTemplate } from 'lucide-react'
 
 interface SidebarItemProps {
   href: string
@@ -32,7 +32,7 @@ function SidebarItem({ href, icon, children, badge, active }: SidebarItemProps) 
   )
 }
 
-import { LogOut } from 'lucide-react'
+import { LogOut, LayoutGrid, Plus } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { useCallback } from 'react'
 
@@ -45,22 +45,33 @@ export default function DashboardSidebar() {
   }, [router])
 
   return (
-    <aside className="w-64 min-h-screen bg-white border-r border-gray-200 flex flex-col py-6 px-0">
+    <aside className="w-64 bg-white border-r border-gray-200 flex flex-col py-6 px-0">
       <div className="px-6 pb-2 text-xs text-gray-400 font-semibold tracking-wider uppercase">
         Pages
       </div>
       <nav className="flex flex-col gap-1 px-2">
-        <SidebarItem href="/dashboard/template-list" icon={<FileText size={20} />} badge={98}>
-          All Pages
+        {/* Pages group with sub-items */}
+        <div>
+          <div className="flex items-center px-2 py-1 text-gray-700 font-semibold">
+            <span className="mr-2">
+              <Folder size={18} className="text-blue-600" />
+            </span>
+            <span>Pages</span>
+          </div>
+          <div className="pl-8 flex flex-col gap-1">
+            <SidebarItem href="/dashboard/pages" icon={<LayoutGrid size={18} />} badge={98}>
+              All Pages
+            </SidebarItem>
+            <SidebarItem href="#" icon={<Plus size={18} />}>
+              New Group
+            </SidebarItem>
+          </div>
+        </div>
+        <SidebarItem href="#" icon={<LayoutTemplate size={20} />}>
+          Templates
         </SidebarItem>
-        <SidebarItem href="#" icon={<ChevronDown size={20} />}>
-          New Group
-        </SidebarItem>
-        <SidebarItem href="#" icon={<Folder size={20} />}>
-          Popups & Sticky Bars
-        </SidebarItem>
-        <SidebarItem href="#" icon={<Folder size={20} />}>
-          Others
+        <SidebarItem href="/dashboard/wizard" icon={<Workflow size={20} />}>
+          Journeys
         </SidebarItem>
       </nav>
       <div className="px-6 pt-6 pb-2 mt-4 text-xs text-gray-400 font-semibold tracking-wider uppercase">
@@ -70,7 +81,7 @@ export default function DashboardSidebar() {
         <SidebarItem href="#" icon={<Settings size={20} />}>
           Settings
         </SidebarItem>
-        <SidebarItem href="#" icon={<User size={20} />}>
+        <SidebarItem href="/dashboard/profile" icon={<User size={20} />}>
           Account
         </SidebarItem>
         <button

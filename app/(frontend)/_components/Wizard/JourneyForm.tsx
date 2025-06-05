@@ -2,7 +2,7 @@
 
 import React, { useState, useTransition, useEffect, useCallback } from 'react'
 import { WizardStepType, WizardStep, WizardJourney, LocalizationConfig } from '@/lib/types/wizard'
-import { TemplateSelectorModal } from '@/app/(frontend)/wizard/create/TemplateSelectorModal'
+import { TemplateSelectorModal } from '@/app/(frontend)/dashboard/wizard/create/TemplateSelectorModal'
 import Link from 'next/link'
 import { WizardToast } from '@/app/(frontend)/_components/Wizard/WizardToast'
 import { TemplatePreview } from '@/app/(frontend)/_components/Xmanager/TemplatePreview'
@@ -643,7 +643,7 @@ export function JourneyForm({
       <TemplateSelectorModal
         open={templateModalOpen}
         onClose={() => setTemplateModalOpen(false)}
-        onSelect={(t) => {
+        onSelect={(t: Page) => {
           setSelectedTemplate(t)
           setStepRef(t.id ?? '')
         }}

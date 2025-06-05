@@ -17,6 +17,30 @@ export const Users: CollectionConfig = {
         placeholder: 'Enter user name',
       },
     },
+    {
+      name: 'roles',
+      label: 'Roles',
+      type: 'select',
+      hasMany: true,
+      options: [
+        {
+          label: 'Admin',
+          value: 'admin',
+        },
+        {
+          label: 'Editor',
+          value: 'editor',
+        },
+        {
+          label: 'User',
+          value: 'user',
+        },
+      ],
+      defaultValue: ['user'],
+      admin: {
+        description: 'Assign roles to this user',
+      },
+    },
     // Email field is added by default by Payload when auth: true
   ],
 }

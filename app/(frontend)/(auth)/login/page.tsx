@@ -1,5 +1,15 @@
-import SignInForm from '@/app/(frontend)/_components/auth/SignInForm'
+import SignInForm from '@/app/(frontend)/_components/auth/SignInForm';
+import AuthFormLayout from '@/app/(frontend)/_components/auth/AuthFormLayout';
 
 export default function LoginPage() {
-  return <SignInForm />
+  return (
+    <AuthFormLayout 
+      title="Welcome Back!"
+      subtitle="Sign in to continue to your Experience Manager."
+    >
+      <SignInForm />
+    </AuthFormLayout>
+  );
 }
+
+

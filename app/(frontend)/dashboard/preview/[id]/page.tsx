@@ -1,5 +1,5 @@
 import { fetchTemplateById } from '@/app/(frontend)/_actions/templates'
-import { SignInForm } from '@/app/(frontend)/_components/auth/SignInForm'
+import SignInForm from '@/app/(frontend)/_components/auth/SignInForm'
 import { PaymentForm } from '@/app/(frontend)/_components/payment/PaymentForm'
 import { getCurrentUser } from '@/app/(frontend)/_actions/auth'
 import { notFound } from 'next/navigation'
@@ -38,7 +38,7 @@ export default async function PreviewPage({ params }: PreviewPageProps) {
   return (
     <div className="p-4">
       <Link
-        href="/template-list"
+        href="/dashboard/pages"
         style={{ position: 'fixed', top: '1rem', left: '1rem', zIndex: 1001 }}
         className="text-blue-500 hover:underline"
       >

@@ -9,8 +9,6 @@ import { generateSlug } from '@/lib/utils/slug-generator'
 
 import type { User } from '@/payload-types'
 
-import type { User } from '@/payload-types'
-
 export const Pages: CollectionConfig = {
   slug: 'pages',
   admin: {
@@ -23,6 +21,20 @@ export const Pages: CollectionConfig = {
         if (operation === 'create' && data.title) {
           data.slug = await generateSlug(data.title)
         }
+
+        // Set the creator user for new pages
+        if (operation === 'create' && req.user) {
+          data.user = req.user.id
+
+          // Also add the creator to allowedUsers if visibility is restricted
+          if (
+            data.access?.visibility === 'restricted' &&
+            !data.access.allowedUsers?.includes(req.user.id)
+          ) {
+            data.access.allowedUsers = [...(data.access.allowedUsers || []), req.user.id]
+          }
+        }
+
         return data
       },
     ],
@@ -31,32 +43,35 @@ export const Pages: CollectionConfig = {
     read: ({ req }) => {
       const user = req.user as User | undefined
       if (!user) return false
-      if (user.role === 'admin') return true
+      if (user.roles?.includes('admin')) return true
+
+      // Users can read pages they created or have explicit access to
+      // Using a more compatible query format for PayloadCMS
       return {
-        'access.allowedUsers': {
-          contains: user.id,
-        },
-      }
+        or: [
+          { user: { equals: user.id } },
+          { 'access.visibility': { equals: 'public' } },
+          { 'access.allowedUsers': { contains: user.id } },
+        ],
+      } as any // Type assertion to bypass complex type checking
     },
     update: ({ req }) => {
       const user = req.user as User | undefined
       if (!user) return false
-      if (user.role === 'admin') return true
+      if (user.roles?.includes('admin')) return true
+
+      // Users can only update pages they created or have explicit access to
       return {
-        'access.allowedUsers': {
-          contains: user.id,
-        },
-      }
+        or: [{ user: { equals: user.id } }, { 'access.allowedUsers': { contains: user.id } }],
+      } as any // Type assertion to bypass complex type checking
     },
     delete: ({ req }) => {
       const user = req.user as User | undefined
       if (!user) return false
-      if (user.role === 'admin') return true
-      return {
-        'access.allowedUsers': {
-          contains: user.id,
-        },
-      }
+      if (user.roles?.includes('admin')) return true
+
+      // Users can only delete pages they created
+      return { user: { equals: user.id } } as any
     },
     create: ({ req }) => {
       const user = req.user as User | undefined
@@ -64,6 +79,18 @@ export const Pages: CollectionConfig = {
     },
   },
   fields: [
+    {
+      name: 'user',
+      type: 'relationship',
+      relationTo: 'users',
+      required: true,
+      hasMany: false,
+      admin: {
+        position: 'sidebar',
+        readOnly: true,
+        description: 'The user who created this page',
+      },
+    },
     {
       name: 'title',
       type: 'text',

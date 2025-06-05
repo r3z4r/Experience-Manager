@@ -91,7 +91,7 @@ const DropdownMenuItem = React.forwardRef<
       'focus:bg-accent focus:text-accent-foreground',
       'data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
       '[&_svg]:size-4 [&_svg]:shrink-0 [&_svg]:text-popover-foreground/70',
-      '[&_svg]:group-hover:text-popover-foreground',
+      '[&_svg]:group-hover:text-accent-foreground',
       inset && 'pl-8',
       className,
     )}

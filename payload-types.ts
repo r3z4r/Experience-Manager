@@ -70,6 +70,7 @@ export interface UserAuthOperations {
 export interface User {
   id: string;
   username: string;
+  roles?: ('admin' | 'editor' | 'user')[] | null;
   updatedAt: string;
   createdAt: string;
   email: string;
@@ -125,6 +126,7 @@ export interface Media {
  */
 export interface Page {
   id: string;
+  user: string | User;
   title: string;
   slug?: string | null;
   description?: string | null;
@@ -340,6 +342,7 @@ export interface PayloadMigration {
  */
 export interface UsersSelect<T extends boolean = true> {
   username?: T;
+  roles?: T;
   updatedAt?: T;
   createdAt?: T;
   email?: T;
@@ -398,6 +401,7 @@ export interface MediaSelect<T extends boolean = true> {
  * via the `definition` "pages_select".
  */
 export interface PagesSelect<T extends boolean = true> {
+  user?: T;
   title?: T;
   slug?: T;
   description?: T;
