@@ -49,16 +49,14 @@ export function middleware(request: NextRequest): NextResponse {
   // Check for the payload-token cookie set by PayloadCMS upon successful login
   const token = request.cookies.get('payload-token')?.value
   if (!token) {
-    const loginUrl = request.nextUrl.clone();
-    // Prepend basePath to the login path
-    loginUrl.pathname = `${request.nextUrl.basePath || ''}/login`;
+    const loginUrl = request.nextUrl.clone()
+    loginUrl.pathname = '/login'
     // Preserve the original pathname (without basePath) in 'next' query param
-    // as the SignInForm will append basePath again during redirection.
-    const originalPathname = pathname.startsWith(request.nextUrl.basePath) 
-      ? pathname.substring(request.nextUrl.basePath.length) 
-      : pathname;
-    loginUrl.searchParams.set('next', originalPathname);
-    return NextResponse.redirect(loginUrl);
+    const originalPathname = pathname.startsWith(request.nextUrl.basePath)
+      ? pathname.substring(request.nextUrl.basePath.length)
+      : pathname
+    loginUrl.searchParams.set('next', originalPathname)
+    return NextResponse.redirect(loginUrl)
   }
 
   return NextResponse.next()

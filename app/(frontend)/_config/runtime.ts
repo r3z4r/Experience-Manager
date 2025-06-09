@@ -20,19 +20,15 @@ export const getServerPort = (): string => {
 // Get the full base URL including protocol, host, and port
 export const getBaseUrl = async (): Promise<string> => {
   if (typeof window !== 'undefined') {
-    // Client-side
     const { protocol, hostname, port } = window.location
     return `${protocol}//${hostname}${port ? `:${port}` : ''}`
   }
 
-  // Server-side: Use headers to determine the base URL
-  const heads = await headers() // Await the headers() call
+  const heads = await headers()
   const protocol = heads.get('x-forwarded-proto') || 'http'
-  // 'x-forwarded-host' is preferred if behind a proxy, as 'host' might be an internal name.
   const host = heads.get('x-forwarded-host') || heads.get('host')
 
   if (!host) {
-    // Ultimate fallback if no host header can be determined (should be rare)
     console.warn(
       '[runtime.ts] Could not determine host from headers for getBaseUrl, defaulting to http://localhost:3000',
     )
@@ -44,6 +40,6 @@ export const getBaseUrl = async (): Promise<string> => {
 
 // Get the full API URL
 export const getApiUrl = async (path: string): Promise<string> => {
-  const url = await getBaseUrl() // Await the getBaseUrl() call
+  const url = await getBaseUrl()
   return `${url}${basePath}${path}`
 }

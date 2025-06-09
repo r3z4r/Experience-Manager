@@ -29,21 +29,19 @@ export default function UserProfileDropdown() {
     return null
   }
 
-  // Get user initials for avatar
   const initials = user.username
     ? user.username
         .split(' ')
-        .map(name => name[0])
+        .map((name) => name[0])
         .join('')
         .toUpperCase()
         .substring(0, 2)
     : 'U'
 
-  // Format roles for display
   const roleLabels: Record<string, { label: string; className: string }> = {
     admin: { label: 'Admin', className: 'bg-red-500/20 text-red-300' },
     editor: { label: 'Editor', className: 'bg-blue-500/20 text-blue-300' },
-    user: { label: 'User', className: 'bg-green-500/20 text-green-300' }
+    user: { label: 'User', className: 'bg-green-500/20 text-green-300' },
   }
 
   return (
@@ -64,13 +62,15 @@ export default function UserProfileDropdown() {
             <div className="font-medium text-gray-800">{user.username}</div>
             <div className="text-sm text-gray-600">{user.email}</div>
             <div className="mt-2 flex flex-wrap gap-1">
-              {user.roles.map(role => (
+              {user.roles.map((role) => (
                 <span
                   key={role}
                   className={`text-xs px-2 py-1 rounded-full ${
-                    role === 'admin' ? 'bg-red-100 text-red-600' :
-                    role === 'editor' ? 'bg-blue-100 text-blue-600' :
-                    'bg-green-100 text-green-600'
+                    role === 'admin'
+                      ? 'bg-red-100 text-red-600'
+                      : role === 'editor'
+                        ? 'bg-blue-100 text-blue-600'
+                        : 'bg-green-100 text-green-600'
                   }`}
                 >
                   {roleLabels[role]?.label || role}
@@ -103,7 +103,7 @@ export default function UserProfileDropdown() {
                 <span>Admin Dashboard</span>
               </Link>
             )}
-            
+
             <Link
               href="/dashboard/profile"
               className="flex items-center gap-2 px-2 py-2 rounded-md hover:bg-gray-100 transition-colors w-full text-left text-gray-700"

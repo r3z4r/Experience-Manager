@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect } from 'react'
 import { useRouter, usePathname } from 'next/navigation'
 import { useUser } from '@/app/(frontend)/_context/UserContext'
 import { toast } from 'sonner'
@@ -20,32 +20,26 @@ export default function WithAuth({ children, requiredRoles = [] }: WithAuthProps
   const router = useRouter()
   const pathname = usePathname()
 
-  // Use a default basePath to avoid waiting for the async import
-  const defaultBasePath = process.env.NEXT_PUBLIC_BASE_PATH || '/xpm'
-  const [basePath, setBasePath] = useState(defaultBasePath)
-
-
   useEffect(() => {
-    // Only check auth after user loading is complete
     if (isLoading) return
 
     if (!user) {
       toast.error('Please sign in to access this page')
       const returnPath = encodeURIComponent(pathname)
-      router.push(`${basePath}/login?next=${returnPath}`)
+      router.push(`/login?next=${returnPath}`)
       return
     }
 
     if (requiredRoles.length > 0) {
-      const hasRequiredRole = requiredRoles.some((role) => user.roles?.includes(role))
+      const hasRequiredRole = requiredRoles.some((role) => user?.roles?.includes(role))
 
       if (!hasRequiredRole) {
         toast.error('You do not have permission to access this page')
-        router.push(`${basePath}/dashboard/pages`)
+        router.push(`/dashboard/pages`)
         return
       }
     }
-  }, [user, isLoading, router, pathname, requiredRoles, basePath])
+  }, [user, isLoading, router, pathname, requiredRoles])
 
   if (isLoading) {
     return (

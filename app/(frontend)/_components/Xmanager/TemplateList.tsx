@@ -78,36 +78,45 @@ export function TemplateList() {
   const [sortBy, setSortBy] = useState<'created' | 'name'>('created')
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc')
   const { user } = useUser()
-  const basePath = process.env.NEXT_PUBLIC_BASE_PATH || '/xpm';
+  const basePath = process.env.NEXT_PUBLIC_BASE_PATH || '/xpm'
 
   const debouncedSearch = useDebounce(searchTerm, 350)
 
   const [isPending, startTransition] = useTransition()
 
-  const handleCopyUrl = async (templateSlug: string | null | undefined, templateUsername?: string | null | undefined) => {
+  const handleCopyUrl = async (
+    templateSlug: string | null | undefined,
+    templateUsername?: string | null | undefined,
+  ) => {
     if (!templateSlug || !templateUsername) {
-      toast.error('Cannot copy URL: Missing slug or user information.');
-      return;
+      toast.error('Cannot copy URL: Missing slug or user information.')
+      return
     }
     try {
-      const baseUrl = window.location.origin;
-      // basePath is already defined in the component scope
-      const templateUrl = `${baseUrl}${basePath}/${templateUsername}/${templateSlug}`;
-      await navigator.clipboard.writeText(templateUrl);
-      toast.success('URL copied to clipboard!');
+      const baseUrl = window.location.origin
+      const templateUrl = `${baseUrl}${basePath}/${templateUsername}/${templateSlug}`
+      await navigator.clipboard.writeText(templateUrl)
+      toast.success('URL copied to clipboard!')
     } catch (error) {
-      console.error('Failed to copy URL:', error);
-      toast.error('Failed to copy URL.');
+      console.error('Failed to copy URL:', error)
+      toast.error('Failed to copy URL.')
     }
-  };
+  }
 
   useEffect(() => {
+    if (!user) {
+      setIsLoading(true)
+      setTemplates([])
+      return
+    }
+
     setIsLoading(true)
     startTransition(() => {
       const filter: Record<string, unknown> = {}
       if (debouncedSearch.trim() === '' && selectedTab !== 'recent' && selectedTab !== 'all') {
         filter.status = selectedTab
       }
+
       fetchTemplates({
         page: pagination.page,
         limit: ITEMS_PER_PAGE,
@@ -115,6 +124,8 @@ export function TemplateList() {
         sortBy,
         sortOrder,
         filter,
+        username: user?.username,
+        enforceUserFiltering: true,
       })
         .then((response) => {
           const { docs, ...paginationData } = response
@@ -124,13 +135,14 @@ export function TemplateList() {
         .catch((error) => {
           console.error('Error fetching templates:', error)
           toast.error('Failed to load templates')
+          setTemplates([])
         })
         .finally(() => {
           setIsLoading(false)
         })
     })
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [debouncedSearch, sortBy, selectedTab, pagination.page, sortOrder])
+  }, [debouncedSearch, sortBy, selectedTab, pagination.page, sortOrder, user]) // Add user to dependency array
 
   const [showDeleteModal, setShowDeleteModal] = useState(false)
   const [templateToDelete, setTemplateToDelete] = useState<Page | null>(null)
