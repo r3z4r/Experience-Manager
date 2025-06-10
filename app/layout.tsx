@@ -17,6 +17,9 @@ const geistMono = localFont({
 export const metadata: Metadata = {
   title: 'Experience Management Platform',
   description: 'Experience Management Platform',
+  icons: {
+    icon: `${process.env.NEXT_PUBLIC_BASE_PATH}/favicon.ico`,
+  },
 }
 
 export default function RootLayout({

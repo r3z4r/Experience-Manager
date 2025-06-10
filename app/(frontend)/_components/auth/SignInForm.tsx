@@ -2,8 +2,6 @@
 
 import { useState, useEffect } from 'react'
 import { toast } from 'sonner'
-import AuthBranding from '@/app/(frontend)/_components/auth/AuthBranding'
-import Image from 'next/image'
 import Link from 'next/link'
 import { EyeIcon, EyeOffIcon } from 'lucide-react'
 
@@ -178,10 +176,7 @@ export default function SignInForm() {
           <span className="mx-3 text-gray-400 text-sm">or</span>
           <div className="flex-grow border-t border-gray-300" />
         </div>
-        <Link
-          href={`${process.env.NEXT_PUBLIC_BASE_PATH || '/xpm'}/admin`}
-          className="mt-3 text-white/60 hover:text-white border px-4 py-2"
-        >
+        <Link href={'admin'} className="mt-3 text-white/60 hover:text-white border px-4 py-2">
           Sign in to Admin Panel
         </Link>
       </div>
