@@ -3,7 +3,8 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { ReactNode } from 'react'
-import { Settings, User, Folder, Workflow, LayoutTemplate } from 'lucide-react'
+import { Settings, User, Folder, Workflow, LayoutTemplate, LayoutGrid, Plus } from 'lucide-react'
+import LogoutButton from './LogoutButton'
 
 interface SidebarItemProps {
   href: string
@@ -32,18 +33,7 @@ function SidebarItem({ href, icon, children, badge, active }: SidebarItemProps) 
   )
 }
 
-import { LogOut, LayoutGrid, Plus } from 'lucide-react'
-import { useRouter } from 'next/navigation'
-import { useCallback } from 'react'
-
 export default function DashboardSidebar() {
-  const router = useRouter()
-
-  const handleLogout = useCallback(async () => {
-    await fetch('/api/auth/logout', { method: 'POST' })
-    router.push('/login')
-  }, [router])
-
   return (
     <aside className="w-64 bg-white border-r border-gray-200 flex flex-col py-6 px-0">
       <div className="px-6 pb-2 text-xs text-gray-400 font-semibold tracking-wider uppercase">
@@ -84,13 +74,7 @@ export default function DashboardSidebar() {
         <SidebarItem href="/dashboard/profile" icon={<User size={20} />}>
           Account
         </SidebarItem>
-        <button
-          onClick={handleLogout}
-          className="flex items-center gap-3 px-4 py-2 rounded-lg text-red-600 hover:bg-red-50 transition-colors text-base font-semibold w-full"
-        >
-          <LogOut size={20} />
-          Log out
-        </button>
+        <LogoutButton />
       </nav>
     </aside>
   )

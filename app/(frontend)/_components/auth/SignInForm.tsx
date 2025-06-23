@@ -27,10 +27,10 @@ export default function SignInForm() {
     }
   }, [])
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent, isAdminLogin = false) => {
     e.preventDefault()
     setIsLoading(true)
-    const toastId = toast.loading('Signing in...')
+    const toastId = toast.loading(isAdminLogin ? 'Signing in to admin panel...' : 'Signing in...')
 
     try {
       const runtimeBasePath = process.env.NEXT_PUBLIC_BASE_PATH || '/xpm'
@@ -52,6 +52,17 @@ export default function SignInForm() {
       const result = await response.json()
 
       if (response.ok && result.user) {
+        // enable after roles implementation
+        /*
+        if (isAdminLogin && (!result.user.roles || !result.user.roles.includes('admin'))) {
+          toast.error('You do not have permission to access the admin panel', {
+            id: toastId,
+          })
+          setIsLoading(false)
+          return
+        }
+        */
+
         localStorage.setItem('user', JSON.stringify(result.user))
         if (result.user.username) {
           localStorage.setItem('username', result.user.username)
@@ -64,14 +75,17 @@ export default function SignInForm() {
           id: toastId,
         })
 
-        // Redirect after a short delay
         setTimeout(() => {
-          const params = new URLSearchParams(window.location.search)
-          const next = params.get('next')
-          if (next) {
-            window.location.href = runtimeBasePath + next
+          if (isAdminLogin) {
+            window.location.href = `${runtimeBasePath}/admin`
           } else {
-            window.location.href = `${runtimeBasePath}/dashboard/pages`
+            const params = new URLSearchParams(window.location.search)
+            const next = params.get('next')
+            if (next) {
+              window.location.href = runtimeBasePath + next
+            } else {
+              window.location.href = `${runtimeBasePath}/dashboard/pages`
+            }
           }
         }, 1000)
       } else {
@@ -82,7 +96,6 @@ export default function SignInForm() {
         })
       }
     } catch (error) {
-      console.error('Login submission error:', error)
       toast.error('An unexpected error occurred. Please try again.', { id: toastId })
     } finally {
       setIsLoading(false)
@@ -176,9 +189,13 @@ export default function SignInForm() {
           <span className="mx-3 text-gray-400 text-sm">or</span>
           <div className="flex-grow border-t border-gray-300" />
         </div>
-        <Link href={'admin'} className="mt-3 text-white/60 hover:text-white border px-4 py-2">
-          Sign in to Admin Panel
-        </Link>
+        <button
+          onClick={(e) => handleSubmit(e, true)}
+          className="mt-3 text-white/60 hover:text-white border px-4 py-2"
+          disabled={isLoading}
+        >
+          {isLoading ? 'Signing in...' : 'Sign in to Admin Panel'}
+        </button>
       </div>
     </>
   )

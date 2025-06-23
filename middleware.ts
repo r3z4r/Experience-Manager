@@ -45,9 +45,19 @@ export function middleware(request: NextRequest): NextResponse {
     return response
   }
 
-  // --- 2. Auth protection for frontend routes ---
+  // --- 2. Auth protection for frontend and admin routes ---
   // Check for the payload-token cookie set by PayloadCMS upon successful login
   const token = request.cookies.get('payload-token')?.value
+
+  // Skip auth check for login page and public routes
+  if (
+    pathname.startsWith('/login') ||
+    pathname.startsWith('/_next') ||
+    pathname.startsWith('/images')
+  ) {
+    return NextResponse.next()
+  }
+
   if (!token) {
     const loginUrl = request.nextUrl.clone()
     loginUrl.pathname = '/login'
@@ -63,5 +73,5 @@ export function middleware(request: NextRequest): NextResponse {
 }
 
 export const config = {
-  matcher: ['/api/:path*', '/dashboard/:path*'],
+  matcher: ['/api/:path*', '/dashboard/:path*', '/admin/:path*'],
 }

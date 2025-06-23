@@ -3,8 +3,8 @@ import { NextConfig } from 'next'
 
 /** @type {import('next').NextConfig} */
 const nextConfig: NextConfig = {
+  reactStrictMode: false,
   basePath: process.env.NEXT_PUBLIC_BASE_PATH || '/xpm',
-  // Ensure assets are served with the correct basePath
   assetPrefix: process.env.NEXT_PUBLIC_BASE_PATH || '/xpm',
   experimental: {
     serverActions: {
