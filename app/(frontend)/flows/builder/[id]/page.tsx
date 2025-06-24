@@ -1,21 +1,10 @@
-"use client"
-
 // MVP Flow Builder page – renders React Flow canvas loaded with existing graph.
 // At this stage it provides read-only visualization. Editing, palettes and inspector
 // will be added incrementally.
 
-import dynamic from 'next/dynamic'
-import React, { useEffect, useState } from 'react'
-import type { FlowGraph } from '@/lib/flowRunner'
-
-// React Flow must be dynamically imported to avoid SSR issues in Next.js 15
-// because it relies on the DOM.
-const ReactFlow = dynamic(() => import('reactflow').then((m) => m.ReactFlow), {
-  ssr: false,
-})
-
-// React Flow global styles
-import 'reactflow/dist/style.css'
+import { notFound } from 'next/navigation'
+import { getFlowAction, saveFlowAction } from '@/app/(frontend)/_actions/flows'
+import FlowBuilderClient from './FlowBuilderClient'
 
 interface PageProps {
   params: {
@@ -23,34 +12,23 @@ interface PageProps {
   }
 }
 
-export default function FlowBuilderPage({ params }: PageProps) {
+export default async function FlowBuilderPage({ params }: PageProps) {
   const { id } = params
-  const [graph, setGraph] = useState<FlowGraph | null>(null)
-  const [loading, setLoading] = useState(true)
+  
+  const flowData = await getFlowAction(id)
+  if (!flowData) notFound()
 
-  // TODO: replace with authenticated fetch to Payload REST API
-  useEffect(() => {
-    async function fetchGraph() {
-      try {
-        const res = await fetch(`/api/flows/${id}`)
-        if (!res.ok) throw new Error('Failed to load flow')
-        const json = await res.json()
-        setGraph(json.graph as FlowGraph)
-      } catch (err) {
-        console.error(err)
-      } finally {
-        setLoading(false)
-      }
-    }
-    fetchGraph()
-  }, [id])
-
-  if (loading) return <p className="p-4">Loading flow…</p>
-  if (!graph) return <p className="p-4 text-red-600">Flow not found</p>
+  async function saveFlow(flowId: string, graph: any) {
+    'use server'
+    return await saveFlowAction(flowId, graph)
+  }
 
   return (
-    <div className="h-screen w-full">
-      <ReactFlow nodes={graph.nodes} edges={graph.edges} fitView />
-    </div>
+    <FlowBuilderClient
+      initialGraph={flowData.graph}
+      flowTitle={flowData.title}
+      flowId={id}
+      saveFlow={saveFlow}
+    />
   )
 }

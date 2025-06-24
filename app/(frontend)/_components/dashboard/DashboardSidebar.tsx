@@ -60,7 +60,10 @@ export default function DashboardSidebar() {
         <SidebarItem href="#" icon={<LayoutTemplate size={20} />}>
           Templates
         </SidebarItem>
-        <SidebarItem href="/dashboard/wizard" icon={<Workflow size={20} />}>
+        <SidebarItem href="/dashboard/flows" icon={<Workflow size={20} />}>
+          Flows
+        </SidebarItem>
+        <SidebarItem href="/dashboard/wizard" icon={<LayoutTemplate size={20} />}>
           Journeys
         </SidebarItem>
       </nav>
