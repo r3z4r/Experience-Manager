@@ -16,6 +16,7 @@ export interface Config {
     pages: Page;
     images: Image;
     journeys: Journey;
+    flows: Flow;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
@@ -27,6 +28,7 @@ export interface Config {
     pages: PagesSelect<false> | PagesSelect<true>;
     images: ImagesSelect<false> | ImagesSelect<true>;
     journeys: JourneysSelect<false> | JourneysSelect<true>;
+    flows: FlowsSelect<false> | FlowsSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
     'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
@@ -269,6 +271,29 @@ export interface Journey {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "flows".
+ */
+export interface Flow {
+  id: string;
+  title: string;
+  slug?: string | null;
+  status?: ('draft' | 'approved' | 'archived') | null;
+  graph:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+  versionLabel?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-locked-documents".
  */
 export interface PayloadLockedDocument {
@@ -293,6 +318,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'journeys';
         value: string | Journey;
+      } | null)
+    | ({
+        relationTo: 'flows';
+        value: string | Flow;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -521,6 +550,20 @@ export interface JourneysSelect<T extends boolean = true> {
       };
   updatedAt?: T;
   createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "flows_select".
+ */
+export interface FlowsSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  status?: T;
+  graph?: T;
+  versionLabel?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

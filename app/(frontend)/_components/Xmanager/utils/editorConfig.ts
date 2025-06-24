@@ -6,6 +6,7 @@ import flexbox from 'grapesjs-blocks-flexbox'
 import forms from 'grapesjs-plugin-forms'
 import styleFilter from 'grapesjs-style-filter'
 import { Editor, Editor as GrapesEditor, ProjectData, BlockProperties } from 'grapesjs'
+import { registerFlowKeyTrait } from '@/app/(frontend)/_components/Xmanager/plugins/flowKeyTrait'
 import { updateTemplate } from '@/app/(frontend)/_actions/templates'
 import { getAssetManagerConfig } from './assetConfig'
 import { PayloadImage } from '@/app/(frontend)/_actions/images'
@@ -63,7 +64,17 @@ export const getEditorConfig = (
       },
     },
   },
-  plugins: [webpage, basicBlocks, flexbox, forms, styleFilter],
+  plugins: [
+    webpage,
+    basicBlocks,
+    flexbox,
+    forms,
+    styleFilter,
+    // Registers custom trait for data-flow-key
+    (ed: Editor) => {
+      registerFlowKeyTrait(ed)
+    },
+  ],
   pluginsOpts: {
     'grapesjs-preset-webpage': {
       blocks: ['link-block', 'quote', 'text-basic'],
