@@ -8,18 +8,27 @@ import { FlowRunner, type FlowNode } from '@/lib/flowRunner'
 import RenderFlowPage from './render'
 
 interface Props {
-  params: {
+  params: Promise<{
     flowId: string
     nodeId: string
-  }
+  }>
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }
 
-export default async function FlowRuntimePage({ params }: Props) {
-  const { flowId, nodeId } = params
+export default async function FlowRuntimePage({ params, searchParams }: Props) {
+  const { flowId, nodeId } = await params
+  const search = await searchParams
+  const isPreview = search.preview === 'true'
 
   // Fetch flow data
   const flow = await getFlowAction(flowId)
   if (!flow) {
+    notFound()
+  }
+
+  // In preview mode, allow access to draft flows
+  // In normal mode, only allow published flows
+  if (!isPreview && flow.status !== 'approved') {
     notFound()
   }
 
@@ -48,7 +57,7 @@ export default async function FlowRuntimePage({ params }: Props) {
         <div className="flex items-center justify-center min-h-screen">
           <div className="text-center">
             <h1 className="text-xl font-semibold mb-2">Processing Flow...</h1>
-            <p className="text-gray-600">Condition node should redirect automatically.</p>
+            <p className="text-gray-600">Redirecting to next step...</p>
           </div>
         </div>
       )
@@ -56,49 +65,90 @@ export default async function FlowRuntimePage({ params }: Props) {
   }
 
   if (node.type === 'end') {
-    // End node - show completion message
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
-          <h1 className="text-2xl font-semibold mb-2">Flow Complete</h1>
+          <h1 className="text-2xl font-bold mb-4">Flow Complete</h1>
           <p className="text-gray-600">You have reached the end of this flow.</p>
+          {isPreview && (
+            <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+              <p className="text-sm text-blue-700">
+                🔍 Preview Mode: This flow is being tested and may not be published yet.
+              </p>
+            </div>
+          )}
         </div>
       </div>
     )
   }
 
   // For page nodes, fetch and render the page content
-  let pageHtml = ''
-  if (node.data.pageId) {
-    // Fetch page from Payload CMS
-    try {
-      const { getPayload } = await import('payload')
-      const payload = await getPayload({ config: (await import('@payload-config')).default })
-      const page = await payload.findByID({
-        collection: 'pages',
-        id: node.data.pageId,
-      })
-      pageHtml = page.htmlContent || page.jsContent || ''
-    } catch (error) {
-      console.error('Failed to fetch page:', error)
-      pageHtml = '<div>Error loading page content</div>'
+  if (node.type === 'page') {
+    const pageId = node.data.pageId
+    if (!pageId) {
+      return (
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="text-center">
+            <h1 className="text-xl font-semibold mb-2 text-red-600">Configuration Error</h1>
+            <p className="text-gray-600">This flow step is not properly configured.</p>
+          </div>
+        </div>
+      )
     }
-  } else if (node.data.pagePath) {
-    // External page - this would need different handling
-    pageHtml = `<div>External page: ${node.data.pagePath}</div>`
-  } else {
-    // Default content for nodes without page data
-    pageHtml = `<div class="p-8"><h1>${node.data.label}</h1><p>This is a flow node without specific page content.</p></div>`
+
+    // Fetch page content from Payload
+    // For now, we'll render a placeholder
+    const pageHtml = `
+      <div class="max-w-2xl mx-auto p-6">
+        ${isPreview ? `
+          <div class="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+            <p class="text-sm text-blue-700">
+              🔍 Preview Mode: This flow is being tested and may not be published yet.
+            </p>
+          </div>
+        ` : ''}
+        <h1 class="text-2xl font-bold mb-4">Flow Step: ${node.data.label}</h1>
+        <p class="text-gray-600 mb-6">Page ID: ${pageId}</p>
+        <form class="space-y-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Sample Input</label>
+            <input 
+              type="text" 
+              name="sampleInput" 
+              data-flow-key="sampleInput"
+              class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+              placeholder="Enter some data..."
+            />
+          </div>
+          <button 
+            type="submit"
+            class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
+          >
+            Continue
+          </button>
+        </form>
+      </div>
+    `
+
+    return (
+      <FlowProvider flowId={flowId} initialContext={{}}>
+        <RenderFlowPage 
+          html={pageHtml} 
+          nodeId={nodeId} 
+          flowRunner={flowRunner} 
+        />
+      </FlowProvider>
+    )
   }
 
+  // Default fallback
   return (
-    <FlowProvider flowId={flowId} initialContext={flowRunner.getContext()}>
-      <RenderFlowPage 
-        html={pageHtml} 
-        nodeId={nodeId}
-        flowRunner={flowRunner}
-      />
-    </FlowProvider>
+    <div className="flex items-center justify-center min-h-screen">
+      <div className="text-center">
+        <h1 className="text-xl font-semibold mb-2">Unknown Node Type</h1>
+        <p className="text-gray-600">This flow step type is not supported.</p>
+      </div>
+    </div>
   )
 }
 

@@ -15,7 +15,7 @@ export default async function FlowsPage() {
 
   return (
     <div className="max-w-6xl mx-auto p-6">
-      <FlowList flows={flows} onCreateFlow={handleCreateFlow} />
+      <FlowList flows={flows} />
     </div>
   )
 }

@@ -9,13 +9,13 @@ import configPromise from '@payload-config'
 import FlowBuilderClient from './FlowBuilderClient'
 
 interface PageProps {
-  params: {
+  params: Promise<{
     id: string // flow document ID (or slug)
-  }
+  }>
 }
 
 export default async function FlowBuilderPage({ params }: PageProps) {
-  const { id } = params
+  const { id } = await params
   
   const flowData = await getFlowAction(id)
   if (!flowData) notFound()

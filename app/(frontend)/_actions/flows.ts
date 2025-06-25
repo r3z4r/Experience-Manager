@@ -63,7 +63,7 @@ export async function createFlowAction(): Promise<string | null> {
 /**
  * Get a single flow by ID for the builder.
  */
-export async function getFlowAction(id: string): Promise<{ graph: any; title: string } | null> {
+export async function getFlowAction(id: string): Promise<{ graph: any; title: string; status: 'draft' | 'approved' | 'archived' } | null> {
   try {
     const payload = await getPayload({ config: configPromise })
     const doc = await (payload as any).findByID({
@@ -72,10 +72,11 @@ export async function getFlowAction(id: string): Promise<{ graph: any; title: st
     })
     return {
       graph: doc.graph || { nodes: [], edges: [] },
-      title: doc.title || 'Untitled Flow',
+      title: doc.title,
+      status: doc.status || 'draft',
     }
-  } catch (err) {
-    console.error('getFlowAction error', err)
+  } catch (error) {
+    console.error('Failed to fetch flow:', error)
     return null
   }
 }

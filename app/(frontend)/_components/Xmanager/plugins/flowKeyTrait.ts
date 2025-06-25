@@ -28,7 +28,10 @@ export function registerFlowKeyTrait(editor: Editor) {
 
   // When editor loads, walk existing components
   editor.on('load', () => {
-    editor.getWrapper().find('*').forEach(ensureTraitOnComponent)
+    const wrapper = editor.getWrapper()
+    if (wrapper) {
+      wrapper.find('*').forEach(ensureTraitOnComponent)
+    }
   })
 
   // Whenever a component is added, check it
