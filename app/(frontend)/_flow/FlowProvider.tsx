@@ -23,6 +23,10 @@ interface FlowProviderProps extends PropsWithChildren {
    * "local" survives browser restarts.
    */
   persistence?: 'session' | 'local'
+  /**
+   * Initial context to populate the flow with
+   */
+  initialContext?: FlowCtx
 }
 
 interface FlowContextValue {
@@ -46,6 +50,7 @@ export function FlowProvider({
   flowId,
   children,
   persistence = 'session',
+  initialContext,
 }: FlowProviderProps) {
   const storage: Storage | undefined =
     typeof window === 'undefined'
@@ -57,12 +62,12 @@ export function FlowProvider({
   const storageKey = useMemo(() => `flow-${flowId}`, [flowId])
 
   const [state, dispatch] = useReducer(reducer, defaultState, (init) => {
-    if (!storage) return init
+    if (!storage) return initialContext ? { ctx: initialContext } : init
     try {
       const raw = storage.getItem(storageKey)
-      return raw ? { ctx: JSON.parse(raw) } : init
+      return raw ? { ctx: JSON.parse(raw) } : initialContext ? { ctx: initialContext } : init
     } catch {
-      return init
+      return initialContext ? { ctx: initialContext } : init
     }
   })
 

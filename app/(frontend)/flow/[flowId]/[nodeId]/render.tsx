@@ -1,24 +1,18 @@
 'use client'
 
 import React, { useEffect, useRef } from 'react'
-import { FlowGraph } from '@/lib/flowRunner'
+import { FlowRunner } from '@/lib/flowRunner'
 import { useFlowForm } from '@/app/(frontend)/_flow/useFlowForm'
 
 interface RenderFlowPageProps {
   html: string
-  graph: FlowGraph
   nodeId: string
-  api?: {
-    method: 'GET' | 'POST' | 'PUT' | 'PATCH'
-    url: string
-    bodyTemplate?: string
-    responseMapping?: Record<string, string>
-  }
+  flowRunner: FlowRunner
 }
 
-export default function RenderFlowPage({ html, graph, nodeId, api }: RenderFlowPageProps) {
+export default function RenderFlowPage({ html, nodeId, flowRunner }: RenderFlowPageProps) {
   const containerRef = useRef<HTMLDivElement>(null)
-  const handleSubmit = useFlowForm({ graph, currentNodeId: nodeId, api })
+  const handleSubmit = useFlowForm({ flowRunner, currentNodeId: nodeId })
 
   // Attach the submit handler to any form inside the rendered HTML
   useEffect(() => {
@@ -26,10 +20,19 @@ export default function RenderFlowPage({ html, graph, nodeId, api }: RenderFlowP
     if (!container) return
 
     const forms = Array.from(container.querySelectorAll('form')) as HTMLFormElement[]
-    forms.forEach((f) => f.addEventListener('submit', handleSubmit as EventListener, { once: false }))
+    
+    // Create a wrapper function to handle the event type conversion
+    const eventWrapper = (event: Event) => {
+      if (event.target instanceof HTMLFormElement) {
+        // Convert Event to FormEvent for React handler using unknown
+        handleSubmit(event as unknown as React.FormEvent<HTMLFormElement>)
+      }
+    }
+    
+    forms.forEach((f) => f.addEventListener('submit', eventWrapper, { once: false }))
 
     return () => {
-      forms.forEach((f) => f.removeEventListener('submit', handleSubmit as EventListener))
+      forms.forEach((f) => f.removeEventListener('submit', eventWrapper))
     }
   }, [handleSubmit])
 

@@ -3,7 +3,16 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { ReactNode } from 'react'
-import { Settings, User, Folder, Workflow, LayoutTemplate, LayoutGrid, Plus } from 'lucide-react'
+import {
+  Settings,
+  User,
+  Folder,
+  Layers,
+  LayoutTemplate,
+  LayoutGrid,
+  Plus,
+  GitFork,
+} from 'lucide-react'
 import LogoutButton from './LogoutButton'
 
 interface SidebarItemProps {
@@ -60,11 +69,11 @@ export default function DashboardSidebar() {
         <SidebarItem href="#" icon={<LayoutTemplate size={20} />}>
           Templates
         </SidebarItem>
-        <SidebarItem href="/dashboard/flows" icon={<Workflow size={20} />}>
+        <SidebarItem href="/dashboard/flows" icon={<GitFork size={20} />}>
           Flows
         </SidebarItem>
-        <SidebarItem href="/dashboard/wizard" icon={<LayoutTemplate size={20} />}>
-          Journeys
+        <SidebarItem href="/dashboard/wizard" icon={<Layers size={20} />}>
+          Wizards
         </SidebarItem>
       </nav>
       <div className="px-6 pt-6 pb-2 mt-4 text-xs text-gray-400 font-semibold tracking-wider uppercase">

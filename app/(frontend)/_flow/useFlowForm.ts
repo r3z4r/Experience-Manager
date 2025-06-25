@@ -3,30 +3,23 @@
 import { useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { useFlow } from './FlowProvider'
-import { loadFlow, FlowGraph } from '@/lib/flowRunner'
+import { FlowRunner } from '@/lib/flowRunner'
 
 interface UseFlowFormOptions {
-  /** The FlowGraph for this journey (supplied via props or context) */
-  graph: FlowGraph
+  /** The FlowRunner instance for this journey */
+  flowRunner: FlowRunner
   /** The id of the current node corresponding to this page */
   currentNodeId: string
-  /** Optional API settings coming from node.data.api (already resolved) */
-  api?: {
-    method: 'GET' | 'POST' | 'PUT' | 'PATCH'
-    url: string
-    bodyTemplate?: string
-    responseMapping?: Record<string, string>
-  }
 }
 
 /**
  * Helper hook to wire a page form into the Flow system.
  *
  * Usage:
- *   const handleSubmit = useFlowForm({ graph, currentNodeId, api })
+ *   const handleSubmit = useFlowForm({ flowRunner, currentNodeId })
  *   <form onSubmit={handleSubmit}>...</form>
  */
-export function useFlowForm({ graph, currentNodeId, api }: UseFlowFormOptions) {
+export function useFlowForm({ flowRunner, currentNodeId }: UseFlowFormOptions) {
   const { ctx, updateCtx } = useFlow()
   const router = useRouter()
 
@@ -43,48 +36,24 @@ export function useFlowForm({ graph, currentNodeId, api }: UseFlowFormOptions) {
         patch[key] = el.value
       }
     })
+    
+    // Update both local context and flow runner context
     updateCtx(patch)
+    flowRunner.updateContext(patch)
 
-    let apiResult: unknown = null
-    // 2. optional API call
-    if (api) {
-      const body = api.bodyTemplate
-        ? interpolate(api.bodyTemplate, { ...ctx, ...patch })
-        : undefined
-      try {
-        const res = await fetch(api.url, {
-          method: api.method,
-          headers: body ? { 'Content-Type': 'application/json' } : undefined,
-          body,
-        })
-        apiResult = await res.json()
-
-        // map keys into context
-        if (api.responseMapping) {
-          const mapped: Record<string, unknown> = {}
-          for (const [ctxKey, path] of Object.entries(api.responseMapping)) {
-            mapped[ctxKey] = getByPath(apiResult, path)
-          }
-          updateCtx(mapped)
-        }
-      } catch (err) {
-        console.error('Flow API call failed', err)
+    // 2. Process form submission through FlowRunner
+    try {
+      const result = await flowRunner.processFormSubmission(formData)
+      
+      if (result.success && result.shouldNavigate && result.navigationUrl) {
+        // Navigate to the next node
+        router.push(result.navigationUrl)
+      } else if (!result.success && result.error) {
+        console.error('Flow execution error:', result.error)
+        // You might want to show an error message to the user
       }
+    } catch (error) {
+      console.error('Form submission error:', error)
     }
-
-    // 3. determine next node and navigate
-    const runner = loadFlow(graph)
-    const nextId = runner.getNext(currentNodeId, { ...ctx, ...patch })
-    if (!nextId) return // end of flow
-    const nextNode = runner.getNode(nextId)
-    if (nextNode) router.push(nextNode.data.pagePath)
-  }, [api, ctx, currentNodeId, graph, router, updateCtx])
-}
-
-function interpolate(template: string, ctx: Record<string, unknown>): string {
-  return template.replace(/{{\s*([\w.]+)\s*}}/g, (_, key) => String(getByPath(ctx, key)))
-}
-
-function getByPath(obj: any, path: string): any {
-  return path.split('.').reduce((acc, k) => (acc ? acc[k] : undefined), obj)
+  }, [flowRunner, updateCtx, router])
 }

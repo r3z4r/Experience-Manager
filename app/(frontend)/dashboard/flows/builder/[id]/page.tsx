@@ -4,6 +4,8 @@
 
 import { notFound } from 'next/navigation'
 import { getFlowAction, saveFlowAction } from '@/app/(frontend)/_actions/flows'
+import { getPayload } from 'payload'
+import configPromise from '@payload-config'
 import FlowBuilderClient from './FlowBuilderClient'
 
 interface PageProps {
@@ -18,6 +20,19 @@ export default async function FlowBuilderPage({ params }: PageProps) {
   const flowData = await getFlowAction(id)
   if (!flowData) notFound()
 
+  // Get flow status from Payload
+  let flowStatus: 'draft' | 'approved' | 'archived' = 'draft'
+  try {
+    const payload = await getPayload({ config: configPromise })
+    const doc = await (payload as any).findByID({
+      collection: 'flows',
+      id,
+    })
+    flowStatus = doc?.status || 'draft'
+  } catch (error) {
+    console.error('Failed to fetch flow status:', error)
+  }
+
   async function saveFlow(flowId: string, graph: any) {
     'use server'
     return await saveFlowAction(flowId, graph)
@@ -28,6 +43,7 @@ export default async function FlowBuilderPage({ params }: PageProps) {
       initialGraph={flowData.graph}
       flowTitle={flowData.title}
       flowId={id}
+      flowStatus={flowStatus}
       saveFlow={saveFlow}
     />
   )

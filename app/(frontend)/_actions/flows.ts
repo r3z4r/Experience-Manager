@@ -2,6 +2,7 @@
 
 import { getPayload } from 'payload'
 import configPromise from '@payload-config'
+import { validateFlow, type ValidationResult } from '@/lib/flowValidation'
 
 // Minimal fields we show in the dashboard
 export interface FlowSummary {
@@ -94,5 +95,103 @@ export async function saveFlowAction(id: string, graph: any): Promise<boolean> {
   } catch (err) {
     console.error('saveFlowAction error', err)
     return false
+  }
+}
+
+/**
+ * Validate a flow graph for publishing
+ */
+export async function validateFlowAction(id: string): Promise<ValidationResult | null> {
+  try {
+    const payload = await getPayload({ config: configPromise })
+    const doc = await (payload as any).findByID({
+      collection: 'flows',
+      id,
+    })
+    
+    if (!doc?.graph) {
+      return {
+        isValid: false,
+        errors: [{ id: 'no-graph', type: 'error', message: 'Flow has no graph data' }],
+        warnings: [],
+      }
+    }
+
+    const { nodes = [], edges = [] } = doc.graph
+    return validateFlow(nodes, edges)
+  } catch (err) {
+    console.error('validateFlowAction error', err)
+    return null
+  }
+}
+
+/**
+ * Publish a flow (change status to approved)
+ */
+export async function publishFlowAction(id: string): Promise<{ success: boolean; message: string }> {
+  try {
+    // First validate the flow
+    const validation = await validateFlowAction(id)
+    if (!validation) {
+      return { success: false, message: 'Failed to validate flow' }
+    }
+
+    if (!validation.isValid) {
+      return { 
+        success: false, 
+        message: `Cannot publish flow with ${validation.errors.length} error${validation.errors.length > 1 ? 's' : ''}` 
+      }
+    }
+
+    // Update status to approved
+    const payload = await getPayload({ config: configPromise })
+    await (payload as any).update({
+      collection: 'flows',
+      id,
+      data: { status: 'approved' },
+    })
+
+    return { success: true, message: 'Flow published successfully' }
+  } catch (err) {
+    console.error('publishFlowAction error', err)
+    return { success: false, message: 'Failed to publish flow' }
+  }
+}
+
+/**
+ * Unpublish a flow (change status back to draft)
+ */
+export async function unpublishFlowAction(id: string): Promise<{ success: boolean; message: string }> {
+  try {
+    const payload = await getPayload({ config: configPromise })
+    await (payload as any).update({
+      collection: 'flows',
+      id,
+      data: { status: 'draft' },
+    })
+
+    return { success: true, message: 'Flow unpublished successfully' }
+  } catch (err) {
+    console.error('unpublishFlowAction error', err)
+    return { success: false, message: 'Failed to unpublish flow' }
+  }
+}
+
+/**
+ * Archive a flow (change status to archived)
+ */
+export async function archiveFlowAction(id: string): Promise<{ success: boolean; message: string }> {
+  try {
+    const payload = await getPayload({ config: configPromise })
+    await (payload as any).update({
+      collection: 'flows',
+      id,
+      data: { status: 'archived' },
+    })
+
+    return { success: true, message: 'Flow archived successfully' }
+  } catch (err) {
+    console.error('archiveFlowAction error', err)
+    return { success: false, message: 'Failed to archive flow' }
   }
 }
