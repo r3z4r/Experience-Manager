@@ -3,7 +3,7 @@
 import { getPayload } from 'payload'
 import configPromise from '@payload-config'
 import { validateFlow, type ValidationResult } from '@/lib/flowValidation'
-import { cookies } from 'next/headers'
+import { getCurrentUser } from '@/app/(frontend)/_actions/auth'
 
 // Minimal fields we show in the dashboard
 export interface FlowSummary {
@@ -21,32 +21,7 @@ export interface FlowSummary {
   updatedAt: string
 }
 
-/**
- * Get current user from cookies
- */
-async function getCurrentUser() {
-  const cookieStore = await cookies()
-  const userCookie = cookieStore.get('payload-token')
-  
-  if (!userCookie) {
-    throw new Error('User not authenticated')
-  }
-
-  const payload = await getPayload({ config: configPromise })
-  try {
-    const { user } = await payload.auth({ 
-      headers: { 
-        'cookie': `payload-token=${userCookie.value}` 
-      } as any
-    })
-    if (!user) {
-      throw new Error('User not found')
-    }
-    return user
-  } catch (error) {
-    throw new Error('Invalid authentication')
-  }
-}
+// Using getCurrentUser from auth.ts instead of local implementation
 
 /**
  * Fetch all flows from Payload CMS ordered newest first.
@@ -93,6 +68,12 @@ export async function createFlowAction(metadata: {
 }): Promise<string | null> {
   try {
     const user = await getCurrentUser()
+    
+    if (!user) {
+      console.error('Cannot create flow: User not authenticated')
+      throw new Error('User not authenticated')
+    }
+    
     const payload = await getPayload({ config: configPromise })
     const timestamp = Date.now()
     const title = metadata.title || 'Untitled Flow'
