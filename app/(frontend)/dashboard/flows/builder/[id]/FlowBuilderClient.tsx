@@ -3,10 +3,11 @@
 import dynamic from 'next/dynamic'
 import React, { useCallback, useState, useEffect, useRef } from 'react'
 import { Save, ArrowRight, CheckCircle } from 'lucide-react'
-import { useNodesState, useEdgesState, Background, Controls } from 'reactflow'
+import { useNodesState, useEdgesState, Background, Controls, addEdge, Connection } from 'reactflow'
 import NodePalette from './NodePalette'
 import PropertyInspector from './PropertyInspector'
 import ValidationPanel from './ValidationPanel'
+import { nodeTypes } from './CustomNodes'
 
 const ReactFlow = dynamic(() => import('reactflow').then((m) => m.ReactFlow), {
   ssr: false,
@@ -172,7 +173,7 @@ export default function FlowBuilderClient({ initialGraph, flowTitle, flowId, flo
     ))
   }, [setEdges])
 
-  const handleConnect = useCallback((connection: any) => {
+  const handleConnect = useCallback((connection: Connection) => {
     const newEdge = {
       id: `edge-${Date.now()}`,
       ...connection,
@@ -180,7 +181,7 @@ export default function FlowBuilderClient({ initialGraph, flowTitle, flowId, flo
       animated: true,
       data: { label: '' },
     }
-    setEdges((eds: any[]) => [...eds, newEdge])
+    setEdges((eds) => addEdge(newEdge, eds))
   }, [setEdges])
 
   const handleArrangeFlow = useCallback(() => {
@@ -263,6 +264,7 @@ export default function FlowBuilderClient({ initialGraph, flowTitle, flowId, flo
             onPaneClick={handlePaneClick}
             fitView
             className="bg-gray-50"
+            nodeTypes={nodeTypes}
           >
             <Background />
             <Controls />

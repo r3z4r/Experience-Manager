@@ -1,6 +1,6 @@
 'use client'
 
-import { Plus, FileText, GitBranch, Play, Square } from 'lucide-react'
+import { Plus, FileText, GitBranch, Play, Square, Globe } from 'lucide-react'
 
 interface NodeTemplate {
   type: string
@@ -10,6 +10,14 @@ interface NodeTemplate {
 }
 
 const nodeTemplates: NodeTemplate[] = [
+  {
+    type: 'start',
+    label: 'Start Node',
+    icon: <Play className="w-4 h-4" />,
+    data: {
+      label: 'Start',
+    },
+  },
   {
     type: 'page',
     label: 'Page Node',
@@ -30,11 +38,15 @@ const nodeTemplates: NodeTemplate[] = [
     },
   },
   {
-    type: 'start',
-    label: 'Start Node',
-    icon: <Play className="w-4 h-4" />,
+    type: 'api',
+    label: 'API Call',
+    icon: <Globe className="w-4 h-4" />,
     data: {
-      label: 'Start',
+      label: 'API Call',
+      method: 'GET',
+      url: '',
+      body: {},
+      keyMapping: {},
     },
   },
   {
