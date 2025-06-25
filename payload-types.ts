@@ -275,8 +275,13 @@ export interface Journey {
  */
 export interface Flow {
   id: string;
+  user: string | User;
   title: string;
   slug?: string | null;
+  access: {
+    visibility: 'public' | 'private' | 'restricted';
+    allowedUsers?: (string | User)[] | null;
+  };
   status?: ('draft' | 'approved' | 'archived') | null;
   graph:
     | {
@@ -556,8 +561,15 @@ export interface JourneysSelect<T extends boolean = true> {
  * via the `definition` "flows_select".
  */
 export interface FlowsSelect<T extends boolean = true> {
+  user?: T;
   title?: T;
   slug?: T;
+  access?:
+    | T
+    | {
+        visibility?: T;
+        allowedUsers?: T;
+      };
   status?: T;
   graph?: T;
   versionLabel?: T;

@@ -1,18 +1,36 @@
 "use client"
 
-import React, { useMemo } from 'react'
+import React, { useMemo, useState, useEffect } from 'react'
 import { ReactFlow, Node, Edge, Background } from 'reactflow'
 import 'reactflow/dist/style.css'
+import { getFlowAction } from '@/app/(frontend)/_actions/flows'
 
 interface FlowThumbnailProps {
-  graph: {
-    nodes: Node[]
-    edges: Edge[]
-  }
+  flowId: string
   className?: string
 }
 
-export default function FlowThumbnail({ graph, className = '' }: FlowThumbnailProps) {
+export default function FlowThumbnail({ flowId, className = '' }: FlowThumbnailProps) {
+  const [graph, setGraph] = useState<{ nodes: Node[], edges: Edge[] }>({ nodes: [], edges: [] })
+  const [isLoading, setIsLoading] = useState(true)
+
+  useEffect(() => {
+    const loadGraph = async () => {
+      try {
+        const flowData = await getFlowAction(flowId)
+        if (flowData?.graph) {
+          setGraph(flowData.graph)
+        }
+      } catch (error) {
+        console.error(`Failed to load graph for flow ${flowId}:`, error)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    loadGraph()
+  }, [flowId])
+
   // Prepare nodes and edges for thumbnail view
   const { nodes, edges } = useMemo(() => {
     const thumbnailNodes = graph.nodes.map(node => ({
@@ -37,6 +55,14 @@ export default function FlowThumbnail({ graph, className = '' }: FlowThumbnailPr
   }, [graph])
 
   // If no nodes, show empty state
+  if (isLoading) {
+    return (
+      <div className={`bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center ${className}`}>
+        <span className="text-xs text-gray-500">Loading...</span>
+      </div>
+    )
+  }
+
   if (!nodes || nodes.length === 0) {
     return (
       <div className={`bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center ${className}`}>

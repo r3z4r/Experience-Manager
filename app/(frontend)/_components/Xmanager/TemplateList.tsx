@@ -289,14 +289,10 @@ export function TemplateList() {
           {user?.username || 'My'}'s Workspace
         </div>
         <div className="flex gap-3">
-          <button className="border border-[#2242A4] text-[#2242A4] bg-white px-5 py-2 rounded-lg font-medium hover:bg-blue-50 transition-all">
-            Upload Page
-          </button>
-          <button
-            onClick={handleCreateTemplate}
-            className="bg-[#2242A4] text-white px-5 py-2 rounded-lg font-medium hover:bg-[#1B3E8A] transition-all"
-          >
-            Create New +
+          <button className="button-primary-outline button-md">Upload Page</button>
+          <button onClick={handleCreateTemplate} className="button-primary button-md">
+            <PlusIcon className="w-4 h-4 mr-2" />
+            Create Page
           </button>
         </div>
       </header>
