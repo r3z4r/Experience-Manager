@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Settings, X, Plus, Trash2, FileText } from 'lucide-react'
+import { Settings, X, Plus, Trash2, FileText, Globe, GitBranch } from 'lucide-react'
 import { Button } from '@/app/(frontend)/_components/ui/button'
 import PageSelectionModal from './PageSelectionModal'
 
@@ -186,6 +186,7 @@ export default function PropertyInspector({ selectedNode, selectedEdge, onUpdate
 
       {selectedNode && (
         <div className="space-y-4">
+          {/* Common node properties */}
           <div>
             <label className="block text-xs font-medium text-gray-700 mb-1">
               Node Label
@@ -198,7 +199,253 @@ export default function PropertyInspector({ selectedNode, selectedEdge, onUpdate
               placeholder="Enter node label..."
             />
           </div>
+          
+          {/* API+Condition node specific properties */}
+          {selectedNode.type === 'apiCondition' && (
+            <>
+              {/* API Configuration Section */}
+              <div className="border-t pt-4">
+                <h4 className="text-sm font-medium text-gray-700 mb-2 flex items-center gap-1">
+                  <Globe className="w-4 h-4" />
+                  API Configuration
+                </h4>
+                
+                {/* API Enable Toggle */}
+                <div className="flex items-center mb-3">
+                  <input
+                    type="checkbox"
+                    id="apiEnabled"
+                    checked={nodeData.apiEnabled ?? false}
+                    onChange={(e) => handleNodeUpdate('apiEnabled', e.target.checked)}
+                    className="mr-2 h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                  />
+                  <label htmlFor="apiEnabled" className="text-sm text-gray-600">
+                    Make API call before condition check
+                  </label>
+                </div>
 
+                {/* Only show API config if enabled */}
+                {nodeData.apiEnabled && (
+                  <>
+                    {/* Method Selection */}
+                    <div className="mb-3">
+                      <label className="block text-xs font-medium text-gray-700 mb-1">
+                        Method
+                      </label>
+                      <select
+                        value={nodeData.apiMethod || 'GET'}
+                        onChange={(e) => handleNodeUpdate('apiMethod', e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      >
+                        <option value="GET">GET</option>
+                        <option value="POST">POST</option>
+                        <option value="PUT">PUT</option>
+                        <option value="DELETE">DELETE</option>
+                      </select>
+                    </div>
+
+                    {/* URL Input */}
+                    <div className="mb-3">
+                      <label className="block text-xs font-medium text-gray-700 mb-1">
+                        URL
+                      </label>
+                      <input
+                        type="text"
+                        value={nodeData.apiUrl || ''}
+                        onChange={(e) => handleNodeUpdate('apiUrl', e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="https://api.example.com/endpoint"
+                      />
+                      <p className="text-xs text-gray-500 mt-1">
+                        You can use context variables with {'{{'} and {'}}'}
+                      </p>
+                    </div>
+
+                    {/* Request Body (for POST/PUT) */}
+                    {(nodeData.apiMethod === 'POST' || nodeData.apiMethod === 'PUT') && (
+                      <div className="mb-3">
+                        <label className="block text-xs font-medium text-gray-700 mb-1">
+                          Request Body (JSON)
+                        </label>
+                        <textarea
+                          value={nodeData.apiBody || ''}
+                          onChange={(e) => handleNodeUpdate('apiBody', e.target.value)}
+                          className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono"
+                          placeholder='{"key": "{{context.value}}"}'                          
+                          rows={4}
+                        />
+                      </div>
+                    )}
+
+                    {/* Response Mapping */}
+                    <div className="mb-3">
+                      <div className="flex justify-between items-center mb-1">
+                        <label className="block text-xs font-medium text-gray-700">
+                          Response Mapping
+                        </label>
+                        <button
+                          onClick={() => {
+                            const mappings = [...(nodeData.apiResponseMappings || [])]
+                            mappings.push({ contextKey: '', responsePath: '' })
+                            handleNodeUpdate('apiResponseMappings', mappings)
+                          }}
+                          className="text-xs text-blue-600 hover:text-blue-800"
+                          type="button"
+                        >
+                          + Add Mapping
+                        </button>
+                      </div>
+                      
+                      {(nodeData.apiResponseMappings || []).map((mapping: { contextKey: string; responsePath: string }, index: number) => (
+                        <div key={index} className="flex gap-2 mb-2">
+                          <input
+                            type="text"
+                            value={mapping.contextKey}
+                            onChange={(e) => {
+                              const mappings = [...(nodeData.apiResponseMappings || [])]
+                              mappings[index].contextKey = e.target.value
+                              handleNodeUpdate('apiResponseMappings', mappings)
+                            }}
+                            className="flex-1 px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            placeholder="api.response.success"
+                          />
+                          <input
+                            type="text"
+                            value={mapping.responsePath}
+                            onChange={(e) => {
+                              const mappings = [...(nodeData.apiResponseMappings || [])]
+                              mappings[index].responsePath = e.target.value
+                              handleNodeUpdate('apiResponseMappings', mappings)
+                            }}
+                            className="flex-1 px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            placeholder="data.success"
+                          />
+                          <button
+                            onClick={() => {
+                              const mappings = [...(nodeData.apiResponseMappings || [])]
+                              mappings.splice(index, 1)
+                              handleNodeUpdate('apiResponseMappings', mappings)
+                            }}
+                            className="p-2 text-gray-400 hover:text-red-500"
+                            type="button"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </>
+                )}
+              </div>
+
+              {/* Condition Section */}
+              <div className="border-t pt-4">
+                <h4 className="text-sm font-medium text-gray-700 mb-2 flex items-center gap-1">
+                  <GitBranch className="w-4 h-4" />
+                  Condition Rules
+                </h4>
+                
+                {/* Condition Rules */}
+                {conditionRules.map((rule: ConditionRule, index: number) => (
+                  <div key={index} className="mb-4 p-3 border border-gray-200 rounded-md bg-gray-50">
+                    {index > 0 && (
+                      <div className="mb-2">
+                        <select
+                          value={rule.logicalOperator || 'AND'}
+                          onChange={(e) => updateConditionRule(index, { logicalOperator: e.target.value as 'AND' | 'OR' })}
+                          className="w-full px-3 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        >
+                          <option value="AND">AND</option>
+                          <option value="OR">OR</option>
+                        </select>
+                      </div>
+                    )}
+                    
+                    <div className="flex flex-col gap-2">
+                      <select
+                        value={rule.field}
+                        onChange={(e) => updateConditionRule(index, { field: e.target.value })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      >
+                        <option value="">Select field...</option>
+                        {COMMON_FIELDS.map(field => (
+                          <option key={field.value} value={field.value}>{field.label}</option>
+                        ))}
+                      </select>
+                      
+                      <div className="flex gap-2">
+                        <select
+                          value={rule.operator}
+                          onChange={(e) => updateConditionRule(index, { operator: e.target.value })}
+                          className="w-1/3 px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        >
+                          {OPERATORS.map(op => (
+                            <option key={op.value} value={op.value}>{op.label}</option>
+                          ))}
+                        </select>
+                        
+                        <input
+                          type="text"
+                          value={rule.value}
+                          onChange={(e) => updateConditionRule(index, { value: e.target.value })}
+                          className="flex-1 px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          placeholder="Value..."
+                        />
+                        
+                        <button
+                          onClick={() => removeConditionRule(index)}
+                          className="p-2 text-gray-400 hover:text-red-500"
+                          disabled={conditionRules.length === 1}
+                          type="button"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+                
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={addConditionRule}
+                  className="w-full flex items-center justify-center gap-1"
+                >
+                  <Plus className="w-4 h-4" /> Add Condition Rule
+                </Button>
+                
+                {/* Path Configuration */}
+                <div className="mt-4">
+                  <h4 className="text-sm font-medium text-gray-700 mb-2">Path Configuration</h4>
+                  
+                  <div className="mb-3">
+                    <label className="block text-xs font-medium text-gray-700 mb-1">
+                      Success Path Label
+                    </label>
+                    <input
+                      type="text"
+                      value={nodeData.successLabel || 'Success'}
+                      onChange={(e) => handleNodeUpdate('successLabel', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                  
+                  <div className="mb-3">
+                    <label className="block text-xs font-medium text-gray-700 mb-1">
+                      Failure Path Label
+                    </label>
+                    <input
+                      type="text"
+                      value={nodeData.failureLabel || 'Failure'}
+                      onChange={(e) => handleNodeUpdate('failureLabel', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    />
+                  </div>
+                </div>
+              </div>
+            </>
+          )}
+          
           {selectedNode.type === 'page' && (
             <>
               <div>

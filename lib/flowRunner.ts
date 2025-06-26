@@ -1,5 +1,4 @@
 /*
- * Lightweight flow interpreter for React-Flow graphs (Option A).
  * Handles:
  *   • Loading graph JSON exported by React-Flow
  *   • Evaluating edge conditions against context
@@ -40,6 +39,11 @@ export interface FlowNode {
       responsePath?: string
     }
     conditions?: string
+    // For merged API+Condition node
+    hasApiCall?: boolean
+    successLabel?: string
+    failureLabel?: string
+    apiResponseMappings?: Array<{ contextKey: string; responsePath: string }>
   }
   position: { x: number; y: number }
 }
@@ -85,8 +89,8 @@ export class FlowRunner {
   /**
    * Start flow execution from the start node
    */
-  start(): FlowExecutionResult {
-    const startNode = this.graph.nodes.find(node => node.type === 'start')
+  async start(): Promise<FlowExecutionResult> {
+    const startNode = this.graph.nodes.find((node) => node.type === 'start')
     if (!startNode) {
       return { success: false, error: 'No start node found in flow' }
     }
@@ -98,16 +102,14 @@ export class FlowRunner {
   /**
    * Execute the current node and determine next step
    */
-  executeCurrentNode(): FlowExecutionResult {
-    if (!this.currentNodeId) {
-      return { success: false, error: 'No current node to execute' }
-    }
-
-    const currentNode = this.graph.nodes.find(node => node.id === this.currentNodeId)
+  async executeCurrentNode(): Promise<FlowExecutionResult> {
+    const currentNode = this.getCurrentNode()
+    
     if (!currentNode) {
-      return { success: false, error: `Node ${this.currentNodeId} not found` }
+      return { success: false, error: 'Invalid node ID' }
     }
 
+    // Execute node based on type
     switch (currentNode.type) {
       case 'start':
         return this.executeStartNode(currentNode)
@@ -125,8 +127,8 @@ export class FlowRunner {
   /**
    * Navigate to a specific node by ID
    */
-  navigateToNode(nodeId: string): FlowExecutionResult {
-    const node = this.graph.nodes.find(n => n.id === nodeId)
+  async navigateToNode(nodeId: string): Promise<FlowExecutionResult> {
+    const node = this.graph.nodes.find((n) => n.id === nodeId)
     if (!node) {
       return { success: false, error: `Node ${nodeId} not found` }
     }
@@ -139,9 +141,9 @@ export class FlowRunner {
    * Process form submission and navigate to next node
    */
   async processFormSubmission(formData: Record<string, any>): Promise<FlowExecutionResult> {
-    // Update context with form data
+    // Store form data in context
     this.updateContext(formData)
-
+    
     const currentNode = this.getCurrentNode()
     if (!currentNode) {
       return { success: false, error: 'No current node' }
@@ -159,6 +161,18 @@ export class FlowRunner {
           this.updateContext({ _apiResponse: apiResult.apiResponse })
         }
       } catch (error) {
+        // Handle API call error
+        if (this.currentNodeId) {
+          const failureEdge = this.getOutgoingEdges(this.currentNodeId).find(edge => 
+            edge.data?.label === currentNode.data.failureLabel || edge.data?.condition === 'false'
+          )
+          
+          if (failureEdge) {
+            this.currentNodeId = failureEdge.target
+            return this.executeCurrentNode()
+          }
+        }
+        
         return { success: false, error: `API call failed: ${error}` }
       }
     }
@@ -185,7 +199,7 @@ export class FlowRunner {
 
     const parts = path.split('.')
     let current = this.context
-    
+
     // Create nested objects for all parts except the last one
     for (let i = 0; i < parts.length - 1; i++) {
       const part = parts[i]
@@ -194,7 +208,7 @@ export class FlowRunner {
       }
       current = current[part]
     }
-    
+
     // Set the value at the final path
     const lastPart = parts[parts.length - 1]
     current[lastPart] = value
@@ -212,7 +226,7 @@ export class FlowRunner {
    */
   getCurrentNode(): FlowNode | null {
     if (!this.currentNodeId) return null
-    return this.graph.nodes.find(node => node.id === this.currentNodeId) || null
+    return this.graph.nodes.find((node) => node.id === this.currentNodeId) || null
   }
 
   /**
@@ -224,7 +238,7 @@ export class FlowRunner {
 
   // Private methods
 
-  private executeStartNode(node: FlowNode): FlowExecutionResult {
+  private async executeStartNode(node: FlowNode): Promise<FlowExecutionResult> {
     // Start nodes automatically proceed to next node
     return this.navigateToNextNode()
   }
@@ -239,13 +253,74 @@ export class FlowRunner {
     }
   }
 
-  private executeConditionNode(node: FlowNode): FlowExecutionResult {
+  private async executeConditionNode(node: FlowNode): Promise<FlowExecutionResult> {
+    // Check if this is a merged API+Condition node with an API call
+    if (node.data.hasApiCall && node.data.api) {
+      try {
+        // Execute the API call with the current context as form data
+        const apiResult = await this.executeApiCall(node.data.api, this.context)
+        
+        // Store API response in context for condition evaluation
+        if (apiResult.apiResponse) {
+          this.storeInContext('api.response', apiResult.apiResponse)
+          
+          // Process API response mappings if defined
+          if (node.data.apiResponseMappings && Array.isArray(node.data.apiResponseMappings)) {
+            for (const mapping of node.data.apiResponseMappings) {
+              if (mapping.contextKey && mapping.responsePath) {
+                // Extract value from API response using the response path
+                const value = this.getValueFromPath(`api.response.data.${mapping.responsePath}`)
+                if (value !== undefined) {
+                  // Store in context at the specified key
+                  this.storeInContext(mapping.contextKey, value)
+                }
+              }
+            }
+          }
+        }
+        
+        // If API call failed and we have a failure path, take that path
+        if (!apiResult.success) {
+          const failureEdge = this.getOutgoingEdges(node.id).find(edge => 
+            edge.data?.label === node.data.failureLabel || edge.data?.condition === 'false'
+          )
+          
+          if (failureEdge) {
+            this.currentNodeId = failureEdge.target
+            return this.executeCurrentNode()
+          }
+          
+          // If no failure edge found, return the error
+          return { success: false, error: 'API call failed and no failure path defined' }
+        }
+      } catch (error) {
+        // Handle API call error
+        const failureEdge = this.getOutgoingEdges(node.id).find(edge => 
+          edge.data?.label === node.data.failureLabel || edge.data?.condition === 'false'
+        )
+        
+        if (failureEdge) {
+          this.currentNodeId = failureEdge.target
+          return this.executeCurrentNode()
+        }
+        
+        return { success: false, error: `API call failed: ${error}` }
+      }
+    }
+    
     // Evaluate conditions and navigate accordingly
-    const conditionResult = this.evaluateConditions(node.data.conditions || '')
+    const conditionResult = node.data.conditions ? this.evaluateCondition(node.data.conditions) : true
     
     // Find the appropriate edge based on condition result
     const edges = this.getOutgoingEdges(node.id)
     let targetEdge = edges.find(edge => {
+      // For API+Condition nodes, check for success/failure labels
+      if (node.data.hasApiCall) {
+        if (conditionResult && edge.data?.label === node.data.successLabel) return true
+        if (!conditionResult && edge.data?.label === node.data.failureLabel) return true
+      }
+      
+      // Standard condition evaluation
       if (!edge.data?.condition) return conditionResult === true // Default path
       return this.evaluateCondition(edge.data.condition) === conditionResult
     })
@@ -271,13 +346,13 @@ export class FlowRunner {
     }
   }
 
-  private navigateToNextNode(): FlowExecutionResult {
+  private async navigateToNextNode(): Promise<FlowExecutionResult> {
     if (!this.currentNodeId) {
       return { success: false, error: 'No current node' }
     }
 
     const outgoingEdges = this.getOutgoingEdges(this.currentNodeId)
-    
+
     if (outgoingEdges.length === 0) {
       // No outgoing edges - flow ends here
       return { success: true, nextNodeId: undefined }
@@ -286,12 +361,12 @@ export class FlowRunner {
     // For linear flows, take the first (and typically only) outgoing edge
     const nextEdge = outgoingEdges[0]
     this.currentNodeId = nextEdge.target
-    
+
     return this.executeCurrentNode()
   }
 
   private getOutgoingEdges(nodeId: string): FlowEdge[] {
-    return this.graph.edges.filter(edge => edge.source === nodeId)
+    return this.graph.edges.filter((edge) => edge.source === nodeId)
   }
 
   private buildPageUrl(node: FlowNode): string {
@@ -299,7 +374,7 @@ export class FlowRunner {
       // External URL
       return node.data.pagePath
     }
-    
+
     if (node.data.pageId) {
       // Internal Payload page - construct flow runtime URL
       return `/flow/${this.getFlowId()}/${node.id}`
@@ -317,12 +392,15 @@ export class FlowRunner {
 
   private async executeApiCall(
     apiConfig: NonNullable<FlowNode['data']['api']>,
-    formData: Record<string, any>
+    formData: Record<string, any>,
   ): Promise<FlowExecutionResult> {
     try {
+      // Interpolate context variables in URL
+      const interpolatedUrl = this.interpolateContextVariables(apiConfig.url)
+      
       // Build request body from form data and key mapping
       let requestBody = { ...formData }
-      
+
       if (apiConfig.keyMapping) {
         requestBody = {}
         Object.entries(apiConfig.keyMapping).forEach(([formKey, apiKey]) => {
@@ -336,14 +414,25 @@ export class FlowRunner {
       if (apiConfig.body) {
         requestBody = { ...requestBody, ...apiConfig.body }
       }
+      
+      // Interpolate context variables in request body
+      const interpolatedBody = this.interpolateObjectValues(requestBody)
 
-      const response = await fetch(apiConfig.url, {
+      // Prepare request options
+      const options: RequestInit = {
         method: apiConfig.method,
         headers: {
           'Content-Type': 'application/json',
         },
-        body: apiConfig.method !== 'GET' ? JSON.stringify(requestBody) : undefined,
-      })
+      }
+      
+      // Add body for non-GET requests
+      if (apiConfig.method !== 'GET') {
+        options.body = JSON.stringify(interpolatedBody)
+      }
+
+      // Execute fetch request
+      const response = await fetch(interpolatedUrl, options)
 
       // Prepare response data with status information
       const responseStatus = response.status
@@ -361,7 +450,7 @@ export class FlowRunner {
       const apiResponseObj = {
         status: responseStatus,
         success: responseOk,
-        data: responseData
+        data: responseData,
       }
 
       // Store in context if configured
@@ -381,7 +470,7 @@ export class FlowRunner {
       const errorResponse = {
         status: 0,
         success: false,
-        data: { error: `${error}` }
+        data: { error: `${error}` },
       }
 
       // Store error response in context if configured
@@ -393,29 +482,29 @@ export class FlowRunner {
       return {
         success: false,
         error: `API call failed: ${error}`,
-        apiResponse: errorResponse
+        apiResponse: errorResponse,
       }
     }
   }
 
-  private evaluateConditions(conditions: string): boolean {
-    if (!conditions.trim()) return true
+  private evaluateCondition(condition: string): boolean {
+    if (!condition || !condition.trim()) return true
 
     try {
       // Enhanced condition evaluation with support for nested paths
       // Examples: "api.response.data.status === 'success'", "context.score > 80"
-      
+
       // Replace context variables with actual values
-      let expression = conditions
-      
+      let expression = condition
+
       // First handle dot notation paths (api.response.data.status)
       const dotPathRegex = /([a-zA-Z_][a-zA-Z0-9_]*(?:\.[a-zA-Z_][a-zA-Z0-9_]*)+)/g
       const paths = [...new Set(expression.match(dotPathRegex) || [])]
-      
+
       // Sort paths by length (descending) to replace longest paths first
       // This prevents partial replacements of nested paths
-      paths.sort((a, b) => b.length - a.length)
-      
+      paths.sort((a: string, b: string) => b.length - a.length)
+
       for (const path of paths) {
         const value = this.getValueFromPath(path)
         if (value !== undefined) {
@@ -425,11 +514,11 @@ export class FlowRunner {
           expression = expression.replace(pathRegex, JSON.stringify(value))
         }
       }
-      
+
       // Then handle top-level variables
       Object.entries(this.context).forEach(([key, value]) => {
         // Only replace if it's a direct reference (not part of a path)
-        const regex = new RegExp(`\\b${key}\\b(?!\\.)`)
+        const regex = new RegExp(`\\b${key}\\b(?!\\.)`) 
         if (regex.test(expression)) {
           const directRegex = new RegExp(`\\b${key}\\b`, 'g')
           expression = expression.replace(directRegex, JSON.stringify(value))
@@ -437,12 +526,42 @@ export class FlowRunner {
       })
 
       // Use Function constructor for safe evaluation (limited scope)
-      const result = new Function(`return ${expression}`)()
+      const result = new Function(`return ${expression}`)() 
       return Boolean(result)
     } catch (error) {
-      console.warn('Condition evaluation failed:', error, 'Expression:', conditions)
+      console.warn('Condition evaluation failed:', error, 'Expression:', condition)
       return false
     }
+  }
+
+  /**
+   * Interpolate context variables in a string using {{variable}} syntax
+   * For example, "Hello {{name}}" with context {name: 'World'} becomes "Hello World"
+   */
+  private interpolateContextVariables(text: string): string {
+    if (!text) return text
+    
+    return text.replace(/\{\{([^}]+)\}\}/g, (match, path) => {
+      const value = this.getValueFromPath(path.trim())
+      return value !== undefined ? String(value) : match
+    })
+  }
+  
+  /**
+   * Interpolate context variables in an object's string values
+   */
+  private interpolateObjectValues(obj: Record<string, any>): Record<string, any> {
+    const result = { ...obj }
+    
+    for (const key in result) {
+      if (typeof result[key] === 'string') {
+        result[key] = this.interpolateContextVariables(result[key])
+      } else if (typeof result[key] === 'object' && result[key] !== null) {
+        result[key] = this.interpolateObjectValues(result[key])
+      }
+    }
+    
+    return result
   }
   
   /**
@@ -452,18 +571,16 @@ export class FlowRunner {
   private getValueFromPath(path: string): any {
     const parts = path.split('.')
     let current: any = this.context
-    
+
     for (const part of parts) {
       if (current === undefined || current === null) {
         return undefined
       }
       current = current[part]
     }
-    
+
     return current
   }
 
-  private evaluateCondition(condition: string): boolean {
-    return this.evaluateConditions(condition)
-  }
+  // This function is now the primary condition evaluator
 }

@@ -619,3 +619,7 @@
 }
 
 /* No need to add new styles here since we'll use existing Tailwind utilities */
+
+.react-flow__attribution {
+  display: none;
+}

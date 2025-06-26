@@ -29,24 +29,22 @@ const nodeTemplates: NodeTemplate[] = [
     },
   },
   {
-    type: 'condition',
-    label: 'Condition',
-    icon: <GitBranch className="w-4 h-4" />,
+    type: 'apiCondition',
+    label: 'API + Condition',
+    icon: <div className="flex items-center gap-1"><Globe className="w-4 h-4" /><GitBranch className="w-4 h-4" /></div>,
     data: {
-      label: 'Condition',
-      conditions: [],
-    },
-  },
-  {
-    type: 'api',
-    label: 'API Call',
-    icon: <Globe className="w-4 h-4" />,
-    data: {
-      label: 'API Call',
-      method: 'GET',
-      url: '',
-      body: {},
-      keyMapping: {},
+      label: 'API + Condition',
+      apiEnabled: true,
+      apiMethod: 'GET',
+      apiUrl: '',
+      apiBody: '',
+      apiResponseMappings: [
+        { contextKey: 'api.response.status', responsePath: 'status' },
+        { contextKey: 'api.response.success', responsePath: 'success' }
+      ],
+      condition: '',
+      successLabel: 'Success',
+      failureLabel: 'Failure'
     },
   },
   {

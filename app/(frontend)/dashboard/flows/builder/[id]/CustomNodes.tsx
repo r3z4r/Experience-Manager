@@ -2,7 +2,7 @@
 
 import React from 'react'
 import { Handle, Position } from 'reactflow'
-import { FileText, GitBranch, Play, Square, Globe } from 'lucide-react'
+import { FileText, GitBranch, Play, Square, Globe, ArrowRight } from 'lucide-react'
 
 // Base node component with left and right handles
 interface BaseNodeProps {
@@ -152,6 +152,69 @@ export function DefaultNode({ data, selected }: { data: any; selected?: boolean 
   )
 }
 
+// API+Condition Node - combines API call and condition logic
+function ApiConditionNode({ data, selected }: { data: any; selected?: boolean }) {
+  return (
+    <div className={`
+      relative px-4 py-3 rounded-lg shadow-sm min-w-[180px]
+      ${selected ? 'border-blue-500 border-2 shadow-lg' : 'border-indigo-300 border-2'}
+      bg-indigo-50
+    `}>
+      {/* Target handle (left side) */}
+      <Handle
+        type="target"
+        position={Position.Left}
+        className="w-3 h-3 bg-gray-400 border-2 border-white hover:bg-blue-500 transition-colors"
+        style={{ left: -6 }}
+      />
+      
+      <div className="flex items-center gap-2 font-medium text-indigo-700 mb-2">
+        {data.apiEnabled && <Globe className="w-4 h-4" />}
+        <GitBranch className="w-4 h-4" />
+        <span>{data.label || 'API + Condition'}</span>
+      </div>
+      
+      {data.apiEnabled && (
+        <div className="bg-indigo-100 text-indigo-700 text-xs p-1.5 rounded mb-2">
+          <div className="font-medium mb-1">API: {data.apiMethod || 'GET'}</div>
+          <div className="truncate">{data.apiUrl || 'No URL specified'}</div>
+        </div>
+      )}
+      
+      {data.condition && (
+        <div className="bg-indigo-100 text-indigo-700 text-xs p-1.5 rounded">
+          <div className="font-medium mb-1">Condition:</div>
+          <div className="truncate">{data.condition}</div>
+        </div>
+      )}
+      
+      {/* Success handle (right side) */}
+      <Handle
+        type="source"
+        position={Position.Right}
+        id="success"
+        className="w-3 h-3 bg-green-500 border-2 border-white"
+        style={{ right: -6, top: '30%' }}
+      />
+      <div className="absolute text-xs text-green-600 font-medium" style={{ right: -55, top: '25%' }}>
+        Success
+      </div>
+      
+      {/* Failure handle (bottom) */}
+      <Handle
+        type="source"
+        position={Position.Bottom}
+        id="failure"
+        className="w-3 h-3 bg-red-500 border-2 border-white"
+        style={{ bottom: -6, left: '50%' }}
+      />
+      <div className="absolute text-xs text-red-600 font-medium" style={{ bottom: -20, left: '40%' }}>
+        Failure
+      </div>
+    </div>
+  )
+}
+
 // Node types mapping for React Flow
 export const nodeTypes = {
   start: StartNode,
@@ -159,5 +222,6 @@ export const nodeTypes = {
   page: PageNode,
   condition: ConditionNode,
   api: ApiNode,
+  apiCondition: ApiConditionNode, // Add the merged node type
   default: DefaultNode,
 }
