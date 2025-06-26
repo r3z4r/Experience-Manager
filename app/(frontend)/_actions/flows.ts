@@ -91,6 +91,7 @@ export async function createFlowAction(metadata: {
           visibility: 'private',
         },
         graph: { nodes: [], edges: [] },
+        context: {},
       },
       user: user, // Pass user context
     })
@@ -105,7 +106,7 @@ export async function createFlowAction(metadata: {
 /**
  * Get a single flow by ID for the builder.
  */
-export async function getFlowAction(id: string): Promise<{ graph: any; title: string; status: 'draft' | 'approved' | 'archived'; user: string; access: { visibility: 'public' | 'private' | 'restricted'; allowedUsers?: string[] } } | null> {
+export async function getFlowAction(id: string): Promise<{ graph: any; context?: Record<string, any>; title: string; status: 'draft' | 'approved' | 'archived'; user: string; access: { visibility: 'public' | 'private' | 'restricted'; allowedUsers?: string[] } } | null> {
   try {
     const user = await getCurrentUser()
     const payload = await getPayload({ config: configPromise })
@@ -116,6 +117,7 @@ export async function getFlowAction(id: string): Promise<{ graph: any; title: st
     })
     return {
       graph: doc.graph || { nodes: [], edges: [] },
+      context: doc.context || {},
       title: doc.title,
       status: doc.status || 'draft',
       user: doc.user,
@@ -128,16 +130,25 @@ export async function getFlowAction(id: string): Promise<{ graph: any; title: st
 }
 
 /**
- * Save flow graph changes back to Payload.
+ * Save flow graph and context changes back to Payload.
  */
-export async function saveFlowAction(id: string, graph: any): Promise<boolean> {
+export async function saveFlowAction(id: string, graph: any, context?: Record<string, any>): Promise<boolean> {
   try {
     const user = await getCurrentUser()
     const payload = await getPayload({ config: configPromise })
+    
+    // Prepare update data
+    const updateData: { graph: any; context?: Record<string, any> } = { graph }
+    
+    // Only include context if provided
+    if (context !== undefined) {
+      updateData.context = context
+    }
+    
     await (payload as any).update({
       collection: 'flows',
       id,
-      data: { graph },
+      data: updateData,
       user: user, // Pass user context
     })
     return true

@@ -33,14 +33,15 @@ export default async function FlowBuilderPage({ params }: PageProps) {
     console.error('Failed to fetch flow status:', error)
   }
 
-  async function saveFlow(flowId: string, graph: any) {
+  async function saveFlow(flowId: string, graph: any, context?: Record<string, any>) {
     'use server'
-    return await saveFlowAction(flowId, graph)
+    return await saveFlowAction(flowId, graph, context)
   }
 
   return (
     <FlowBuilderClient
       initialGraph={flowData.graph}
+      initialContext={flowData.context}
       flowTitle={flowData.title}
       flowId={id}
       flowStatus={flowStatus}

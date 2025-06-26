@@ -32,8 +32,8 @@ export default async function FlowRuntimePage({ params, searchParams }: Props) {
     notFound()
   }
 
-  // Initialize flow runner
-  const flowRunner = new FlowRunner(flow.graph, {})
+  // Initialize flow runner with flow context
+  const flowRunner = new FlowRunner(flow.graph, flow.context || {})
   
   // Get the current node
   const currentNode = flowRunner.navigateToNode(nodeId)

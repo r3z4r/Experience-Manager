@@ -150,6 +150,11 @@ export const Flows: CollectionConfig = {
       admin: { description: 'Raw React-Flow JSON export' },
     },
     {
+      name: 'context',
+      type: 'json',
+      admin: { description: 'Initial context data for flow execution' },
+    },
+    {
       name: 'versionLabel',
       type: 'text',
       admin: {

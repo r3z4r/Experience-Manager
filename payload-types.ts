@@ -292,6 +292,15 @@ export interface Flow {
     | number
     | boolean
     | null;
+  context?:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
   versionLabel?: string | null;
   updatedAt: string;
   createdAt: string;
@@ -572,6 +581,7 @@ export interface FlowsSelect<T extends boolean = true> {
       };
   status?: T;
   graph?: T;
+  context?: T;
   versionLabel?: T;
   updatedAt?: T;
   createdAt?: T;

@@ -21,6 +21,8 @@ import {
   Lock,
   Users,
   Play,
+  UserPlus,
+  UserMinus,
 } from 'lucide-react'
 import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
@@ -83,6 +85,18 @@ export default function FlowList() {
   ] as const
   type TabKey = (typeof statusTabs)[number]['key']
   const [selectedTab, setSelectedTab] = useState<TabKey>('all')
+  
+  // Access filter options
+  const accessTabs = [
+    { key: 'all', label: 'All Access' },
+    { key: 'owned', label: 'Owned by Me' },
+    { key: 'public', label: 'Public' },
+    { key: 'restricted', label: 'Restricted' },
+    { key: 'private', label: 'Private' },
+  ] as const
+  type AccessTabKey = (typeof accessTabs)[number]['key']
+  const [selectedAccessTab, setSelectedAccessTab] = useState<AccessTabKey>('all')
+  
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
   const [searchTerm, setSearchTerm] = useState('')
   const [sortBy, setSortBy] = useState<'created' | 'name'>('created')
@@ -98,6 +112,7 @@ export default function FlowList() {
     title: '',
     description: '',
     visibility: 'private' as 'public' | 'private' | 'restricted',
+    allowedUsers: [] as string[],
   })
 
   useEffect(() => {
@@ -129,6 +144,17 @@ export default function FlowList() {
           // Filter by status
           if (selectedTab !== 'all' && selectedTab !== 'recent') {
             filteredFlows = filteredFlows.filter((flow) => flow.status === selectedTab)
+          }
+          
+          // Filter by access type
+          if (selectedAccessTab !== 'all') {
+            if (selectedAccessTab === 'owned') {
+              // Show flows owned by the current user
+              filteredFlows = filteredFlows.filter((flow) => flow.user === user?.id)
+            } else {
+              // Filter by visibility type (public, private, restricted)
+              filteredFlows = filteredFlows.filter((flow) => flow.access?.visibility === selectedAccessTab)
+            }
           }
 
           // Sort flows
@@ -167,7 +193,7 @@ export default function FlowList() {
           setIsLoading(false)
         })
     })
-  }, [debouncedSearch, sortBy, selectedTab, pagination.page, sortOrder, user])
+  }, [debouncedSearch, sortBy, selectedTab, selectedAccessTab, pagination.page, sortOrder, user])
 
   const handleCreateFlow = async () => {
     try {
@@ -196,6 +222,7 @@ export default function FlowList() {
       title: flow.title,
       description: flow.description || '',
       visibility: flow.access?.visibility || 'private',
+      allowedUsers: flow.access?.allowedUsers || [],
     })
   }
 
@@ -208,7 +235,7 @@ export default function FlowList() {
         description: editForm.description,
         access: {
           visibility: editForm.visibility,
-          allowedUsers: editingFlow.access?.allowedUsers || [],
+          allowedUsers: editForm.allowedUsers,
         },
       })
 
@@ -222,7 +249,7 @@ export default function FlowList() {
                 description: editForm.description,
                 access: {
                   visibility: editForm.visibility,
-                  allowedUsers: editingFlow.access?.allowedUsers || [],
+                  allowedUsers: editForm.allowedUsers,
                 },
               }
             : flow,
@@ -278,7 +305,7 @@ export default function FlowList() {
       </header>
 
       <div className="flex flex-wrap items-center justify-between px-4 py-2 gap-4">
-        {/* Tabs */}
+        {/* Status Tabs */}
         <div className="flex gap-1 md:gap-2 items-center flex-shrink-0 w-full md:w-auto overflow-x-auto">
           {statusTabs.map((tab) => (
             <button
@@ -293,6 +320,27 @@ export default function FlowList() {
                 }
                 focus:outline-none focus:ring-2 focus:ring-[#2242A4]`}
               onClick={() => setSelectedTab(tab.key)}
+            >
+              {tab.label}
+            </button>
+          ))}
+        </div>
+        
+        {/* Access Tabs */}
+        <div className="flex gap-1 md:gap-2 items-center flex-shrink-0 w-full md:w-auto overflow-x-auto">
+          {accessTabs.map((tab) => (
+            <button
+              key={tab.key}
+              aria-pressed={selectedAccessTab === tab.key}
+              type="button"
+              className={`m-0.5 px-4 py-1.5 rounded-full font-medium whitespace-nowrap border transition-colors duration-150
+                ${
+                  selectedAccessTab === tab.key
+                    ? 'bg-[#2242A4] text-white border-[#2242A4]'
+                    : 'bg-white text-[#2242A4] border-gray-300 hover:bg-blue-50'
+                }
+                focus:outline-none focus:ring-2 focus:ring-[#2242A4]`}
+              onClick={() => setSelectedAccessTab(tab.key)}
             >
               {tab.label}
             </button>
@@ -456,39 +504,52 @@ export default function FlowList() {
                   </DropdownMenu>
                 </div>
 
-                {/* Card Footer */}
+                {/* Card Content */}
                 <div className="p-4">
-                  <div className="flex flex-col gap-2">
-                    <h3 className="font-medium text-gray-900 truncate">{flow.title}</h3>
-                    {flow.description && (
-                      <p className="text-sm text-gray-500 line-clamp-2">{flow.description}</p>
-                    )}
-                    <div className="flex items-center justify-between text-xs text-gray-400">
-                      <span>
-                        Edited {new Date(flow.updatedAt || flow.createdAt).toLocaleDateString()}
-                      </span>
-                      <div className="flex items-center gap-2">
-                        <div className="flex items-center gap-1">
-                          {getAccessIcon(flow.access?.visibility || 'private')}
-                          <span>{getAccessLabel(flow.access?.visibility || 'private')}</span>
-                        </div>
-                        <span
-                          className={`px-2 py-1 rounded-full text-xs ${
-                            flow.status === 'approved'
-                              ? 'bg-green-100 text-green-800'
-                              : flow.status === 'archived'
-                                ? 'bg-gray-100 text-gray-800'
-                                : 'bg-yellow-100 text-yellow-800'
-                          }`}
-                        >
-                          {flow.status === 'approved'
-                            ? 'Published'
-                            : flow.status === 'archived'
-                              ? 'Archived'
-                              : 'Draft'}
-                        </span>
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-lg font-medium text-gray-900 truncate">{flow.title}</h3>
+                    <div className="flex items-center">
+                      <div 
+                        className="tooltip-trigger flex items-center justify-center w-6 h-6 rounded-full"
+                        title={flow.access?.visibility === 'public' ? 'Public - All users can access' : 
+                               flow.access?.visibility === 'restricted' ? 'Restricted - Only selected users can access' : 
+                               'Private - Only you can access'}
+                      >
+                        {getAccessIcon(flow.access?.visibility || 'private')}
                       </div>
                     </div>
+                  </div>
+                  <p className="text-sm text-gray-500 mt-1 line-clamp-2">
+                    {flow.description || 'No description'}
+                  </p>
+                  <div className="flex items-center justify-between mt-3">
+                    <div className="flex items-center text-xs text-gray-500">
+                      <span className={`px-2 py-0.5 rounded-full ${flow.status === 'approved' ? 'bg-green-100 text-green-800' : 
+                                       flow.status === 'archived' ? 'bg-gray-100 text-gray-800' : 
+                                       'bg-yellow-100 text-yellow-800'}`}>
+                        {flow.status === 'approved' ? 'Published' : 
+                         flow.status === 'archived' ? 'Archived' : 'Draft'}
+                      </span>
+                      <span className="mx-1">•</span>
+                      <span>Updated {new Date(flow.updatedAt).toLocaleDateString()}</span>
+                    </div>
+                    {flow.access?.visibility === 'restricted' && (
+                      <div className="flex items-center text-xs text-gray-500">
+                        <span className="px-2 py-0.5 rounded-full bg-blue-100 text-blue-800">
+                          Restricted
+                        </span>
+                        <span className="mx-1">•</span>
+                        <span>
+                          Accessible by{' '}
+                          {flow.access.allowedUsers && flow.access.allowedUsers.length > 0 ? 
+                            (typeof flow.access.allowedUsers[0] === 'string' ? 
+                              flow.access.allowedUsers.join(', ') : 
+                              // @ts-ignore - handle case where allowedUsers might be objects with email property
+                              flow.access.allowedUsers.map((user: any) => user.email).join(', ')
+                            ) : ''}
+                        </span>
+                      </div>
+                    )}
                   </div>
                 </div>
 
@@ -584,7 +645,7 @@ export default function FlowList() {
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                <label className="text-sm font-medium text-gray-700 mb-1 inline-block">Description</label>
                 <textarea
                   value={editForm.description}
                   onChange={(e) =>
@@ -606,11 +667,78 @@ export default function FlowList() {
                   }
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#2242A4]"
                 >
-                  <option value="private">Private</option>
-                  <option value="public">Public</option>
-                  <option value="restricted">Restricted</option>
+                  <option value="private">Private (Only you)</option>
+                  <option value="public">Public (All users)</option>
+                  <option value="restricted">Restricted (Selected users)</option>
                 </select>
+                <div className="flex items-center mt-1">
+                  <div className="flex items-center gap-1 text-xs">
+                    {editForm.visibility === 'private' && (
+                      <>
+                        <Lock className="w-3 h-3 text-gray-500" />
+                        <span className="text-gray-500">Only you can access this flow</span>
+                      </>
+                    )}
+                    {editForm.visibility === 'public' && (
+                      <>
+                        <Globe className="w-3 h-3 text-gray-500" />
+                        <span className="text-gray-500">All users can access this flow</span>
+                      </>
+                    )}
+                    {editForm.visibility === 'restricted' && (
+                      <>
+                        <Users className="w-3 h-3 text-gray-500" />
+                        <span className="text-gray-500">Only selected users can access this flow</span>
+                      </>
+                    )}
+                  </div>
+                </div>
               </div>
+              
+              {/* User selection for restricted access */}
+              {editForm.visibility === 'restricted' && (
+                <div className="mt-4 border border-gray-200 rounded-md p-3 bg-gray-50">
+                  <label className="text-sm font-medium text-gray-700 mb-2 flex items-center gap-1">
+                    <Users className="w-4 h-4" />
+                    Allowed Users
+                  </label>
+                  
+                  {/* This would typically be a multi-select component with user search */}
+                  {/* For now, we'll use a simplified version with the current user */}
+                  <div className="space-y-2">
+                    {user && (
+                      <div className="flex items-center justify-between bg-white p-2 rounded border border-gray-200">
+                        <div className="flex items-center gap-2">
+                          <div className="w-8 h-8 rounded-full bg-[#2242A4] text-white flex items-center justify-center">
+                            {user.email?.charAt(0).toUpperCase() || 'U'}
+                          </div>
+                          <div>
+                            <div className="text-sm font-medium">{user.email}</div>
+                            <div className="text-xs text-gray-500">You (Owner)</div>
+                          </div>
+                        </div>
+                        <div className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
+                          Owner
+                        </div>
+                      </div>
+                    )}
+                    
+                    {/* Placeholder for future user selection UI */}
+                    <button 
+                      type="button"
+                      className="w-full flex items-center justify-center gap-1 p-2 border border-dashed border-gray-300 rounded text-sm text-gray-500 hover:bg-gray-100"
+                      onClick={() => toast.info('User selection will be implemented in a future update')}
+                    >
+                      <UserPlus className="w-4 h-4" />
+                      Add User
+                    </button>
+                  </div>
+                  
+                  <p className="text-xs text-gray-500 mt-2">
+                    Note: The flow owner always has access regardless of settings.
+                  </p>
+                </div>
+              )}
             </div>
             <div className="flex justify-end gap-2 mt-6">
               <Button variant="outline" onClick={() => setEditingFlow(null)}>

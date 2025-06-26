@@ -2,11 +2,12 @@
 
 import dynamic from 'next/dynamic'
 import React, { useCallback, useState, useEffect, useRef } from 'react'
-import { Save, ArrowRight, CheckCircle } from 'lucide-react'
+import { Save, ArrowRight, CheckCircle, Settings } from 'lucide-react'
 import { useNodesState, useEdgesState, Background, Controls, addEdge, Connection } from 'reactflow'
 import NodePalette from './NodePalette'
 import PropertyInspector from './PropertyInspector'
 import ValidationPanel from './ValidationPanel'
+import ContextEditor from './ContextEditor'
 import { nodeTypes } from './CustomNodes'
 
 const ReactFlow = dynamic(() => import('reactflow').then((m) => m.ReactFlow), {
@@ -21,15 +22,18 @@ interface Props {
   flowTitle: string
   flowId: string
   flowStatus: 'draft' | 'approved' | 'archived'
-  saveFlow: (id: string, graph: any) => Promise<boolean>
+  initialContext?: Record<string, any>
+  saveFlow: (id: string, graph: any, context?: Record<string, any>) => Promise<boolean>
 }
 
-export default function FlowBuilderClient({ initialGraph, flowTitle, flowId, flowStatus, saveFlow }: Props) {
+export default function FlowBuilderClient({ initialGraph, flowTitle, flowId, flowStatus, initialContext = {}, saveFlow }: Props) {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialGraph.nodes)
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialGraph.edges)
   const [selectedNode, setSelectedNode] = useState<any>(null)
   const [selectedEdge, setSelectedEdge] = useState<any>(null)
   const [showInspector, setShowInspector] = useState(false)
+  const [showContextEditor, setShowContextEditor] = useState(false)
+  const [flowContext, setFlowContext] = useState<Record<string, any>>(initialContext || {})
   const [saving, setSaving] = useState(false)
   const [autoSaving, setAutoSaving] = useState(false)
   const [lastSaved, setLastSaved] = useState<Date | null>(null)
@@ -84,7 +88,7 @@ export default function FlowBuilderClient({ initialGraph, flowTitle, flowId, flo
     
     autoSaveTimeoutRef.current = setTimeout(async () => {
       setAutoSaving(true)
-      const success = await saveFlow(flowId, { nodes, edges })
+      const success = await saveFlow(flowId, { nodes, edges }, flowContext)
       setAutoSaving(false)
       
       if (success) {
@@ -92,14 +96,14 @@ export default function FlowBuilderClient({ initialGraph, flowTitle, flowId, flo
         setLastSaved(new Date())
       }
     }, 2000) // Auto-save after 2 seconds of inactivity
-  }, [flowId, nodes, edges, saveFlow])
+  }, [flowId, nodes, edges, flowContext, saveFlow])
 
-  // Trigger auto-save when nodes or edges change (but not on initial load)
+  // Trigger auto-save when nodes, edges, or context change (but not on initial load)
   useEffect(() => {
     if (isInitialized && (nodes.length > 0 || edges.length > 0)) {
       triggerAutoSave()
     }
-  }, [nodes, edges, isInitialized, triggerAutoSave])
+  }, [nodes, edges, flowContext, isInitialized, triggerAutoSave])
 
   // Cleanup timeout on unmount
   useEffect(() => {
@@ -117,7 +121,7 @@ export default function FlowBuilderClient({ initialGraph, flowTitle, flowId, flo
     }
     
     setSaving(true)
-    const success = await saveFlow(flowId, { nodes, edges })
+    const success = await saveFlow(flowId, { nodes, edges }, flowContext)
     setSaving(false)
     
     if (success) {
@@ -127,7 +131,7 @@ export default function FlowBuilderClient({ initialGraph, flowTitle, flowId, flo
     } else {
       console.error('Failed to save flow')
     }
-  }, [flowId, nodes, edges, saveFlow])
+  }, [flowId, nodes, edges, flowContext, saveFlow])
 
   const handleAddNode = useCallback((template: any) => {
     const newNode = {
@@ -240,9 +244,34 @@ export default function FlowBuilderClient({ initialGraph, flowTitle, flowId, flo
               <ArrowRight className="w-4 h-4" />
               Auto Arrange
             </button>
+
+            <button
+              onClick={() => setShowContextEditor(true)}
+              className="flex items-center gap-2 bg-gray-100 text-gray-700 px-4 py-2 rounded hover:bg-gray-200 transition"
+            >
+              <Settings className="w-4 h-4" />
+              Context Editor
+            </button>
           </div>
         </div>
       </div>
+
+      {/* Context Editor Modal */}
+      {showContextEditor && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+          <div className="w-2/3 h-3/4 bg-white rounded-lg shadow-xl overflow-hidden">
+            <ContextEditor
+              initialContext={flowContext}
+              onSaveContext={(context) => {
+                setFlowContext(context)
+                setShowContextEditor(false)
+                setHasUnsavedChanges(true)
+              }}
+              onClose={() => setShowContextEditor(false)}
+            />
+          </div>
+        </div>
+      )}
 
       {/* Main Content */}
       <div className="flex-1 flex overflow-hidden">

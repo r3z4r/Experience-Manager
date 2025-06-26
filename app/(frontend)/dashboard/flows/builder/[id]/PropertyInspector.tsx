@@ -38,6 +38,14 @@ const COMMON_FIELDS = [
   { value: 'form.age', label: 'Form Age' },
   { value: 'context.step', label: 'Current Step' },
   { value: 'context.score', label: 'Score' },
+  // API response fields
+  { value: 'api.response.status', label: 'API Response Status' },
+  { value: 'api.response.success', label: 'API Response Success' },
+  { value: 'api.response.data.id', label: 'API Response - ID' },
+  { value: 'api.response.data.name', label: 'API Response - Name' },
+  { value: 'api.response.data.email', label: 'API Response - Email' },
+  { value: 'api.response.data.status', label: 'API Response - Status' },
+  { value: 'api.response.data.result', label: 'API Response - Result' },
 ]
 
 export default function PropertyInspector({ selectedNode, selectedEdge, onUpdateNode, onUpdateEdge, onClose }: Props) {
@@ -191,26 +199,73 @@ export default function PropertyInspector({ selectedNode, selectedEdge, onUpdate
                 />
               </div>
               <div>
-                <label className="block text-xs font-medium text-gray-700 mb-1">
+                <label className="text-xs font-medium text-gray-700 mb-1 inline-block">
                   API Configuration
                 </label>
-                <select
-                  value={nodeData.api?.method || 'POST'}
-                  onChange={(e) => handleNodeUpdate('api', { ...nodeData.api, method: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 mb-2"
-                >
-                  <option value="GET">GET</option>
-                  <option value="POST">POST</option>
-                  <option value="PUT">PUT</option>
-                  <option value="PATCH">PATCH</option>
-                </select>
-                <input
-                  type="text"
-                  value={nodeData.api?.url || ''}
-                  onChange={(e) => handleNodeUpdate('api', { ...nodeData.api, url: e.target.value })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="API endpoint URL..."
-                />
+                <div className="space-y-2">
+                  <select
+                    value={nodeData.api?.method || 'POST'}
+                    onChange={(e) => handleNodeUpdate('api', { ...nodeData.api, method: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="GET">GET</option>
+                    <option value="POST">POST</option>
+                    <option value="PUT">PUT</option>
+                    <option value="PATCH">PATCH</option>
+                  </select>
+                  
+                  <input
+                    type="text"
+                    value={nodeData.api?.url || ''}
+                    onChange={(e) => handleNodeUpdate('api', { ...nodeData.api, url: e.target.value })}
+                    className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="API endpoint URL..."
+                  />
+                  
+                  <div className="flex items-center gap-2 mt-2">
+                    <input
+                      type="checkbox"
+                      id="storeResponse"
+                      checked={nodeData.api?.storeResponse || false}
+                      onChange={(e) => handleNodeUpdate('api', { ...nodeData.api, storeResponse: e.target.checked })}
+                      className="h-4 w-4 text-blue-500 focus:ring-blue-400 border-gray-300 rounded"
+                    />
+                    <label htmlFor="storeResponse" className="text-xs text-gray-700">
+                      Store response in flow context
+                    </label>
+                  </div>
+                  
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      id="useForConditions"
+                      checked={nodeData.api?.useForConditions || false}
+                      onChange={(e) => handleNodeUpdate('api', { ...nodeData.api, useForConditions: e.target.checked })}
+                      className="h-4 w-4 text-blue-500 focus:ring-blue-400 border-gray-300 rounded"
+                    />
+                    <label htmlFor="useForConditions" className="text-xs text-gray-700">
+                      Use response for conditions
+                    </label>
+                  </div>
+                  
+                  {nodeData.api?.storeResponse && (
+                    <div>
+                      <label className="text-xs font-medium text-gray-700 mb-1 inline-block">
+                        Response Context Path
+                      </label>
+                      <input
+                        type="text"
+                        value={nodeData.api?.responsePath || 'api.response'}
+                        onChange={(e) => handleNodeUpdate('api', { ...nodeData.api, responsePath: e.target.value })}
+                        className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="api.response"
+                      />
+                      <p className="text-xs text-gray-500 mt-1">
+                        Path in flow context where API response will be stored
+                      </p>
+                    </div>
+                  )}
+                </div>
               </div>
             </>
           )}

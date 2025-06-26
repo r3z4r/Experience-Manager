@@ -35,6 +35,9 @@ export interface FlowNode {
       url: string
       body?: Record<string, any>
       keyMapping?: Record<string, string>
+      storeResponse?: boolean
+      useForConditions?: boolean
+      responsePath?: string
     }
     conditions?: string
   }
@@ -169,6 +172,32 @@ export class FlowRunner {
    */
   updateContext(data: Record<string, any>): void {
     this.context = { ...this.context, ...data }
+  }
+
+  /**
+   * Store data in a specific path in the flow context
+   * Supports nested paths like 'api.response.data'
+   */
+  storeInContext(path: string, value: any): void {
+    if (!path) {
+      return
+    }
+
+    const parts = path.split('.')
+    let current = this.context
+    
+    // Create nested objects for all parts except the last one
+    for (let i = 0; i < parts.length - 1; i++) {
+      const part = parts[i]
+      if (!current[part] || typeof current[part] !== 'object') {
+        current[part] = {}
+      }
+      current = current[part]
+    }
+    
+    // Set the value at the final path
+    const lastPart = parts[parts.length - 1]
+    current[lastPart] = value
   }
 
   /**
@@ -316,20 +345,55 @@ export class FlowRunner {
         body: apiConfig.method !== 'GET' ? JSON.stringify(requestBody) : undefined,
       })
 
-      if (!response.ok) {
-        throw new Error(`API call failed: ${response.status} ${response.statusText}`)
+      // Prepare response data with status information
+      const responseStatus = response.status
+      const responseOk = response.ok
+      let responseData: any = {}
+
+      try {
+        responseData = await response.json()
+      } catch (parseError) {
+        // If JSON parsing fails, use text content
+        responseData = { text: await response.text() }
       }
 
-      const responseData = await response.json()
-      
+      // Create a structured API response object
+      const apiResponseObj = {
+        status: responseStatus,
+        success: responseOk,
+        data: responseData
+      }
+
+      // Store in context if configured
+      if (apiConfig.storeResponse) {
+        const responsePath = apiConfig.responsePath || 'api.response'
+        this.storeInContext(responsePath, apiResponseObj)
+      }
+
+      // If the API call failed, we still return success=true for the flow execution
+      // but include the API response details
       return {
         success: true,
-        apiResponse: responseData,
+        apiResponse: apiResponseObj,
       }
     } catch (error) {
+      // For network/fetch errors
+      const errorResponse = {
+        status: 0,
+        success: false,
+        data: { error: `${error}` }
+      }
+
+      // Store error response in context if configured
+      if (apiConfig.storeResponse) {
+        const responsePath = apiConfig.responsePath || 'api.response'
+        this.storeInContext(responsePath, errorResponse)
+      }
+
       return {
         success: false,
         error: `API call failed: ${error}`,
+        apiResponse: errorResponse
       }
     }
   }
@@ -338,24 +402,65 @@ export class FlowRunner {
     if (!conditions.trim()) return true
 
     try {
-      // Simple condition evaluation - can be enhanced with a proper parser
-      // For now, support basic context variable checks
-      // Example: "age > 18", "status === 'active'"
+      // Enhanced condition evaluation with support for nested paths
+      // Examples: "api.response.data.status === 'success'", "context.score > 80"
       
       // Replace context variables with actual values
       let expression = conditions
+      
+      // First handle dot notation paths (api.response.data.status)
+      const dotPathRegex = /([a-zA-Z_][a-zA-Z0-9_]*(?:\.[a-zA-Z_][a-zA-Z0-9_]*)+)/g
+      const paths = [...new Set(expression.match(dotPathRegex) || [])]
+      
+      // Sort paths by length (descending) to replace longest paths first
+      // This prevents partial replacements of nested paths
+      paths.sort((a, b) => b.length - a.length)
+      
+      for (const path of paths) {
+        const value = this.getValueFromPath(path)
+        if (value !== undefined) {
+          // Escape the path for regex replacement
+          const escapedPath = path.replace(/\./g, '\\.')
+          const pathRegex = new RegExp(`\\b${escapedPath}\\b`, 'g')
+          expression = expression.replace(pathRegex, JSON.stringify(value))
+        }
+      }
+      
+      // Then handle top-level variables
       Object.entries(this.context).forEach(([key, value]) => {
-        const regex = new RegExp(`\\b${key}\\b`, 'g')
-        expression = expression.replace(regex, JSON.stringify(value))
+        // Only replace if it's a direct reference (not part of a path)
+        const regex = new RegExp(`\\b${key}\\b(?!\\.)`)
+        if (regex.test(expression)) {
+          const directRegex = new RegExp(`\\b${key}\\b`, 'g')
+          expression = expression.replace(directRegex, JSON.stringify(value))
+        }
       })
 
       // Use Function constructor for safe evaluation (limited scope)
       const result = new Function(`return ${expression}`)()
       return Boolean(result)
     } catch (error) {
-      console.warn('Condition evaluation failed:', error)
+      console.warn('Condition evaluation failed:', error, 'Expression:', conditions)
       return false
     }
+  }
+  
+  /**
+   * Get a value from a dot-notation path in the context
+   * Example: "api.response.data.status" -> context.api.response.data.status
+   */
+  private getValueFromPath(path: string): any {
+    const parts = path.split('.')
+    let current: any = this.context
+    
+    for (const part of parts) {
+      if (current === undefined || current === null) {
+        return undefined
+      }
+      current = current[part]
+    }
+    
+    return current
   }
 
   private evaluateCondition(condition: string): boolean {
