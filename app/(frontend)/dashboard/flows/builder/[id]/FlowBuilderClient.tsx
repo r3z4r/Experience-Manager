@@ -43,20 +43,121 @@ export default function FlowBuilderClient({ initialGraph, flowTitle, flowId, flo
   const hasArrangedRef = useRef(false)
   const autoSaveTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
-  // Auto-arrange nodes in linear layout
-  const arrangeNodesLinear = useCallback((nodeList: any[]) => {
-    const HORIZONTAL_SPACING = 250
+  // Auto-arrange nodes in logical flow sequence
+  const arrangeNodesLinear = useCallback((nodeList: any[], currentEdges: any[] = edges) => {
+    const HORIZONTAL_SPACING = 300 // Increased for better visibility
     const VERTICAL_SPACING = 150
-    const NODES_PER_ROW = 4
-
-    return nodeList.map((node: any, index: number) => {
-      const row = Math.floor(index / NODES_PER_ROW)
-      const col = index % NODES_PER_ROW
+    const BRANCH_VERTICAL_OFFSET = 200 // Offset for branching paths
+    
+    // If no nodes, return empty array
+    if (!nodeList.length) return []
+    
+    // Create a map of node IDs to nodes for quick lookup
+    const nodeMap = nodeList.reduce((map, node) => {
+      map[node.id] = node
+      return map
+    }, {} as Record<string, any>)
+    
+    // Create maps for connections
+    const outgoingConnections: Record<string, string[]> = {}
+    const incomingConnections: Record<string, string[]> = {}
+    
+    // Initialize connection maps
+    currentEdges.forEach(edge => {
+      if (!outgoingConnections[edge.source]) {
+        outgoingConnections[edge.source] = []
+      }
+      if (!incomingConnections[edge.target]) {
+        incomingConnections[edge.target] = []
+      }
+      outgoingConnections[edge.source].push(edge.target)
+      incomingConnections[edge.target].push(edge.source)
+    })
+    
+    // Find start nodes (nodes with type 'start' or nodes with no incoming edges)
+    let startNodes = nodeList.filter(node => node.type === 'start')
+    if (!startNodes.length) {
+      // If no explicit start nodes, find nodes that have no incoming edges
+      const targetNodeIds = new Set(currentEdges.map(edge => edge.target))
+      startNodes = nodeList.filter(node => !targetNodeIds.has(node.id))
+    }
+    
+    // If still no start nodes, just use the first node
+    if (!startNodes.length && nodeList.length > 0) {
+      startNodes = [nodeList[0]]
+    }
+    
+    // Build the sequence by traversing the graph from start nodes
+    const visited = new Set<string>()
+    const sequence: any[] = []
+    const nodePositions: Record<string, { x: number, y: number, level: number }> = {}
+    let maxLevel = 0
+    
+    // Breadth-first traversal for better linear layout
+    const queue: Array<{ nodeId: string, level: number, branch: number }> = []
+    
+    // Start with all start nodes at level 0
+    startNodes.forEach((node, index) => {
+      queue.push({ nodeId: node.id, level: 0, branch: index })
+    })
+    
+    // Process queue for breadth-first traversal
+    while (queue.length > 0) {
+      const { nodeId, level, branch } = queue.shift()!
+      
+      if (visited.has(nodeId)) continue
+      visited.add(nodeId)
+      
+      const node = nodeMap[nodeId]
+      if (node) {
+        sequence.push(node)
+        
+        // Calculate position based on level and branch
+        const x = level * HORIZONTAL_SPACING + 50
+        const y = branch * BRANCH_VERTICAL_OFFSET + 50
+        
+        nodePositions[nodeId] = { x, y, level }
+        maxLevel = Math.max(maxLevel, level)
+        
+        // Add all connected nodes to queue at next level
+        const connectedNodeIds = outgoingConnections[nodeId] || []
+        connectedNodeIds.forEach((targetId, branchIndex) => {
+          // Calculate branch offset based on number of incoming connections
+          const targetIncoming = incomingConnections[targetId] || []
+          const targetBranchIndex = targetIncoming.indexOf(nodeId)
+          const targetBranch = branch + (branchIndex > 0 ? branchIndex : 0)
+          
+          queue.push({ 
+            nodeId: targetId, 
+            level: level + 1,
+            branch: targetBranch
+          })
+        })
+      }
+    }
+    
+    // Add any remaining nodes that weren't connected
+    let remainingBranch = Object.keys(nodePositions).length
+    nodeList.forEach(node => {
+      if (!visited.has(node.id)) {
+        sequence.push(node)
+        nodePositions[node.id] = { 
+          x: (maxLevel + 1) * HORIZONTAL_SPACING + 50, 
+          y: remainingBranch * VERTICAL_SPACING + 50,
+          level: maxLevel + 1
+        }
+        remainingBranch++
+      }
+    })
+    
+    // Apply calculated positions to nodes
+    return nodeList.map(node => {
+      const position = nodePositions[node.id] || { x: 50, y: 50, level: 0 }
       return {
         ...node,
         position: {
-          x: col * HORIZONTAL_SPACING + 50,
-          y: row * VERTICAL_SPACING + 50,
+          x: position.x,
+          y: position.y,
         },
       }
     })
@@ -166,16 +267,52 @@ export default function FlowBuilderClient({ initialGraph, flowTitle, flowId, flo
   }, [])
 
   const handleUpdateNode = useCallback((id: string, updates: any) => {
-    setNodes((nds: any[]) => nds.map((node: any) => 
-      node.id === id ? { ...node, ...updates } : node
-    ))
-  }, [setNodes])
+    setNodes((nds: any[]) => nds.map((node: any) => {
+      if (node.id === id) {
+        // Create a new node object with updated properties
+        const updatedNode = {
+          ...node,
+          data: {
+            ...node.data,
+            ...updates.data
+          },
+          // Apply any other updates (like position)
+          ...(updates.position ? { position: updates.position } : {}),
+          ...(updates.type ? { type: updates.type } : {}),
+        }
+        
+        // If this is the currently selected node, update the selectedNode reference
+        if (selectedNode && selectedNode.id === id) {
+          setSelectedNode(updatedNode)
+        }
+        
+        return updatedNode
+      }
+      return node
+    }))
+    
+    // Mark that we have unsaved changes
+    setHasUnsavedChanges(true)
+  }, [setNodes, selectedNode])
 
   const handleUpdateEdge = useCallback((id: string, updates: any) => {
-    setEdges((eds: any[]) => eds.map((edge: any) => 
-      edge.id === id ? { ...edge, ...updates } : edge
-    ))
-  }, [setEdges])
+    setEdges((eds: any[]) => eds.map((edge: any) => {
+      if (edge.id === id) {
+        const updatedEdge = { ...edge, ...updates }
+        
+        // If this is the currently selected edge, update the selectedEdge reference
+        if (selectedEdge && selectedEdge.id === id) {
+          setSelectedEdge(updatedEdge)
+        }
+        
+        return updatedEdge
+      }
+      return edge
+    }))
+    
+    // Mark that we have unsaved changes
+    setHasUnsavedChanges(true)
+  }, [setEdges, selectedEdge])
 
   const handleConnect = useCallback((connection: Connection) => {
     const newEdge = {

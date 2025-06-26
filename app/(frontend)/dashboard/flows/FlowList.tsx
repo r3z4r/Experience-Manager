@@ -34,6 +34,14 @@ import {
 } from '@/app/(frontend)/_actions/flows'
 import { Button } from '@/app/(frontend)/_components/ui/button'
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/app/(frontend)/_components/ui/dialog'
+import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
@@ -113,6 +121,14 @@ export default function FlowList() {
     description: '',
     visibility: 'private' as 'public' | 'private' | 'restricted',
     allowedUsers: [] as string[],
+  })
+
+  // New state for flow creation dialog
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
+  const [newFlowForm, setNewFlowForm] = useState({
+    title: '',
+    description: '',
+    visibility: 'private' as 'public' | 'private' | 'restricted',
   })
 
   useEffect(() => {
@@ -197,23 +213,40 @@ export default function FlowList() {
 
   const handleCreateFlow = async () => {
     try {
+      // Use the form data from the dialog
       const newFlowId = await createFlowAction({
-        title: 'New Flow',
-        description: 'A new flow to get started',
+        title: newFlowForm.title,
+        description: newFlowForm.description,
         access: {
-          visibility: 'private',
+          visibility: newFlowForm.visibility,
           allowedUsers: [],
         },
       })
 
       if (newFlowId) {
         toast.success('Flow created successfully!')
+        // Reset form and close dialog
+        setNewFlowForm({
+          title: '',
+          description: '',
+          visibility: 'private',
+        })
+        setIsCreateDialogOpen(false)
         router.push(`/dashboard/flows/builder/${newFlowId}`)
       }
     } catch (error) {
       console.error('Error creating flow:', error)
       toast.error('Failed to create flow')
     }
+  }
+  
+  const openCreateDialog = () => {
+    setNewFlowForm({
+      title: '',
+      description: '',
+      visibility: 'private',
+    })
+    setIsCreateDialogOpen(true)
   }
 
   const handleEditClick = (flow: FlowSummary) => {
@@ -295,12 +328,15 @@ export default function FlowList() {
           <span className="text-sm text-gray-500">
             {pagination.totalDocs} {pagination.totalDocs === 1 ? 'flow' : 'flows'}
           </span>
-        </div>
-        <div className="flex items-center gap-2">
-          <Button onClick={handleCreateFlow} className="button-primary button-md">
-            <PlusIcon className="w-4 h-4 mr-2" />
+          <Button
+            className="flex items-center gap-2 bg-[#2242A4] hover:bg-[#1a3380] text-white"
+            onClick={openCreateDialog}
+          >
+            <PlusIcon className="w-4 h-4" />
             Create Flow
           </Button>
+        </div>
+        <div className="flex items-center gap-2">
         </div>
       </header>
 
@@ -577,7 +613,7 @@ export default function FlowList() {
             {/* Create New Flow Card */}
             <div className="h-[300px] group relative">
               <Button
-                onClick={handleCreateFlow}
+                onClick={openCreateDialog}
                 className="h-full w-full border-4 border-transparent rounded-lg p-6 flex items-center justify-center transition-all duration-200 bg-[repeating-linear-gradient(45deg,#f8fafc,#f8fafc_10px,#f1f5f9_10px,#f1f5f9_20px)] hover:bg-[repeating-linear-gradient(45deg,#f3f4f6,#f3f4f6_10px,#e5e7eb_10px,#e5e7eb_20px)] hover:shadow-md"
                 variant="ghost"
               >
@@ -628,6 +664,68 @@ export default function FlowList() {
           </div>
         </div>
       )}
+
+      {/* Create Flow Dialog */}
+      <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Create New Flow</DialogTitle>
+            <DialogDescription>
+              Enter the details for your new flow. You can edit these later.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div>
+              <label className="text-sm font-medium text-gray-700 mb-1 inline-block">Title</label>
+              <input
+                type="text"
+                value={newFlowForm.title}
+                onChange={(e) => setNewFlowForm((prev) => ({ ...prev, title: e.target.value }))}
+                placeholder="My New Flow"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#2242A4]"
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium text-gray-700 mb-1 inline-block">Description</label>
+              <textarea
+                value={newFlowForm.description}
+                onChange={(e) => setNewFlowForm((prev) => ({ ...prev, description: e.target.value }))}
+                placeholder="Describe the purpose of this flow"
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#2242A4] min-h-[80px]"
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium text-gray-700 mb-1 inline-block">Access</label>
+              <select
+                value={newFlowForm.visibility}
+                onChange={(e) => 
+                  setNewFlowForm((prev) => ({ 
+                    ...prev, 
+                    visibility: e.target.value as 'public' | 'private' | 'restricted' 
+                  }))
+                }
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#2242A4]"
+              >
+                <option value="private">Private (Only you)</option>
+                <option value="public">Public (All users)</option>
+                <option value="restricted">Restricted (Selected users)</option>
+              </select>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button 
+              onClick={handleCreateFlow}
+              className="bg-[#2242A4] hover:bg-[#1a3380] text-white"
+              disabled={!newFlowForm.title.trim()}
+            >
+              Create Flow
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {/* Metadata Edit Modal */}
       {editingFlow && (

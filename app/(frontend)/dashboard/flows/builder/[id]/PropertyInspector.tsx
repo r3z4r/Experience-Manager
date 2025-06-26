@@ -1,7 +1,9 @@
 'use client'
 
 import { useState } from 'react'
-import { Settings, X, Plus, Trash2 } from 'lucide-react'
+import { Settings, X, Plus, Trash2, FileText } from 'lucide-react'
+import { Button } from '@/app/(frontend)/_components/ui/button'
+import PageSelectionModal from './PageSelectionModal'
 
 interface Props {
   selectedNode: any | null
@@ -51,6 +53,7 @@ const COMMON_FIELDS = [
 export default function PropertyInspector({ selectedNode, selectedEdge, onUpdateNode, onUpdateEdge, onClose }: Props) {
   const [nodeData, setNodeData] = useState(selectedNode?.data || {})
   const [edgeData, setEdgeData] = useState(selectedEdge?.data || {})
+  const [isPageSelectionOpen, setIsPageSelectionOpen] = useState(false)
   const [conditionRules, setConditionRules] = useState<ConditionRule[]>(() => {
     if (selectedNode?.type === 'condition' && selectedNode.data.condition) {
       // Try to parse existing condition back to rules (simplified)
@@ -122,11 +125,22 @@ export default function PropertyInspector({ selectedNode, selectedEdge, onUpdate
     updateConditionRules(newRules)
   }
 
-  const handleNodeUpdate = (field: string, value: any) => {
-    const updated = { ...nodeData, [field]: value }
-    setNodeData(updated)
-    if (selectedNode) {
-      onUpdateNode(selectedNode.id, updated)
+  const handleNodeUpdate = (key: string, value: any) => {
+    const updatedData = { ...nodeData, [key]: value }
+    setNodeData(updatedData)
+    
+    // Update the node with properly formatted data structure
+    onUpdateNode(selectedNode.id, { 
+      data: updatedData 
+    })
+    
+    // Also update the node label if title or label is changed
+    if (key === 'title' || key === 'label') {
+      // Create a new object for the update to ensure React Flow detects the change
+      const nodeLabel = updatedData.title || updatedData.label || 'Unnamed'
+      onUpdateNode(selectedNode.id, {
+        data: { ...updatedData, label: nodeLabel }
+      })
     }
   }
 
@@ -140,6 +154,11 @@ export default function PropertyInspector({ selectedNode, selectedEdge, onUpdate
 
   if (!selectedNode && !selectedEdge) {
     return null
+  }
+
+  const handleSelectPage = (pageId: string, pageTitle: string) => {
+    handleNodeUpdate('pageId', pageId)
+    handleNodeUpdate('pageTitle', pageTitle)
   }
 
   return (
@@ -156,6 +175,14 @@ export default function PropertyInspector({ selectedNode, selectedEdge, onUpdate
           <X className="w-4 h-4" />
         </button>
       </div>
+      
+      {/* Page Selection Modal */}
+      <PageSelectionModal
+        open={isPageSelectionOpen}
+        onOpenChange={setIsPageSelectionOpen}
+        onSelectPage={handleSelectPage}
+        selectedPageId={nodeData.pageId}
+      />
 
       {selectedNode && (
         <div className="space-y-4">
@@ -176,15 +203,28 @@ export default function PropertyInspector({ selectedNode, selectedEdge, onUpdate
             <>
               <div>
                 <label className="block text-xs font-medium text-gray-700 mb-1">
-                  Page ID
+                  Page
                 </label>
-                <input
-                  type="text"
-                  value={nodeData.pageId || ''}
-                  onChange={(e) => handleNodeUpdate('pageId', e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  placeholder="Payload page ID..."
-                />
+                <div className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    value={nodeData.pageId || ''}
+                    readOnly
+                    className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50"
+                    placeholder="Select a page..."
+                  />
+                  <Button 
+                    onClick={() => setIsPageSelectionOpen(true)}
+                    variant="outline"
+                    className="flex items-center gap-1 px-3 py-2"
+                  >
+                    <FileText className="w-4 h-4" />
+                    Browse
+                  </Button>
+                </div>
+                {nodeData.pageTitle && (
+                  <p className="text-xs text-gray-500 mt-1 truncate">{nodeData.pageTitle}</p>
+                )}
               </div>
               <div>
                 <label className="block text-xs font-medium text-gray-700 mb-1">

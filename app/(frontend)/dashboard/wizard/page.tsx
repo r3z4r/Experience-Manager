@@ -109,7 +109,7 @@ export default function JourneysListPage() {
           </div>
         )}
 
-        {!loading && !error && journeys.length === 0 && (
+        {!loading && !error && journeys?.length === 0 && (
           <div className="bg-gray-50 border border-gray-200 rounded-lg p-8 text-center">
             <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mx-auto mb-4">
               <LayersIcon className="w-8 h-8 text-gray-400" />
@@ -126,7 +126,7 @@ export default function JourneysListPage() {
           </div>
         )}
 
-        {!loading && !error && journeys.length > 0 && (
+        {!loading && !error && journeys?.length > 0 && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {journeys.map((journey) => {
               const localization = getLocalizationSummary(journey)
