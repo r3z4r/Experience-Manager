@@ -15,8 +15,6 @@ import {
   ArrowUpNarrowWideIcon,
   XIcon,
   SearchIcon,
-  GridIcon,
-  ListIcon,
   MoreHorizontal,
   ClipboardCopyIcon,
 } from 'lucide-react'
@@ -46,7 +44,7 @@ import type { Page } from '@/payload-types'
 import { TEMPLATE_STATUS } from '@/app/(frontend)/_types/template'
 import { useUser } from '@/app/(frontend)/_context/UserContext'
 
-const ITEMS_PER_PAGE = 4
+const ITEMS_PER_PAGE = 5
 
 export function TemplateList() {
   const router = useRouter()

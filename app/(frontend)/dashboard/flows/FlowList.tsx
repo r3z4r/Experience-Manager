@@ -52,7 +52,7 @@ import { LoadingSpinner } from '@/app/(frontend)/_components/ui/loading-spinner'
 import { useUser } from '@/app/(frontend)/_context/UserContext'
 import FlowThumbnail from './FlowThumbnail'
 
-const ITEMS_PER_PAGE = 4
+const ITEMS_PER_PAGE = 5
 
 interface PaginatedFlowsResponse {
   docs: FlowSummary[]
@@ -93,7 +93,7 @@ export default function FlowList() {
   ] as const
   type TabKey = (typeof statusTabs)[number]['key']
   const [selectedTab, setSelectedTab] = useState<TabKey>('all')
-  
+
   // Access filter options
   const accessTabs = [
     { key: 'all', label: 'All Access' },
@@ -104,7 +104,7 @@ export default function FlowList() {
   ] as const
   type AccessTabKey = (typeof accessTabs)[number]['key']
   const [selectedAccessTab, setSelectedAccessTab] = useState<AccessTabKey>('all')
-  
+
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
   const [searchTerm, setSearchTerm] = useState('')
   const [sortBy, setSortBy] = useState<'created' | 'name'>('created')
@@ -161,7 +161,7 @@ export default function FlowList() {
           if (selectedTab !== 'all' && selectedTab !== 'recent') {
             filteredFlows = filteredFlows.filter((flow) => flow.status === selectedTab)
           }
-          
+
           // Filter by access type
           if (selectedAccessTab !== 'all') {
             if (selectedAccessTab === 'owned') {
@@ -169,7 +169,9 @@ export default function FlowList() {
               filteredFlows = filteredFlows.filter((flow) => flow.user === user?.id)
             } else {
               // Filter by visibility type (public, private, restricted)
-              filteredFlows = filteredFlows.filter((flow) => flow.access?.visibility === selectedAccessTab)
+              filteredFlows = filteredFlows.filter(
+                (flow) => flow.access?.visibility === selectedAccessTab,
+              )
             }
           }
 
@@ -239,7 +241,7 @@ export default function FlowList() {
       toast.error('Failed to create flow')
     }
   }
-  
+
   const openCreateDialog = () => {
     setNewFlowForm({
       title: '',
@@ -336,8 +338,7 @@ export default function FlowList() {
             Create Flow
           </Button>
         </div>
-        <div className="flex items-center gap-2">
-        </div>
+        <div className="flex items-center gap-2"></div>
       </header>
 
       <div className="flex flex-wrap items-center justify-between px-4 py-2 gap-4">
@@ -361,7 +362,7 @@ export default function FlowList() {
             </button>
           ))}
         </div>
-        
+
         {/* Access Tabs */}
         <div className="flex gap-1 md:gap-2 items-center flex-shrink-0 w-full md:w-auto overflow-x-auto">
           {accessTabs.map((tab) => (
@@ -484,9 +485,7 @@ export default function FlowList() {
             <p className="text-sm">Create your first flow to get started</p>
           </div>
         ) : (
-          <div
-            className={`p-4 ${viewMode === 'grid' ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4' : 'space-y-4'}`}
-          >
+          <div className={`p-4 ${viewMode === 'grid' ? 'template-grid' : 'space-y-4'}`}>
             {flows.map((flow) => (
               <div
                 key={flow.id}
@@ -545,11 +544,15 @@ export default function FlowList() {
                   <div className="flex items-center justify-between">
                     <h3 className="text-lg font-medium text-gray-900 truncate">{flow.title}</h3>
                     <div className="flex items-center">
-                      <div 
+                      <div
                         className="tooltip-trigger flex items-center justify-center w-6 h-6 rounded-full"
-                        title={flow.access?.visibility === 'public' ? 'Public - All users can access' : 
-                               flow.access?.visibility === 'restricted' ? 'Restricted - Only selected users can access' : 
-                               'Private - Only you can access'}
+                        title={
+                          flow.access?.visibility === 'public'
+                            ? 'Public - All users can access'
+                            : flow.access?.visibility === 'restricted'
+                              ? 'Restricted - Only selected users can access'
+                              : 'Private - Only you can access'
+                        }
                       >
                         {getAccessIcon(flow.access?.visibility || 'private')}
                       </div>
@@ -560,11 +563,20 @@ export default function FlowList() {
                   </p>
                   <div className="flex items-center justify-between mt-3">
                     <div className="flex items-center text-xs text-gray-500">
-                      <span className={`px-2 py-0.5 rounded-full ${flow.status === 'approved' ? 'bg-green-100 text-green-800' : 
-                                       flow.status === 'archived' ? 'bg-gray-100 text-gray-800' : 
-                                       'bg-yellow-100 text-yellow-800'}`}>
-                        {flow.status === 'approved' ? 'Published' : 
-                         flow.status === 'archived' ? 'Archived' : 'Draft'}
+                      <span
+                        className={`px-2 py-0.5 rounded-full ${
+                          flow.status === 'approved'
+                            ? 'bg-green-100 text-green-800'
+                            : flow.status === 'archived'
+                              ? 'bg-gray-100 text-gray-800'
+                              : 'bg-yellow-100 text-yellow-800'
+                        }`}
+                      >
+                        {flow.status === 'approved'
+                          ? 'Published'
+                          : flow.status === 'archived'
+                            ? 'Archived'
+                            : 'Draft'}
                       </span>
                       <span className="mx-1">•</span>
                       <span>Updated {new Date(flow.updatedAt).toLocaleDateString()}</span>
@@ -577,12 +589,12 @@ export default function FlowList() {
                         <span className="mx-1">•</span>
                         <span>
                           Accessible by{' '}
-                          {flow.access.allowedUsers && flow.access.allowedUsers.length > 0 ? 
-                            (typeof flow.access.allowedUsers[0] === 'string' ? 
-                              flow.access.allowedUsers.join(', ') : 
-                              // @ts-ignore - handle case where allowedUsers might be objects with email property
-                              flow.access.allowedUsers.map((user: any) => user.email).join(', ')
-                            ) : ''}
+                          {flow.access.allowedUsers && flow.access.allowedUsers.length > 0
+                            ? typeof flow.access.allowedUsers[0] === 'string'
+                              ? flow.access.allowedUsers.join(', ')
+                              : // @ts-ignore - handle case where allowedUsers might be objects with email property
+                                flow.access.allowedUsers.map((user: any) => user.email).join(', ')
+                            : ''}
                         </span>
                       </div>
                     )}
@@ -686,10 +698,14 @@ export default function FlowList() {
               />
             </div>
             <div>
-              <label className="text-sm font-medium text-gray-700 mb-1 inline-block">Description</label>
+              <label className="text-sm font-medium text-gray-700 mb-1 inline-block">
+                Description
+              </label>
               <textarea
                 value={newFlowForm.description}
-                onChange={(e) => setNewFlowForm((prev) => ({ ...prev, description: e.target.value }))}
+                onChange={(e) =>
+                  setNewFlowForm((prev) => ({ ...prev, description: e.target.value }))
+                }
                 placeholder="Describe the purpose of this flow"
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#2242A4] min-h-[80px]"
               />
@@ -698,10 +714,10 @@ export default function FlowList() {
               <label className="text-sm font-medium text-gray-700 mb-1 inline-block">Access</label>
               <select
                 value={newFlowForm.visibility}
-                onChange={(e) => 
-                  setNewFlowForm((prev) => ({ 
-                    ...prev, 
-                    visibility: e.target.value as 'public' | 'private' | 'restricted' 
+                onChange={(e) =>
+                  setNewFlowForm((prev) => ({
+                    ...prev,
+                    visibility: e.target.value as 'public' | 'private' | 'restricted',
                   }))
                 }
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#2242A4]"
@@ -716,7 +732,7 @@ export default function FlowList() {
             <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
               Cancel
             </Button>
-            <Button 
+            <Button
               onClick={handleCreateFlow}
               className="bg-[#2242A4] hover:bg-[#1a3380] text-white"
               disabled={!newFlowForm.title.trim()}
@@ -743,7 +759,9 @@ export default function FlowList() {
                 />
               </div>
               <div>
-                <label className="text-sm font-medium text-gray-700 mb-1 inline-block">Description</label>
+                <label className="text-sm font-medium text-gray-700 mb-1 inline-block">
+                  Description
+                </label>
                 <textarea
                   value={editForm.description}
                   onChange={(e) =>
@@ -786,13 +804,15 @@ export default function FlowList() {
                     {editForm.visibility === 'restricted' && (
                       <>
                         <Users className="w-3 h-3 text-gray-500" />
-                        <span className="text-gray-500">Only selected users can access this flow</span>
+                        <span className="text-gray-500">
+                          Only selected users can access this flow
+                        </span>
                       </>
                     )}
                   </div>
                 </div>
               </div>
-              
+
               {/* User selection for restricted access */}
               {editForm.visibility === 'restricted' && (
                 <div className="mt-4 border border-gray-200 rounded-md p-3 bg-gray-50">
@@ -800,7 +820,7 @@ export default function FlowList() {
                     <Users className="w-4 h-4" />
                     Allowed Users
                   </label>
-                  
+
                   {/* This would typically be a multi-select component with user search */}
                   {/* For now, we'll use a simplified version with the current user */}
                   <div className="space-y-2">
@@ -820,18 +840,20 @@ export default function FlowList() {
                         </div>
                       </div>
                     )}
-                    
+
                     {/* Placeholder for future user selection UI */}
-                    <button 
+                    <button
                       type="button"
                       className="w-full flex items-center justify-center gap-1 p-2 border border-dashed border-gray-300 rounded text-sm text-gray-500 hover:bg-gray-100"
-                      onClick={() => toast.info('User selection will be implemented in a future update')}
+                      onClick={() =>
+                        toast.info('User selection will be implemented in a future update')
+                      }
                     >
                       <UserPlus className="w-4 h-4" />
                       Add User
                     </button>
                   </div>
-                  
+
                   <p className="text-xs text-gray-500 mt-2">
                     Note: The flow owner always has access regardless of settings.
                   </p>

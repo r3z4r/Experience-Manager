@@ -13,25 +13,7 @@ interface Props {
   onClose: () => void
 }
 
-interface ConditionRule {
-  field: string
-  operator: string
-  value: string
-  logicalOperator?: 'AND' | 'OR'
-}
-
-const OPERATORS = [
-  { value: '==', label: 'equals' },
-  { value: '!=', label: 'not equals' },
-  { value: '>', label: 'greater than' },
-  { value: '<', label: 'less than' },
-  { value: '>=', label: 'greater than or equal' },
-  { value: '<=', label: 'less than or equal' },
-  { value: 'includes', label: 'contains' },
-  { value: 'startsWith', label: 'starts with' },
-  { value: 'endsWith', label: 'ends with' },
-]
-
+// Common fields for API response data and context variables
 const COMMON_FIELDS = [
   { value: 'user.email', label: 'User Email' },
   { value: 'user.role', label: 'User Role' },
@@ -50,80 +32,23 @@ const COMMON_FIELDS = [
   { value: 'api.response.data.result', label: 'API Response - Result' },
 ]
 
+// Operators for condition expressions
+const OPERATORS = [
+  { value: '==', label: 'equals' },
+  { value: '!=', label: 'not equals' },
+  { value: '>', label: 'greater than' },
+  { value: '<', label: 'less than' },
+  { value: '>=', label: 'greater than or equal' },
+  { value: '<=', label: 'less than or equal' },
+  { value: 'includes', label: 'contains' },
+  { value: 'startsWith', label: 'starts with' },
+  { value: 'endsWith', label: 'ends with' },
+]
+
 export default function PropertyInspector({ selectedNode, selectedEdge, onUpdateNode, onUpdateEdge, onClose }: Props) {
   const [nodeData, setNodeData] = useState(selectedNode?.data || {})
   const [edgeData, setEdgeData] = useState(selectedEdge?.data || {})
   const [isPageSelectionOpen, setIsPageSelectionOpen] = useState(false)
-  const [conditionRules, setConditionRules] = useState<ConditionRule[]>(() => {
-    if (selectedNode?.type === 'condition' && selectedNode.data.condition) {
-      // Try to parse existing condition back to rules (simplified)
-      return [{ field: '', operator: '==', value: selectedNode.data.condition }]
-    }
-    return [{ field: '', operator: '==', value: '' }]
-  })
-
-  const updateConditionRules = (rules: ConditionRule[]) => {
-    setConditionRules(rules)
-    if (selectedNode && onUpdateNode) {
-      // Convert rules back to JavaScript expression
-      const condition = buildConditionExpression(rules)
-      onUpdateNode(selectedNode.id, {
-        data: { ...selectedNode.data, condition }
-      })
-    }
-  }
-
-  const buildConditionExpression = (rules: ConditionRule[]): string => {
-    if (rules.length === 0) return 'true'
-    
-    return rules
-      .filter(rule => rule.field && rule.operator && rule.value)
-      .map((rule, index) => {
-        const { field, operator, value } = rule
-        let expression = ''
-        
-        if (index > 0 && rule.logicalOperator) {
-          expression += ` ${rule.logicalOperator} `
-        }
-        
-        // Handle different operators
-        switch (operator) {
-          case 'includes':
-            expression += `(${field} && ${field}.toString().includes('${value}'))`
-            break
-          case 'startsWith':
-            expression += `(${field} && ${field}.toString().startsWith('${value}'))`
-            break
-          case 'endsWith':
-            expression += `(${field} && ${field}.toString().endsWith('${value}'))`
-            break
-          default:
-            // For numeric comparisons, try to parse as number
-            const numValue = isNaN(Number(value)) ? `'${value}'` : value
-            expression += `(${field} ${operator} ${numValue})`
-        }
-        
-        return expression
-      })
-      .join('')
-  }
-
-  const addConditionRule = () => {
-    const newRules = [...conditionRules, { field: '', operator: '==', value: '', logicalOperator: 'AND' as const }]
-    updateConditionRules(newRules)
-  }
-
-  const removeConditionRule = (index: number) => {
-    const newRules = conditionRules.filter((_, i) => i !== index)
-    updateConditionRules(newRules)
-  }
-
-  const updateConditionRule = (index: number, updates: Partial<ConditionRule>) => {
-    const newRules = conditionRules.map((rule, i) => 
-      i === index ? { ...rule, ...updates } : rule
-    )
-    updateConditionRules(newRules)
-  }
 
   const handleNodeUpdate = (key: string, value: any) => {
     const updatedData = { ...nodeData, [key]: value }
@@ -338,109 +263,101 @@ export default function PropertyInspector({ selectedNode, selectedEdge, onUpdate
                 )}
               </div>
 
-              {/* Condition Section */}
+              {/* Dynamic Branch Section */}
               <div className="border-t pt-4">
                 <h4 className="text-sm font-medium text-gray-700 mb-2 flex items-center gap-1">
                   <GitBranch className="w-4 h-4" />
-                  Condition Rules
+                  Branch Configuration
                 </h4>
                 
-                {/* Condition Rules */}
-                {conditionRules.map((rule: ConditionRule, index: number) => (
-                  <div key={index} className="mb-4 p-3 border border-gray-200 rounded-md bg-gray-50">
-                    {index > 0 && (
-                      <div className="mb-2">
-                        <select
-                          value={rule.logicalOperator || 'AND'}
-                          onChange={(e) => updateConditionRule(index, { logicalOperator: e.target.value as 'AND' | 'OR' })}
-                          className="w-full px-3 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        >
-                          <option value="AND">AND</option>
-                          <option value="OR">OR</option>
-                        </select>
-                      </div>
-                    )}
-                    
-                    <div className="flex flex-col gap-2">
-                      <select
-                        value={rule.field}
-                        onChange={(e) => updateConditionRule(index, { field: e.target.value })}
-                        className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                      >
-                        <option value="">Select field...</option>
-                        {COMMON_FIELDS.map(field => (
-                          <option key={field.value} value={field.value}>{field.label}</option>
-                        ))}
-                      </select>
-                      
-                      <div className="flex gap-2">
-                        <select
-                          value={rule.operator}
-                          onChange={(e) => updateConditionRule(index, { operator: e.target.value })}
-                          className="w-1/3 px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                        >
-                          {OPERATORS.map(op => (
-                            <option key={op.value} value={op.value}>{op.label}</option>
-                          ))}
-                        </select>
-                        
-                        <input
-                          type="text"
-                          value={rule.value}
-                          onChange={(e) => updateConditionRule(index, { value: e.target.value })}
-                          className="flex-1 px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          placeholder="Value..."
-                        />
-                        
+                {/* Dynamic Branch Configuration */}
+                <div className="mt-4">
+                  <div className="flex justify-between items-center mb-2">
+                    <h4 className="text-sm font-medium text-gray-700">Branch Configuration</h4>
+                    <button
+                      onClick={() => {
+                        const branches = [...(nodeData.branches || [])]
+                        branches.push({ label: `Branch ${branches.length + 1}`, condition: '' })
+                        handleNodeUpdate('branches', branches)
+                      }}
+                      className="text-xs text-blue-600 hover:text-blue-800 flex items-center gap-1"
+                      type="button"
+                    >
+                      <Plus className="w-3 h-3" /> Add Branch
+                    </button>
+                  </div>
+                  
+                  {/* Default branch is always present */}
+                  <div className="mb-3 p-3 border border-gray-200 rounded-md bg-gray-50">
+                    <div className="flex justify-between items-center mb-1">
+                      <label className="block text-xs font-medium text-gray-700">
+                        Default Branch (when no conditions match)
+                      </label>
+                    </div>
+                    <input
+                      type="text"
+                      value={nodeData.defaultBranchLabel || 'Default'}
+                      onChange={(e) => handleNodeUpdate('defaultBranchLabel', e.target.value)}
+                      className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      placeholder="Default branch label"
+                    />
+                  </div>
+                  
+                  {/* Dynamic branches */}
+                  {(nodeData.branches || []).map((branch: { label: string; condition: string }, index: number) => (
+                    <div key={index} className="mb-3 p-3 border border-gray-200 rounded-md bg-gray-50">
+                      <div className="flex justify-between items-center mb-1">
+                        <label className="block text-xs font-medium text-gray-700">
+                          Branch {index + 1}
+                        </label>
                         <button
-                          onClick={() => removeConditionRule(index)}
-                          className="p-2 text-gray-400 hover:text-red-500"
-                          disabled={conditionRules.length === 1}
+                          onClick={() => {
+                            const branches = [...(nodeData.branches || [])]
+                            branches.splice(index, 1)
+                            handleNodeUpdate('branches', branches)
+                          }}
+                          className="text-gray-400 hover:text-red-500"
                           type="button"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
                       </div>
+                      
+                      <div className="mb-2">
+                        <input
+                          type="text"
+                          value={branch.label}
+                          onChange={(e) => {
+                            const branches = [...(nodeData.branches || [])]
+                            branches[index].label = e.target.value
+                            handleNodeUpdate('branches', branches)
+                          }}
+                          className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          placeholder="Branch label"
+                        />
+                      </div>
+                      
+                      <div>
+                        <label className="block text-xs font-medium text-gray-700 mb-1">
+                          Condition
+                        </label>
+                        <textarea
+                          value={branch.condition}
+                          onChange={(e) => {
+                            const branches = [...(nodeData.branches || [])]
+                            branches[index].condition = e.target.value
+                            handleNodeUpdate('branches', branches)
+                          }}
+                          className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                          placeholder="api.response.status === 'success'"
+                          rows={2}
+                        />
+                        <p className="text-xs text-gray-500 mt-1">
+                          Use context variables directly, e.g., <code>api.response.status === 'success'</code>
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                ))}
-                
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={addConditionRule}
-                  className="w-full flex items-center justify-center gap-1"
-                >
-                  <Plus className="w-4 h-4" /> Add Condition Rule
-                </Button>
-                
-                {/* Path Configuration */}
-                <div className="mt-4">
-                  <h4 className="text-sm font-medium text-gray-700 mb-2">Path Configuration</h4>
-                  
-                  <div className="mb-3">
-                    <label className="block text-xs font-medium text-gray-700 mb-1">
-                      Success Path Label
-                    </label>
-                    <input
-                      type="text"
-                      value={nodeData.successLabel || 'Success'}
-                      onChange={(e) => handleNodeUpdate('successLabel', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                  </div>
-                  
-                  <div className="mb-3">
-                    <label className="block text-xs font-medium text-gray-700 mb-1">
-                      Failure Path Label
-                    </label>
-                    <input
-                      type="text"
-                      value={nodeData.failureLabel || 'Failure'}
-                      onChange={(e) => handleNodeUpdate('failureLabel', e.target.value)}
-                      className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                  </div>
+                  ))}
                 </div>
               </div>
             </>
@@ -561,92 +478,76 @@ export default function PropertyInspector({ selectedNode, selectedEdge, onUpdate
             <div>
               <div className="flex items-center justify-between mb-2">
                 <label className="block text-xs font-medium text-gray-700 mb-1">
-                  Condition Rules
+                  Dynamic Branches
                 </label>
                 <button
-                  onClick={addConditionRule}
+                  onClick={() => {
+                    const branches = [...(nodeData.branches || [])]
+                    branches.push({ label: `Branch ${branches.length + 1}`, condition: '' })
+                    handleNodeUpdate('branches', branches)
+                  }}
                   className="flex items-center gap-1 px-2 py-1 text-xs bg-blue-500 text-white rounded hover:bg-blue-600"
                 >
                   <Plus className="w-3 h-3" />
-                  Add Rule
+                  Add Branch
                 </button>
               </div>
               
               <div className="space-y-3">
-                {conditionRules.map((rule, index) => (
-                  <div key={index} className="border border-gray-200 rounded-md p-3 space-y-2">
-                    {index > 0 && (
-                      <div>
-                        <select
-                          value={rule.logicalOperator || 'AND'}
-                          onChange={(e) => updateConditionRule(index, { 
-                            logicalOperator: e.target.value as 'AND' | 'OR' 
-                          })}
-                          className="w-20 px-2 py-1 border border-gray-300 rounded text-xs"
-                        >
-                          <option value="AND">AND</option>
-                          <option value="OR">OR</option>
-                        </select>
-                      </div>
-                    )}
+                {(nodeData.branches || []).map((branch: { label: string; condition: string }, index: number) => (
+                  <div key={index} className="mb-3 p-3 border border-gray-200 rounded-md bg-gray-50">
+                    <div className="flex justify-between items-center mb-1">
+                      <label className="block text-xs font-medium text-gray-700">
+                        Branch {index + 1}
+                      </label>
+                      <button
+                        onClick={() => {
+                          const branches = [...(nodeData.branches || [])]
+                          branches.splice(index, 1)
+                          handleNodeUpdate('branches', branches)
+                        }}
+                        className="text-gray-400 hover:text-red-500"
+                        type="button"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
                     
-                    <div className="grid grid-cols-3 gap-2">
-                      <div>
-                        <select
-                          value={rule.field}
-                          onChange={(e) => updateConditionRule(index, { field: e.target.value })}
-                          className="w-full px-2 py-1 border border-gray-300 rounded text-xs"
-                        >
-                          <option value="">Select field</option>
-                          {COMMON_FIELDS.map(field => (
-                            <option key={field.value} value={field.value}>
-                              {field.label}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                      
-                      <div>
-                        <select
-                          value={rule.operator}
-                          onChange={(e) => updateConditionRule(index, { operator: e.target.value })}
-                          className="w-full px-2 py-1 border border-gray-300 rounded text-xs"
-                        >
-                          {OPERATORS.map(op => (
-                            <option key={op.value} value={op.value}>
-                              {op.label}
-                            </option>
-                          ))}
-                        </select>
-                      </div>
-                      
-                      <div className="flex gap-1">
-                        <input
-                          type="text"
-                          value={rule.value}
-                          onChange={(e) => updateConditionRule(index, { value: e.target.value })}
-                          className="flex-1 px-2 py-1 border border-gray-300 rounded text-xs"
-                          placeholder="Value"
-                        />
-                        {conditionRules.length > 1 && (
-                          <button
-                            onClick={() => removeConditionRule(index)}
-                            className="px-1 py-1 text-red-500 hover:bg-red-50 rounded"
-                          >
-                            <Trash2 className="w-3 h-3" />
-                          </button>
-                        )}
-                      </div>
+                    <div className="mb-2">
+                      <input
+                        type="text"
+                        value={branch.label}
+                        onChange={(e) => {
+                          const branches = [...(nodeData.branches || [])]
+                          branches[index].label = e.target.value
+                          handleNodeUpdate('branches', branches)
+                        }}
+                        className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="Branch label"
+                      />
+                    </div>
+                    
+                    <div>
+                      <label className="block text-xs font-medium text-gray-700 mb-1">
+                        Condition
+                      </label>
+                      <textarea
+                        value={branch.condition}
+                        onChange={(e) => {
+                          const branches = [...(nodeData.branches || [])]
+                          branches[index].condition = e.target.value
+                          handleNodeUpdate('branches', branches)
+                        }}
+                        className="w-full px-3 py-2 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        placeholder="api.response.status === 'success'"
+                        rows={2}
+                      />
+                      <p className="text-xs text-gray-500 mt-1">
+                        Use context variables directly, e.g., <code>api.response.status === 'success'</code>
+                      </p>
                     </div>
                   </div>
                 ))}
-              </div>
-              
-              <div className="mt-2">
-                <label className="block text-xs text-gray-500 mb-1">Generated Expression:</label>
-                <code className="block w-full px-2 py-1 bg-gray-50 border border-gray-200 rounded text-xs font-mono">
-                  {buildConditionExpression(conditionRules)}
-                </code>
               </div>
             </div>
           )}

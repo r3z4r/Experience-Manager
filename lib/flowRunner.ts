@@ -44,6 +44,9 @@ export interface FlowNode {
     successLabel?: string
     failureLabel?: string
     apiResponseMappings?: Array<{ contextKey: string; responsePath: string }>
+    // For dynamic branches
+    branches?: Array<{ label: string; condition: string }>
+    defaultBranchLabel?: string
   }
   position: { x: number; y: number }
 }
@@ -279,28 +282,29 @@ export class FlowRunner {
           }
         }
         
-        // If API call failed and we have a failure path, take that path
+        // If API call failed, handle error case
         if (!apiResult.success) {
-          const failureEdge = this.getOutgoingEdges(node.id).find(edge => 
-            edge.data?.label === node.data.failureLabel || edge.data?.condition === 'false'
-          )
+          // Try to find an edge that matches an error condition
+          const edges = this.getOutgoingEdges(node.id)
+          const errorEdge = edges.find(edge => edge.data?.label?.toLowerCase().includes('error') || 
+                                             edge.data?.label?.toLowerCase().includes('fail'))
           
-          if (failureEdge) {
-            this.currentNodeId = failureEdge.target
+          if (errorEdge) {
+            this.currentNodeId = errorEdge.target
             return this.executeCurrentNode()
           }
           
-          // If no failure edge found, return the error
-          return { success: false, error: 'API call failed and no failure path defined' }
+          // If no error edge found, return the error
+          return { success: false, error: 'API call failed and no error path defined' }
         }
       } catch (error) {
         // Handle API call error
-        const failureEdge = this.getOutgoingEdges(node.id).find(edge => 
-          edge.data?.label === node.data.failureLabel || edge.data?.condition === 'false'
-        )
+        const edges = this.getOutgoingEdges(node.id)
+        const errorEdge = edges.find(edge => edge.data?.label?.toLowerCase().includes('error') || 
+                                           edge.data?.label?.toLowerCase().includes('fail'))
         
-        if (failureEdge) {
-          this.currentNodeId = failureEdge.target
+        if (errorEdge) {
+          this.currentNodeId = errorEdge.target
           return this.executeCurrentNode()
         }
         
@@ -308,34 +312,43 @@ export class FlowRunner {
       }
     }
     
-    // Evaluate conditions and navigate accordingly
-    const conditionResult = node.data.conditions ? this.evaluateCondition(node.data.conditions) : true
-    
-    // Find the appropriate edge based on condition result
+    // Get all outgoing edges
     const edges = this.getOutgoingEdges(node.id)
-    let targetEdge = edges.find(edge => {
-      // For API+Condition nodes, check for success/failure labels
-      if (node.data.hasApiCall) {
-        if (conditionResult && edge.data?.label === node.data.successLabel) return true
-        if (!conditionResult && edge.data?.label === node.data.failureLabel) return true
+    
+    // Check if we're using the new dynamic branches system
+    if (node.data.branches && Array.isArray(node.data.branches) && node.data.branches.length > 0) {
+      // Evaluate each branch condition in order
+      for (const branch of node.data.branches) {
+        if (branch.condition && this.evaluateCondition(branch.condition)) {
+          // Find the edge that matches this branch label
+          const matchingEdge = edges.find(edge => edge.data?.label === branch.label)
+          if (matchingEdge) {
+            this.currentNodeId = matchingEdge.target
+            return this.executeCurrentNode()
+          }
+        }
       }
       
-      // Standard condition evaluation
-      if (!edge.data?.condition) return conditionResult === true // Default path
-      return this.evaluateCondition(edge.data.condition) === conditionResult
-    })
-
-    // Fallback to first edge if no condition matches
-    if (!targetEdge && edges.length > 0) {
-      targetEdge = edges[0]
-    }
-
-    if (!targetEdge) {
+      // If no branch condition matched, use the default branch
+      const defaultEdge = edges.find(edge => edge.data?.label === (node.data.defaultBranchLabel || 'Default'))
+      if (defaultEdge) {
+        this.currentNodeId = defaultEdge.target
+        return this.executeCurrentNode()
+      }
+    } else {
+      // If no dynamic branches defined, use the first edge as default
+      if (edges.length > 0) {
+        this.currentNodeId = edges[0].target
+        return this.executeCurrentNode()
+      }
+      
       return { success: false, error: 'No valid path from condition node' }
     }
 
-    this.currentNodeId = targetEdge.target
-    return this.executeCurrentNode()
+    // This section is now handled within the if/else blocks above
+    
+    // Fallback return in case all logic paths above fail
+    return { success: false, error: 'No valid path found from condition node' }
   }
 
   private executeEndNode(node: FlowNode): FlowExecutionResult {

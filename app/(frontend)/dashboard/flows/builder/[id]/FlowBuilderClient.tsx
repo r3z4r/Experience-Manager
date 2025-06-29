@@ -315,6 +315,10 @@ export default function FlowBuilderClient({ initialGraph, flowTitle, flowId, flo
   }, [setEdges, selectedEdge])
 
   const handleConnect = useCallback((connection: Connection) => {
+    // Find source node to check if it's a condition node
+    const sourceNode = nodes.find(node => node.id === connection.source)
+    
+    // Create base edge
     const newEdge = {
       id: `edge-${Date.now()}`,
       ...connection,
@@ -322,8 +326,32 @@ export default function FlowBuilderClient({ initialGraph, flowTitle, flowId, flo
       animated: true,
       data: { label: '' },
     }
+    
+    // If source is a condition node, check if we need to set a default label
+    if (sourceNode && sourceNode.type === 'condition') {
+      // For condition nodes with dynamic branches
+      if (sourceNode.data.branches && sourceNode.data.branches.length > 0) {
+        // Count existing edges from this source
+        const existingEdges = edges.filter(edge => edge.source === connection.source)
+        const edgeCount = existingEdges.length
+        
+        // If this is the first edge, use the first branch label or default
+        if (edgeCount === 0 && sourceNode.data.branches[0]) {
+          newEdge.data.label = sourceNode.data.branches[0].label
+        } 
+        // If we have more edges than branches, use default branch label
+        else if (edgeCount >= sourceNode.data.branches.length) {
+          newEdge.data.label = sourceNode.data.defaultBranchLabel || 'Default'
+        }
+        // Otherwise use the next branch label
+        else if (sourceNode.data.branches[edgeCount]) {
+          newEdge.data.label = sourceNode.data.branches[edgeCount].label
+        }
+      }
+    }
+    
     setEdges((eds) => addEdge(newEdge, eds))
-  }, [setEdges])
+  }, [nodes, edges, setEdges])
 
   const handleArrangeFlow = useCallback(() => {
     setNodes((nds: any[]) => arrangeNodesLinear(nds))
